@@ -479,6 +479,181 @@ st.markdown(
       .stTabs [data-baseweb="tab"] {padding:9px 10px!important;font-size:.9rem!important;}
     }
 
+    
+    /* CARDIOPREDICT HEART-HEALTH THEME — warm, vibrant and accessible */
+    :root { color-scheme: light; }
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"],
+    [data-testid="stMainBlockContainer"], .stApp {
+      background:#FFF8F6 !important;
+      color:#432D34 !important;
+    }
+    [data-testid="stHeader"] {background:rgba(255,248,246,.96)!important;}
+    .block-container {max-width:1440px!important;padding-top:1.15rem!important;padding-bottom:3rem!important;}
+
+    /* Dark text on all ordinary light surfaces */
+    .stApp p,.stApp li,.stApp label,.stApp small,
+    [data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li,
+    [data-testid="stCaptionContainer"],[data-testid="stWidgetLabel"] {
+      color:#49353B!important;
+    }
+    h1,h2,h3,h4,h5,h6,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4 {
+      color:#542532!important;text-shadow:none!important;
+      font-family:'DM Sans',sans-serif!important;letter-spacing:-.025em!important;
+    }
+    h1 {font-size:2.35rem!important;} h2 {font-size:1.95rem!important;}
+    h3 {font-size:1.5rem!important;} h4 {font-size:1.28rem!important;}
+    .stApp,[data-testid="stMarkdownContainer"] {font-size:18px!important;}
+    .stApp p,.stApp li {font-size:1.08rem!important;line-height:1.65!important;}
+    .stApp label,[data-testid="stWidgetLabel"] {font-size:1.05rem!important;font-weight:700!important;}
+    [data-testid="stCaptionContainer"],.stCaption,.small-muted,.section-sub {
+      font-size:1rem!important;line-height:1.55!important;
+    }
+
+    /* Light navigation panel */
+    section[data-testid="stSidebar"] {
+      background:#F9EAE9!important;border-right:1px solid #E9C9CB!important;
+    }
+    section[data-testid="stSidebar"] * {color:#542B35!important;}
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {color:#684650!important;}
+    .brand span {color:#B83250!important;}
+    .side-chip {background:#F7DDE0!important;color:#8F2940!important;border:1px solid #E9B9C1!important;font-size:.82rem!important;}
+
+    /* Hero is an intentional dark surface: every word within is white */
+    .hero {
+      background:linear-gradient(112deg,#6D1F36 0%,#A52D49 50%,#D65C68 100%)!important;
+      border:1px solid rgba(255,255,255,.35)!important;
+      box-shadow:0 20px 48px rgba(111,31,54,.2),inset 0 1px 0 rgba(255,255,255,.18)!important;
+      border-radius:28px!important;
+    }
+    .hero * {color:#FFFFFF!important;}
+    .hero h1,.hero h1 span {
+      color:#FFFFFF!important;background:none!important;
+      -webkit-text-fill-color:#FFFFFF!important;
+    }
+    .hero p {color:#FFF6F4!important;font-size:1.1rem!important;}
+    .hero-stat {background:rgba(60,8,26,.26)!important;border-color:rgba(255,255,255,.28)!important;}
+    .hero-stat b {color:#DDF0D7!important;}
+    .pill {background:rgba(255,255,255,.15)!important;border:1px solid rgba(255,255,255,.35)!important;color:#FFFFFF!important;}
+    .live-dot {background:#C7E7A2!important;box-shadow:0 0 10px rgba(199,231,162,.45)!important;}
+    .ecg path {stroke:#FFE7E4!important;filter:drop-shadow(0 0 5px rgba(255,231,228,.4))!important;}
+
+    /* White cards with burgundy text and gentle shadows */
+    .glass-card {
+      background:linear-gradient(145deg,#FFFFFF,#FFF2F0)!important;
+      border:1px solid #EED6D4!important;
+      box-shadow:0 9px 24px rgba(111,48,60,.08)!important;
+    }
+    .glass-card * {color:#49353B!important;}
+    .glass-card .stat-value {color:#7D263E!important;}
+    .glass-card:hover {border-color:#DCA8AC!important;box-shadow:0 13px 30px rgba(111,48,60,.13)!important;}
+    .stat-label {color:#704550!important;font-size:.9rem!important;}
+    .stat-value {color:#7D263E!important;font-size:1.9rem!important;}
+    .stat-note {color:#557B5C!important;font-size:.95rem!important;}
+    .section-kicker {color:#A8324C!important;font-size:.85rem!important;}
+    .section-sub,.small-muted,.footer {color:#654A50!important;}
+    .glow-line {background:linear-gradient(90deg,#B83250,#E77B74,#82A878,transparent)!important;}
+
+    /* Forms and controls: white fields + dark readable values */
+    div[data-testid="stForm"],[data-testid="stExpander"] {
+      background:#FFFFFF!important;border:1px solid #E8D7D5!important;
+      border-radius:18px!important;box-shadow:0 7px 18px rgba(111,48,60,.055)!important;
+    }
+    div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,
+    [data-testid="stNumberInput"] input,[data-testid="stTextInput"] input,
+    [data-testid="stTextArea"] textarea {
+      background:#FFFFFF!important;color:#432D34!important;
+      border:1px solid #CDBABD!important;border-radius:10px!important;
+    }
+    input,textarea,[data-baseweb="input"] input,
+    [data-baseweb="select"] *,[data-testid="stWidgetLabel"] {
+      color:#432D34!important;font-size:1.06rem!important;
+    }
+    input::placeholder,textarea::placeholder,::placeholder {color:#806C70!important;opacity:1!important;}
+    [data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"] {
+      background:#FFFFFF!important;border:1px solid #D8C7C8!important;
+    }
+    [role="option"],[role="option"] * {background:#FFFFFF!important;color:#432D34!important;}
+    [data-testid="stNumberInput"] button {
+      background:#F8E5E5!important;color:#812B43!important;border:1px solid #E2C5C6!important;
+    }
+
+    /* Primary controls: solid berry-red with white text */
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,
+    [data-testid="stLinkButton"] a {
+      background:#A92F4A!important;color:#FFFFFF!important;
+      border:1px solid #92253E!important;border-radius:12px!important;
+      min-height:3.15rem!important;font-size:1.04rem!important;font-weight:800!important;
+      box-shadow:0 6px 16px rgba(143,39,62,.16)!important;
+    }
+    .stButton>button *,.stFormSubmitButton>button *,
+    .stDownloadButton>button *,[data-testid="stLinkButton"] a * {color:#FFFFFF!important;}
+    .stButton>button:hover,.stFormSubmitButton>button:hover,
+    .stDownloadButton>button:hover {background:#87233B!important;border-color:#87233B!important;}
+
+    /* Tabs and interactive state */
+    .stTabs [data-baseweb="tab-list"] {
+      background:#F6E7E5!important;border:1px solid #E8D0D0!important;border-radius:15px!important;
+    }
+    .stTabs [data-baseweb="tab"],.stTabs [data-baseweb="tab"] * {
+      color:#653C46!important;font-size:.98rem!important;font-weight:750!important;
+    }
+    .stTabs [aria-selected="true"],.stTabs [aria-selected="true"] * {
+      background:#FFFFFF!important;color:#9D2B46!important;
+    }
+
+    /* Metric tiles, tables, expanders and Streamlit alerts */
+    [data-testid="stMetric"] {background:#FFFFFF!important;border:1px solid #E8D7D5!important;border-radius:13px!important;}
+    [data-testid="stMetricLabel"],[data-testid="stMetricValue"],[data-testid="stMetricDelta"],
+    [data-testid="stMetricLabel"] *,[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"] * {
+      color:#542532!important;
+    }
+    [data-testid="stDataFrame"] {background:#FFFFFF!important;border:1px solid #E8D7D5!important;border-radius:12px!important;}
+    [data-testid="stDataFrame"] * {color:#432D34!important;}
+    [data-testid="stExpander"] summary,[data-testid="stExpander"] summary * {
+      color:#542532!important;background:#FFFFFF!important;
+    }
+    [data-testid="stAlert"] {background:#FBEFED!important;border:1px solid #EBC9C8!important;}
+    [data-testid="stAlert"] * {color:#542532!important;}
+
+    /* Result, help and warning panels: pale backgrounds with dark text */
+    .info-box,.info-box * {color:#285A4A!important;background:#EAF4E9!important;border-color:#BBD7B5!important;}
+    .notice,.notice * {color:#704921!important;background:#FFF3DF!important;border-color:#E9D1A5!important;}
+    .result-card {
+      background:linear-gradient(120deg,#EAF4E9,#F5F8EE)!important;
+      border:1px solid #BDD5B2!important;box-shadow:0 8px 22px rgba(68,111,70,.08)!important;
+    }
+    .result-card * {color:#28543D!important;}
+    .result-card.alert {
+      background:linear-gradient(120deg,#FBE8E7,#FFF1EA)!important;
+      border-color:#E4B5B2!important;
+    }
+    .result-card.alert * {color:#74283D!important;}
+    .result-title {font-size:1.55rem!important;font-weight:800!important;}
+    .result-tag {font-size:.9rem!important;font-weight:900!important;}
+
+    /* Emergency support gets a deep rose surface with white text */
+    .emergency {
+      background:linear-gradient(115deg,#76243B,#A8324C,#C75D66)!important;
+      border:1px solid #D89AA0!important;
+    }
+    .emergency * {color:#FFFFFF!important;}
+    .phone,.phone * {background:#FFFFFF!important;color:#84283F!important;font-weight:900!important;}
+
+    .footer {font-size:.9rem!important;}
+    @media(max-width:760px) {
+      .block-container {padding-left:1rem!important;padding-right:1rem!important;padding-top:.8rem!important;}
+      .hero {padding:1.45rem!important;border-radius:20px!important;}
+      .hero h1 {font-size:2.1rem!important;}
+      h1 {font-size:2.05rem!important;} h2 {font-size:1.72rem!important;} h3 {font-size:1.35rem!important;}
+      .stApp p,.stApp li {font-size:1.04rem!important;line-height:1.6!important;}
+      .stat-value {font-size:1.5rem!important;}
+      .stTabs [data-baseweb="tab"] {padding:9px 10px!important;font-size:.9rem!important;}
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -534,7 +709,7 @@ def make_3d_performance_chart(frame):
                  edgecolor="#FFFFFF", linewidth=.35)
         for x, y, z in zip(xs, ys, vals):
             ax.text(x + dx/2, y + dy/2, z + .025, f"{z:.0%}",
-                    color="white", ha="center", fontsize=8, fontweight="bold")
+                    color="#542532", ha="center", fontsize=8, fontweight="bold")
     ax.set_xticks(np.arange(len(models)) + dx/2)
     ax.set_xticklabels(models, color="#294B58", fontsize=9)
     ax.set_yticks(np.arange(len(metrics)) + dy/2)
@@ -566,8 +741,8 @@ def make_3d_confusion(cm_array, model_name):
     ax.set_xticks([.27, 1.27])
     ax.set_xticklabels(["Actual 0", "Actual 1"], color="#294B56")
     ax.set_yticks([.27, 1.27])
-    ax.set_yticklabels(["Predicted 0", "Predicted 1"], color="#EAF3FF")
-    ax.set_zlabel("Samples", color="#D5E2FF")
+    ax.set_yticklabels(["Predicted 0", "Predicted 1"], color="#653C46")
+    ax.set_zlabel("Samples", color="#76575E")
     ax.set_title(f"{model_name} · CONFUSION MATRIX", color="white", pad=14, fontsize=12, fontweight="bold")
     ax.view_init(elev=25, azim=-52)
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
