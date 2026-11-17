@@ -1,17 +1,25 @@
 import json
 import os
+from urllib.parse import quote
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import streamlit as st
+from matplotlib import cm
+from matplotlib.colors import Normalize
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers 3D projection
 
-# ---------------------------------------------------------
-# CardioPredict - academic cardiovascular ML demonstration
-# ---------------------------------------------------------
+# ============================================================
+# CardioPredict | Educational cardiovascular ML demonstration
+# This file changes only the user interface. The trained model,
+# dataset, 13 features, preprocessing and training pipeline stay
+# unchanged.
+# ============================================================
+
 st.set_page_config(
-    page_title="CardioPredict | Cardiovascular ML",
+    page_title="CardioPredict | Heart Health Learning Studio",
     page_icon="❤️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -20,302 +28,373 @@ st.set_page_config(
 MODEL_PATH = "models/cvd_model.joblib"
 METRICS_PATH = "models/metrics.json"
 
-# ---------- Visual theme ----------
+# ----------------------- Styling ----------------------------
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
-
-    :root {
-      --navy: #10243A;
-      --navy2: #173B55;
-      --teal: #0D9488;
-      --teal-light: #CCFBF1;
-      --ink: #15283B;
-      --muted: #64748B;
-      --surface: #FFFFFF;
-      --line: #E2E8F0;
-    }
-    html, body, [class*="css"] {
-      font-family: 'DM Sans', sans-serif;
-    }
+    :root { --navy:#10243A; --teal:#0D9488; --ink:#172B3E; --muted:#64748B; }
+    html, body, [class*="css"] { font-family:'DM Sans',sans-serif; }
     .stApp {
-      background:
-        radial-gradient(circle at 88% 2%, rgba(13,148,136,.09), transparent 25rem),
-        linear-gradient(180deg, #F4F8FB 0%, #F7FAFC 55%, #EEF4F8 100%);
-      color: var(--ink);
+      background:radial-gradient(circle at 88% 2%,rgba(13,148,136,.10),transparent 26rem),
+      linear-gradient(180deg,#F4F8FB 0%,#F8FAFC 55%,#EEF4F8 100%);
+      color:var(--ink);
     }
-    [data-testid="stHeader"] { background: rgba(247,250,252,.82); }
-    .block-container { max-width: 1240px; padding-top: 1.7rem; padding-bottom: 3rem; }
+    [data-testid="stHeader"] { background:rgba(248,250,252,.82); }
+    .block-container { max-width:1280px; padding-top:1.35rem; padding-bottom:3rem; }
     section[data-testid="stSidebar"] {
-      background: linear-gradient(180deg, #10243A 0%, #173B55 100%);
-      border-right: 1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg,#10243A 0%,#173B55 100%);
+      border-right:1px solid rgba(255,255,255,.08);
     }
-    section[data-testid="stSidebar"] * { color: #E8F1F7 !important; }
-    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: #C7D7E4 !important; }
-    section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,.18); }
-    h1, h2, h3 { font-family: 'Manrope', sans-serif !important; color: #10243A !important; letter-spacing: -.025em; }
-    p, label, .stCaption { color: #42566B; }
+    section[data-testid="stSidebar"] * { color:#E8F1F7 !important; }
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color:#C7D7E4 !important; }
+    section[data-testid="stSidebar"] hr { border-color:rgba(255,255,255,.18); }
+    h1,h2,h3 { font-family:'Manrope',sans-serif !important; color:#10243A !important; letter-spacing:-.025em; }
+    p,label,.stCaption { color:#42566B; }
     .hero {
-      position: relative; overflow: hidden;
-      padding: 2rem 2.15rem; border-radius: 24px; margin-bottom: 1.3rem;
-      background: linear-gradient(115deg, #10243A 0%, #17445D 58%, #087F78 100%);
-      box-shadow: 0 18px 42px rgba(16,36,58,.16);
-      color: white;
+      position:relative; overflow:hidden; isolation:isolate;
+      padding:2rem 2.15rem; border-radius:24px; margin-bottom:1.2rem;
+      background:linear-gradient(115deg,#10243A 0%,#17445D 58%,#087F78 100%);
+      box-shadow:0 18px 42px rgba(16,36,58,.16); color:white;
+      animation:rise .7s ease both;
     }
     .hero:after {
-      content: "♥"; position: absolute; right: 4%; top: -48px;
-      font-size: 220px; line-height: 1; color: rgba(255,255,255,.055);
-      font-family: Arial, sans-serif; transform: rotate(-12deg);
+      content:"♥"; position:absolute; right:4%; top:-55px; z-index:-1;
+      font-size:230px; line-height:1; color:rgba(255,255,255,.055);
+      animation:pulse 2.1s ease-in-out infinite;
     }
-    .hero-kicker {
-      display: inline-block; padding: 6px 11px; border-radius: 999px;
-      background: rgba(204,251,241,.14); border: 1px solid rgba(204,251,241,.25);
-      color: #BDF7EA; font-size: .76rem; font-weight: 700; letter-spacing: .09em;
-      text-transform: uppercase; margin-bottom: .8rem;
-    }
-    .hero h1 { color: white !important; font-size: clamp(1.8rem, 4vw, 2.65rem); margin: 0 0 .5rem 0; }
-    .hero p { color: #D8E8EF !important; font-size: 1rem; max-width: 760px; margin: 0; }
-    .section-eyebrow {
-      color: #0D9488; font-weight: 800; letter-spacing: .11em;
-      text-transform: uppercase; font-size: .72rem; margin-bottom: .25rem;
-    }
-    .section-subtitle { color: #64748B; margin-top: -.45rem; margin-bottom: 1.1rem; }
-    .kpi {
-      background: rgba(255,255,255,.94); border: 1px solid #E2E8F0;
-      border-radius: 17px; padding: 17px 18px; min-height: 112px;
-      box-shadow: 0 5px 18px rgba(16,36,58,.045);
-    }
-    .kpi-label { color: #64748B; font-size: .78rem; font-weight: 600; margin-bottom: 9px; }
-    .kpi-value { color: #10243A; font-family: 'Manrope',sans-serif; font-size: 1.55rem; font-weight: 800; line-height: 1.15; }
-    .kpi-note { color: #0D9488; font-size: .72rem; margin-top: 6px; font-weight: 600; }
-    div[data-testid="stForm"], div[data-testid="stExpander"], div[data-testid="stDataFrame"] {
-      border: 1px solid #E2E8F0; border-radius: 16px;
-    }
-    div[data-testid="stForm"] { background: rgba(255,255,255,.88); padding: 1rem 1.1rem; }
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
-      background: #FFFFFF; border-color: #CBD5E1; border-radius: 10px;
-    }
-    .stButton > button, .stFormSubmitButton > button {
-      border-radius: 11px; border: 0; font-weight: 700; min-height: 2.8rem;
-      background: linear-gradient(100deg, #0D9488, #0F766E); color: #FFFFFF !important;
-      box-shadow: 0 7px 16px rgba(13,148,136,.18);
-    }
-    .stButton > button:hover, .stFormSubmitButton > button:hover {
-      background: linear-gradient(100deg, #0F766E, #115E59); color: white;
-      border: 0; transform: translateY(-1px);
-    }
-    .result-card {
-      border-radius: 17px; padding: 1.1rem 1.25rem; margin-top: .4rem;
-      border: 1px solid #99F6E4; background: linear-gradient(120deg,#ECFDF5,#F0FDFA);
-      color: #115E59;
-    }
-    .result-card.positive {
-      border-color: #FECACA; background: linear-gradient(120deg,#FFF1F2,#FFF7ED); color: #9F1239;
-    }
-    .result-title { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 800; opacity: .78; }
-    .result-main { font-family: 'Manrope',sans-serif; font-size: 1.45rem; font-weight: 800; margin-top: .25rem; }
-    .notice {
-      background: #FFF8E7; border: 1px solid #FDE68A; color: #854D0E;
-      border-radius: 12px; padding: .85rem 1rem; font-size: .86rem;
-    }
-    .info-strip {
-      background: #EAF3F8; border: 1px solid #D6E5EE; border-radius: 12px;
-      padding: .8rem 1rem; color: #36536A; font-size: .88rem;
-    }
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid #DCE5EC; }
-    .stTabs [data-baseweb="tab"] {
-      background: rgba(255,255,255,.65); border: 1px solid #E2E8F0;
-      border-radius: 10px 10px 0 0; padding: 10px 16px; color: #42566B;
-    }
-    .stTabs [aria-selected="true"] {
-      background: #FFFFFF !important; color: #0F766E !important;
-      border-bottom: 3px solid #0D9488 !important; font-weight: 800;
-    }
-    .footer { color: #8091A2; font-size: .78rem; text-align: center; padding-top: 1rem; }
-    
-    /* Cinematic motion layer — decorative only; prediction logic and inputs stay untouched */
-    @keyframes cp-heartbeat {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(45,212,191,0)); }
-      12% { transform: scale(1.13); filter: drop-shadow(0 0 18px rgba(45,212,191,.45)); }
-      24% { transform: scale(1); }
-      36% { transform: scale(1.08); }
-      48% { transform: scale(1); }
-    }
-    @keyframes cp-ecg-draw { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
-    @keyframes cp-glow-drift { 0%,100% { opacity:.25; transform:translate3d(0,0,0) scale(1); } 50% { opacity:.6; transform:translate3d(-12px,8px,0) scale(1.08); } }
-    @keyframes cp-rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes cp-shimmer { 0% { transform:translateX(-130%) skewX(-18deg); } 100% { transform:translateX(240%) skewX(-18deg); } }
-    .hero { isolation:isolate; animation:cp-rise .75s cubic-bezier(.2,.8,.2,1) both; }
-    .hero:after { animation:cp-heartbeat 2.1s ease-in-out infinite; transform-origin:center; }
     .hero:before {
       content:""; position:absolute; z-index:-1; width:310px; height:210px;
       right:3%; bottom:-60px; border-radius:50%;
-      background:radial-gradient(circle,rgba(45,212,191,.22),transparent 68%);
-      filter:blur(8px); animation:cp-glow-drift 7s ease-in-out infinite;
+      background:radial-gradient(circle,rgba(45,212,191,.24),transparent 68%);
+      filter:blur(8px); animation:drift 7s ease-in-out infinite;
     }
-    .hero-ecg { position:relative; z-index:1; width:min(430px,72%); height:54px; margin-top:1.25rem; opacity:.88; }
-    .hero-ecg svg { width:100%; height:100%; overflow:visible; }
-    .hero-ecg path { fill:none; stroke:#99F6E4; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:900; stroke-dashoffset:900; animation:cp-ecg-draw 2.8s ease-in-out .35s forwards; filter:drop-shadow(0 0 5px rgba(153,246,228,.6)); }
-    .kpi { position:relative; overflow:hidden; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; animation:cp-rise .65s ease both; }
-    .kpi:after { content:""; position:absolute; top:0; left:0; width:42%; height:2px; background:linear-gradient(90deg,transparent,#2DD4BF,transparent); opacity:0; }
-    .kpi:hover { transform:translateY(-5px); box-shadow:0 15px 30px rgba(16,36,58,.10); border-color:#99F6E4; }
-    .kpi:hover:after { opacity:1; animation:cp-shimmer 1.1s ease; }
-    .stTabs [data-baseweb="tab"] { transition:all .2s ease; }
-    .stTabs [data-baseweb="tab"]:hover { transform:translateY(-2px); border-color:#99F6E4; }
-    div[data-testid="stForm"] { box-shadow:0 12px 34px rgba(16,36,58,.045); transition:box-shadow .25s ease; }
-    div[data-testid="stForm"]:hover { box-shadow:0 16px 40px rgba(16,36,58,.075); }
-    .result-card { animation:cp-rise .55s cubic-bezier(.2,.8,.2,1) both; box-shadow:0 10px 24px rgba(13,148,136,.07); }
-    .result-card.positive { box-shadow:0 10px 24px rgba(225,29,72,.07); }
-    .section-eyebrow { display:inline-flex; align-items:center; gap:8px; }
-    .section-eyebrow:before { content:""; width:20px; height:2px; background:#0D9488; border-radius:3px; }
-    .stProgress > div > div > div > div { background:linear-gradient(90deg,#0D9488,#5EEAD4); }
-    @media (prefers-reduced-motion: reduce) {
-      *, *:before, *:after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+    .hero-kicker {
+      display:inline-block; padding:6px 11px; border-radius:999px;
+      background:rgba(204,251,241,.14); border:1px solid rgba(204,251,241,.25);
+      color:#BDF7EA; font-size:.74rem; font-weight:800; letter-spacing:.09em;
+      text-transform:uppercase; margin-bottom:.8rem;
     }
-
+    .hero h1 { color:white !important; font-size:clamp(1.8rem,4vw,2.7rem); margin:0 0 .5rem 0; }
+    .hero p { color:#D8E8EF !important; font-size:1rem; max-width:800px; margin:0; }
+    .ecg { width:min(440px,75%); height:48px; margin-top:1rem; opacity:.9; }
+    .ecg svg { width:100%; height:100%; }
+    .ecg path { fill:none; stroke:#99F6E4; stroke-width:2.4; stroke-linecap:round;
+      stroke-dasharray:900; stroke-dashoffset:900; animation:draw 2.7s ease .3s forwards;
+      filter:drop-shadow(0 0 5px rgba(153,246,228,.6)); }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 12%{transform:scale(1.12)} 25%{transform:scale(1)} 38%{transform:scale(1.07)} 50%{transform:scale(1)} }
+    @keyframes draw { to { stroke-dashoffset:0; } }
+    @keyframes drift { 0%,100%{opacity:.25;transform:translate(0,0)} 50%{opacity:.6;transform:translate(-12px,8px)} }
+    @keyframes rise { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .eyebrow { color:#0D9488; font-weight:800; letter-spacing:.11em; text-transform:uppercase; font-size:.72rem; margin-bottom:.25rem; }
+    .subtle { color:#64748B; margin-top:-.4rem; margin-bottom:1rem; }
+    .metric-card {
+      background:rgba(255,255,255,.95); border:1px solid #E2E8F0; border-radius:17px;
+      padding:16px 18px; min-height:108px; box-shadow:0 5px 18px rgba(16,36,58,.045);
+      transition:transform .22s ease,box-shadow .22s ease;
+    }
+    .metric-card:hover { transform:translateY(-4px); box-shadow:0 14px 28px rgba(16,36,58,.10); }
+    .metric-label { color:#64748B; font-size:.75rem; font-weight:700; }
+    .metric-value { color:#10243A; font:800 1.48rem 'Manrope',sans-serif; margin-top:8px; }
+    .metric-note { color:#0D9488; font-size:.72rem; font-weight:600; margin-top:4px; }
+    div[data-testid="stForm"] { background:rgba(255,255,255,.92); border:1px solid #E2E8F0; border-radius:17px; padding:1rem 1.1rem; box-shadow:0 10px 30px rgba(16,36,58,.045); }
+    div[data-baseweb="input"]>div,div[data-baseweb="select"]>div { background:white; border-color:#CBD5E1; border-radius:10px; }
+    .stButton>button,.stFormSubmitButton>button {
+      border-radius:11px; border:0; font-weight:800; min-height:2.8rem;
+      background:linear-gradient(100deg,#0D9488,#0F766E); color:white !important;
+      box-shadow:0 7px 16px rgba(13,148,136,.18);
+    }
+    .stButton>button:hover,.stFormSubmitButton>button:hover { background:linear-gradient(100deg,#0F766E,#115E59); transform:translateY(-1px); }
+    .result {
+      border-radius:18px; padding:1.2rem 1.3rem; border:1px solid #99F6E4;
+      background:linear-gradient(120deg,#ECFDF5,#F0FDFA); color:#115E59;
+      box-shadow:0 10px 24px rgba(13,148,136,.07); animation:rise .45s ease both;
+    }
+    .result.flagged { border-color:#FECACA; background:linear-gradient(120deg,#FFF1F2,#FFF7ED); color:#9F1239; }
+    .result-kicker { font-size:.72rem; text-transform:uppercase; letter-spacing:.09em; font-weight:800; opacity:.8; }
+    .result-heading { font:800 1.5rem 'Manrope',sans-serif; margin:.3rem 0; }
+    .notice { background:#FFF8E7; border:1px solid #FDE68A; color:#854D0E; border-radius:12px; padding:.9rem 1rem; font-size:.86rem; }
+    .info { background:#EAF3F8; border:1px solid #D6E5EE; color:#36536A; border-radius:12px; padding:.9rem 1rem; font-size:.88rem; }
+    .emergency {
+      background:linear-gradient(115deg,#7F1D1D,#B91C1C); color:white; border-radius:18px;
+      padding:1.2rem 1.35rem; box-shadow:0 12px 28px rgba(127,29,29,.16);
+    }
+    .emergency h3 { color:white !important; margin:0 0 .35rem 0; }
+    .emergency p { color:#FEE2E2 !important; margin:.2rem 0; }
+    .phone {
+      display:inline-block; background:white; color:#991B1B !important; text-decoration:none !important;
+      padding:9px 15px; border-radius:10px; font-weight:900; font-size:1.05rem; margin:.4rem .45rem .2rem 0;
+    }
+    .stTabs [data-baseweb="tab-list"] { gap:8px; border-bottom:1px solid #DCE5EC; }
+    .stTabs [data-baseweb="tab"] { background:rgba(255,255,255,.65); border:1px solid #E2E8F0; border-radius:10px 10px 0 0; padding:10px 15px; }
+    .stTabs [aria-selected="true"] { background:white !important; color:#0F766E !important; border-bottom:3px solid #0D9488 !important; font-weight:800; }
+    .footer { color:#8091A2; font-size:.76rem; text-align:center; padding-top:1rem; }
+    @media(max-width:700px) {
+      .block-container { padding-left:1rem; padding-right:1rem; }
+      .hero { padding:1.4rem; }
+      .hero:after { right:-25px; font-size:150px; }
+      .metric-value { font-size:1.2rem; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      *,*:before,*:after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# ---------- Load model and metrics ----------
-if not os.path.exists(MODEL_PATH):
-    st.error(f"Trained model not found at `{MODEL_PATH}`. Run your training script first.")
-    st.stop()
-if not os.path.exists(METRICS_PATH):
-    st.error(f"Metrics file not found at `{METRICS_PATH}`. Run your training script first.")
-    st.stop()
-
-try:
-    model = joblib.load(MODEL_PATH)
-    with open(METRICS_PATH, "r", encoding="utf-8") as f:
-        metrics_data = json.load(f)
-except Exception as exc:
-    st.error(f"Could not load the saved model or metrics: {exc}")
-    st.stop()
-
-selected_model = metrics_data.get("selected_model", "Not specified")
-results = metrics_data.get("results", {})
-selected_metrics = results.get(selected_model, {})
-
-# The saved training report's precision/recall/F1 values are class-1 metrics.
-# Keep the labels explicit rather than calling them weighted averages.
+# ----------------------- Helpers ----------------------------
 def pct(value):
     try:
         return f"{float(value):.1%}"
     except (TypeError, ValueError):
         return "N/A"
 
-# ---------- Sidebar ----------
+
+def safe_float(value, default=0.0):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def make_3d_metric_chart(comparison_df):
+    """3D grouped bars: models on X, metrics on Y, score on Z."""
+    models = list(comparison_df.index)
+    metrics = list(comparison_df.columns)
+    fig = plt.figure(figsize=(10.5, 6.2), facecolor="#F8FAFC")
+    ax = fig.add_subplot(111, projection="3d")
+    colors = ["#0F766E", "#38BDF8", "#F59E0B", "#8B5CF6"]
+    dx, dy = 0.42, 0.42
+    for yi, metric in enumerate(metrics):
+        values = comparison_df[metric].to_numpy(dtype=float)
+        xs = np.arange(len(models))
+        ys = np.full(len(models), yi)
+        ax.bar3d(xs, ys, np.zeros(len(models)), dx, dy, values,
+                 color=colors[yi % len(colors)], alpha=.92, shade=True,
+                 edgecolor="#FFFFFF", linewidth=.35)
+        for x, y, z in zip(xs, ys, values):
+            ax.text(x + dx/2, y + dy/2, z + .025, f"{z:.0%}",
+                    ha="center", va="bottom", fontsize=8, color="#17324A")
+    ax.set_xticks(np.arange(len(models)) + dx/2)
+    ax.set_xticklabels(models, fontsize=9)
+    ax.set_yticks(np.arange(len(metrics)) + dy/2)
+    ax.set_yticklabels(metrics, fontsize=8)
+    ax.set_zlim(0, 1.12)
+    ax.set_zlabel("Score", labelpad=8)
+    ax.set_title("Classifier performance · 3D comparison", pad=18,
+                 fontsize=14, fontweight="bold", color="#10243A")
+    ax.view_init(elev=25, azim=-58)
+    ax.xaxis.pane.set_facecolor((.92, .96, .98, .8))
+    ax.yaxis.pane.set_facecolor((.92, .96, .98, .8))
+    ax.zaxis.pane.set_facecolor((.97, .98, .99, .8))
+    ax.grid(True, alpha=.2)
+    fig.tight_layout()
+    return fig
+
+
+def make_3d_confusion_matrix(cm_array, model_name):
+    """3D columns for the four confusion-matrix cells."""
+    fig = plt.figure(figsize=(7.6, 5.5), facecolor="#F8FAFC")
+    ax = fig.add_subplot(111, projection="3d")
+    labels = [
+        "Correctly predicted\nno-disease group",
+        "False positive\n(predicted group 1)",
+        "Missed positive\n(predicted group 0)",
+        "Correctly predicted\ndisease-present group",
+    ]
+    positions = [(0, 0), (1, 0), (0, 1), (1, 1)]
+    values = [int(cm_array[0, 0]), int(cm_array[0, 1]),
+              int(cm_array[1, 0]), int(cm_array[1, 1])]
+    colors = ["#0F766E", "#F59E0B", "#E11D48", "#2563EB"]
+    for (x, y), value, color, label in zip(positions, values, colors, labels):
+        ax.bar3d(x, y, 0, .55, .55, value, color=color, shade=True,
+                 alpha=.94, edgecolor="white")
+        ax.text(x + .27, y + .27, value + .6, str(value),
+                ha="center", va="bottom", fontsize=12, fontweight="bold")
+    ax.set_xticks([.27, 1.27])
+    ax.set_xticklabels(["Actual 0", "Actual 1"])
+    ax.set_yticks([.27, 1.27])
+    ax.set_yticklabels(["Predicted 0", "Predicted 1"])
+    ax.set_zlabel("Number of test samples")
+    ax.set_zlim(0, max(values + [1]) * 1.25)
+    ax.set_title(f"{model_name} · 3D confusion matrix",
+                 fontsize=13, fontweight="bold", color="#10243A", pad=15)
+    ax.view_init(elev=24, azim=-52)
+    ax.grid(True, alpha=.2)
+    fig.tight_layout()
+    return fig
+
+
+# ----------------------- Load artifacts ---------------------
+if not os.path.exists(MODEL_PATH):
+    st.error("The trained model file is missing. Please check models/cvd_model.joblib.")
+    st.stop()
+if not os.path.exists(METRICS_PATH):
+    st.error("The model metrics file is missing. Please check models/metrics.json.")
+    st.stop()
+
+try:
+    model = joblib.load(MODEL_PATH)
+    with open(METRICS_PATH, "r", encoding="utf-8") as file:
+        metrics_data = json.load(file)
+except Exception as exc:
+    st.error(f"Could not load the model or metrics: {exc}")
+    st.stop()
+
+selected_model = metrics_data.get("selected_model", "Not specified")
+results = metrics_data.get("results", {})
+selected_metrics = results.get(selected_model, {})
+
+# ----------------------- Sidebar ----------------------------
 with st.sidebar:
     st.markdown("## ❤️ CardioPredict")
-    st.markdown("**CARDIOVASCULAR ML STUDIO**")
-    st.caption("BE CSE · Mini Project")
-    st.divider()
-    st.markdown("### Project snapshot")
-    st.write("**Dataset**")
-    st.caption("UCI Cleveland Heart Disease")
-    st.write("**Algorithms**")
+    st.caption("HEART HEALTH LEARNING STUDIO")
+    st.markdown("---")
+    st.markdown("**What this app does**")
+    st.write("Demonstrates how a machine-learning classifier processes 13 attributes from the historical UCI Cleveland dataset.")
+    st.markdown("**Algorithms**")
     st.caption("Logistic Regression · Random Forest")
-    st.write("**Application**")
-    st.caption("Python · Scikit-learn · Streamlit")
-    st.divider()
-    st.markdown("### Evaluation")
-    st.metric("Selected classifier", selected_model)
-    if selected_metrics:
-        st.metric("Held-out accuracy", pct(selected_metrics.get("accuracy")))
-    st.divider()
-    st.caption("Academic prototype only. Not a clinical decision-support system.")
+    st.markdown("**Technology**")
+    st.caption("Python · Pandas · Scikit-learn · Matplotlib · Streamlit")
+    st.markdown("---")
+    st.caption("Academic prototype only. It is not a medical device, diagnosis or emergency triage service.")
 
-# ---------- Hero ----------
+# ----------------------- Hero -------------------------------
 st.markdown(
     """
     <div class="hero">
-      <div class="hero-kicker">Machine Learning · Academic Demonstration</div>
-      <div class="hero-ecg" aria-hidden="true">
-        <svg viewBox="0 0 520 70" preserveAspectRatio="none">
-          <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
-        </svg>
-      </div>
-      <h1>Cardiovascular Disease Prediction</h1>
-      <p>Explore a supervised learning workflow built around the UCI Cleveland dataset.
-      Enter coded sample attributes, inspect model estimates, and compare classifier performance.</p>
+      <div class="hero-kicker">Machine learning · Educational prototype</div>
+      <div class="ecg"><svg viewBox="0 0 520 70" preserveAspectRatio="none">
+        <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
+      </svg></div>
+      <h1>CardioPredict</h1>
+      <p>A clear, visual introduction to cardiovascular disease and a machine-learning model.
+      Explore the inputs, understand the model's output in everyday language, and view its test-set performance.</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# ---------- KPI row ----------
-k1, k2, k3, k4 = st.columns(4)
-kpis = [
-    ("SELECTED MODEL", selected_model, "Best model in saved evaluation"),
+# ----------------------- Plain-language explainer ----------
+with st.expander("❤️ What is cardiovascular disease?", expanded=False):
+    st.write(
+        "Cardiovascular disease (CVD) is a broad term for conditions affecting the heart and blood vessels. "
+        "Coronary heart disease is one type; it can occur when the blood supply to the heart muscle is reduced, "
+        "often because fatty deposits narrow the coronary arteries."
+    )
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**Common risk factors**")
+        st.markdown("- High blood pressure\n- High cholesterol\n- Diabetes or high blood sugar\n- Smoking and tobacco use\n- Physical inactivity\n- Family history and increasing age")
+    with c2:
+        st.markdown("**Possible warning symptoms**")
+        st.markdown("- Chest pressure, tightness or pain\n- Pain spreading to the arm, back, neck or jaw\n- Shortness of breath\n- Cold sweat, nausea or light-headedness\n- Unusual sudden weakness")
+    st.caption("Some people have no obvious symptoms. Only a qualified healthcare professional can assess symptoms and diagnose disease.")
+
+# ----------------------- KPI row ----------------------------
+kpi_cols = st.columns(4)
+kpi_data = [
+    ("MODEL SELECTED", selected_model, "Chosen during training"),
     ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test split"),
-    ("CLASS 1 PRECISION", pct(selected_metrics.get("precision")), "Positive-class precision"),
-    ("CLASS 1 F1-SCORE", pct(selected_metrics.get("f1_score")), "Positive-class F1-score"),
+    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision"),
+    ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall"),
 ]
-for col, (label, value, note) in zip([k1, k2, k3, k4], kpis):
+for col, (label, value, note) in zip(kpi_cols, kpi_data):
     with col:
         st.markdown(
-            f'<div class="kpi"><div class="kpi-label">{label}</div>'
-            f'<div class="kpi-value">{value}</div><div class="kpi-note">{note}</div></div>',
+            f'<div class="metric-card"><div class="metric-label">{label}</div>'
+            f'<div class="metric-value">{value}</div><div class="metric-note">{note}</div></div>',
             unsafe_allow_html=True,
         )
 
 st.write("")
-prediction_tab, performance_tab, about_tab = st.tabs(
-    ["♥  Prediction workspace", "▥  Model analytics", "ⓘ  Project overview"]
+prediction_tab, analytics_tab, learn_tab, help_tab = st.tabs(
+    ["♥ Prediction", "▥ Model performance", "ⓘ Learn about CVD", "✚ Emergency & hospitals"]
 )
 
-# ---------- Prediction ----------
+# ----------------------- Prediction -------------------------
 with prediction_tab:
-    st.markdown('<div class="section-eyebrow">Interactive model</div>', unsafe_allow_html=True)
-    st.subheader("Enter sample attributes")
+    st.markdown('<div class="eyebrow">Step 1 · Enter the sample information</div>', unsafe_allow_html=True)
+    st.subheader("Patient attributes")
     st.markdown(
-        '<div class="section-subtitle">Use the dataset coding shown in each field. '
-        'All values are passed to the saved preprocessing/model pipeline.</div>',
+        '<div class="subtle">These are the same 13 features used by the trained model. '
+        'The short descriptions explain the dataset fields; use actual recorded values rather than guessing.</div>',
         unsafe_allow_html=True,
     )
 
     with st.form("prediction_form", border=False):
         left, right = st.columns(2, gap="large")
         with left:
-            st.markdown("#### Personal & resting measurements")
-            age = st.number_input("Age (years)", min_value=18, max_value=100, value=50)
-            sex = st.selectbox("Sex (dataset coding)", [0, 1], format_func=lambda x: "Female (0)" if x == 0 else "Male (1)")
-            cp = st.selectbox("Chest pain type (1–4)", [1, 2, 3, 4])
-            trestbps = st.number_input("Resting blood pressure (mm Hg)", min_value=80, max_value=250, value=120)
-            chol = st.number_input("Serum cholesterol (mg/dl)", min_value=100, max_value=600, value=200)
-            fbs = st.selectbox("Fasting blood sugar > 120 mg/dl", [0, 1], format_func=lambda x: "No (0)" if x == 0 else "Yes (1)")
-            restecg = st.selectbox("Resting ECG result (0–2)", [0, 1, 2])
+            st.markdown("#### Basic and resting measurements")
+            age = st.number_input("Age (years)", min_value=18, max_value=100, value=50,
+                                  help="Age in years.")
+            sex = st.selectbox("Sex (dataset code)", [0, 1],
+                               format_func=lambda x: "Female · code 0" if x == 0 else "Male · code 1",
+                               help="The numeric coding used in the original dataset.")
+            cp = st.selectbox(
+                "Chest pain category",
+                [1, 2, 3, 4],
+                format_func=lambda x: {
+                    1: "1 · Typical angina",
+                    2: "2 · Atypical angina",
+                    3: "3 · Non-anginal pain",
+                    4: "4 · Asymptomatic in dataset",
+                }[x],
+                help="Historical dataset category, not a self-diagnosis. A person should not classify chest pain themselves.",
+            )
+            trestbps = st.number_input("Resting blood pressure (mm Hg)", min_value=80, max_value=250, value=120,
+                                       help="Blood pressure measured while resting.")
+            chol = st.number_input("Serum cholesterol (mg/dL)", min_value=100, max_value=600, value=200,
+                                   help="Total serum cholesterol measurement recorded in the dataset.")
+            fbs = st.selectbox("Fasting blood sugar above 120 mg/dL?", [0, 1],
+                               format_func=lambda x: "No · code 0" if x == 0 else "Yes · code 1")
+            restecg = st.selectbox(
+                "Resting ECG category", [0, 1, 2],
+                format_func=lambda x: {
+                    0: "0 · Normal",
+                    1: "1 · ST-T wave abnormality",
+                    2: "2 · Probable/definite left ventricular hypertrophy",
+                }[x],
+                help="ECG category from the original dataset. Interpretation requires a clinician.",
+            )
         with right:
-            st.markdown("#### Exercise & cardiac measurements")
-            thalach = st.number_input("Maximum heart rate achieved", min_value=60, max_value=250, value=150)
-            exang = st.selectbox("Exercise-induced angina", [0, 1], format_func=lambda x: "No (0)" if x == 0 else "Yes (1)")
-            oldpeak = st.number_input("ST depression (oldpeak)", min_value=0.0, max_value=10.0, value=1.0, step=0.1)
-            slope = st.selectbox("Peak exercise ST slope (1–3)", [1, 2, 3])
-            ca = st.selectbox("Major vessels (0–3)", [0, 1, 2, 3])
-            thal = st.selectbox("Thal result (dataset code)", [3, 6, 7])
-
-        submitted = st.form_submit_button("Generate model estimate  →", type="primary", use_container_width=True)
+            st.markdown("#### Exercise and cardiac measurements")
+            thalach = st.number_input("Maximum heart rate achieved", min_value=60, max_value=250, value=150,
+                                      help="Maximum heart rate recorded during the exercise test.")
+            exang = st.selectbox("Exercise-induced angina?", [0, 1],
+                                 format_func=lambda x: "No · code 0" if x == 0 else "Yes · code 1")
+            oldpeak = st.number_input("ST depression (oldpeak)", min_value=0.0, max_value=10.0,
+                                      value=1.0, step=0.1,
+                                      help="ECG measurement during exercise relative to rest. This is not a value to estimate.")
+            slope = st.selectbox(
+                "Peak exercise ST-segment slope", [1, 2, 3],
+                format_func=lambda x: {
+                    1: "1 · Upsloping",
+                    2: "2 · Flat",
+                    3: "3 · Downsloping",
+                }[x],
+            )
+            ca = st.selectbox("Major vessels seen by fluoroscopy", [0, 1, 2, 3],
+                              help="Number of major vessels (0 to 3) recorded by the test.")
+            thal = st.selectbox(
+                "Thal test category", [3, 6, 7],
+                format_func=lambda x: {
+                    3: "3 · Normal",
+                    6: "6 · Fixed defect",
+                    7: "7 · Reversible defect",
+                }[x],
+                help="Historical coded test result. A clinician should interpret the original report.",
+            )
+        submitted = st.form_submit_button("Run educational model prediction  →",
+                                          type="primary", use_container_width=True)
 
     if submitted:
         input_row = pd.DataFrame([{
-            "age": age,
-            "trestbps": trestbps,
-            "chol": chol,
-            "thalach": thalach,
-            "oldpeak": oldpeak,
-            "sex": sex,
-            "cp": cp,
-            "fbs": fbs,
-            "restecg": restecg,
-            "exang": exang,
-            "slope": slope,
-            "ca": ca,
-            "thal": thal,
+            "age": age, "trestbps": trestbps, "chol": chol, "thalach": thalach,
+            "oldpeak": oldpeak, "sex": sex, "cp": cp, "fbs": fbs,
+            "restecg": restecg, "exang": exang, "slope": slope, "ca": ca, "thal": thal,
         }])
-
         try:
             predicted_class = int(model.predict(input_row)[0])
             probability = None
@@ -326,163 +405,201 @@ with prediction_tab:
                 probability = float(probabilities[positive_index])
 
             st.markdown("---")
-            st.markdown('<div class="section-eyebrow">Model response</div>', unsafe_allow_html=True)
-            st.subheader("Prediction result")
-            r1, r2 = st.columns([1.15, 1])
-            with r1:
-                if predicted_class == 1:
-                    st.markdown(
-                        '<div class="result-card positive"><div class="result-title">Classifier output</div>'
-                        '<div class="result-main">Positive class · 1</div>'
-                        '<div>For this supplied sample, the model predicted class 1.</div></div>',
-                        unsafe_allow_html=True,
-                    )
-                else:
-                    st.markdown(
-                        '<div class="result-card"><div class="result-title">Classifier output</div>'
-                        '<div class="result-main">Negative class · 0</div>'
-                        '<div>For this supplied sample, the model predicted class 0.</div></div>',
-                        unsafe_allow_html=True,
-                    )
-            with r2:
-                if probability is not None:
-                    st.metric("Estimated probability for class 1", pct(probability))
-                    st.progress(max(0.0, min(1.0, probability)))
-                    st.caption("Model probability for the positive class; not a personal medical risk estimate.")
+            st.markdown('<div class="eyebrow">Step 2 · Understand the result</div>', unsafe_allow_html=True)
+            st.subheader("What the model output means")
+
+            if predicted_class == 1:
+                st.markdown(
+                    '<div class="result flagged"><div class="result-kicker">Model output · Group 1</div>'
+                    '<div class="result-heading">Pattern associated with the disease-present group</div>'
+                    '<div>The model places this set of entered measurements in the group that was labelled '
+                    'as disease-present in its training dataset. This is not proof that a person has heart disease.</div></div>',
+                    unsafe_allow_html=True,
+                )
+                st.warning(
+                    "What should you do? Do not panic or self-diagnose from this result. "
+                    "If this is about a real person, discuss health concerns and the original test results with a qualified doctor. "
+                    "If there are emergency symptoms, call emergency services immediately."
+                )
+            else:
+                st.markdown(
+                    '<div class="result"><div class="result-kicker">Model output · Group 0</div>'
+                    '<div class="result-heading">Pattern associated with the no-disease group</div>'
+                    '<div>The model places this set of entered measurements in the group labelled no disease '
+                    'in its training dataset. This does not rule out heart disease or guarantee that a person is healthy.</div></div>',
+                    unsafe_allow_html=True,
+                )
+                st.info(
+                    "A result in this group is not a medical clearance. Persistent symptoms or health concerns "
+                    "still need assessment by a qualified healthcare professional."
+                )
+
+            st.write("")
+            if probability is not None:
+                st.markdown("**Model probability for Group 1**")
+                st.progress(max(0.0, min(1.0, probability)))
+                st.metric("Estimated model probability", pct(probability))
+                st.caption(
+                    "This number describes the model's output for this sample. It is not a clinically calibrated "
+                    "personal risk percentage, disease severity score, or emergency score."
+                )
+
+            with st.expander("What do Group 0 and Group 1 mean?"):
+                st.markdown(
+                    "- **Group 0:** Original dataset target was 0, meaning no disease was recorded in that dataset row.\n"
+                    "- **Group 1:** Original dataset targets 1, 2, 3 or 4 were combined into one disease-present group.\n\n"
+                    "Your model is a binary classifier. It does not produce Class 2, moderate, severe or critical categories."
+                )
             st.markdown(
-                '<div class="notice"><b>Educational-use notice:</b> This prototype uses a small historical dataset. '
-                'Its output is not a diagnosis, screening result, or personal risk score. Do not use it for medical '
-                'decisions. For health concerns, consult a qualified healthcare professional.</div>',
+                '<div class="notice"><b>Important limitation:</b> CardioPredict is a student academic prototype '
+                'trained on a small historical dataset. It has not been clinically validated and must not be used '
+                'to diagnose, screen, triage, prescribe treatment, or decide whether emergency care is needed.</div>',
                 unsafe_allow_html=True,
             )
         except Exception as exc:
-            st.error(f"Prediction could not be generated. Check that the saved model matches the input features. Details: {exc}")
+            st.error(f"Prediction could not be generated. Please check the model and input features. Details: {exc}")
 
-# ---------- Model analytics ----------
-with performance_tab:
-    st.markdown('<div class="section-eyebrow">Evaluation results</div>', unsafe_allow_html=True)
-    st.subheader("Held-out test-set performance")
+# ----------------------- Analytics -------------------------
+with analytics_tab:
+    st.markdown('<div class="eyebrow">Model evaluation</div>', unsafe_allow_html=True)
+    st.subheader("How well did the algorithms perform on the test data?")
     st.markdown(
-        '<div class="section-subtitle">Metrics are loaded from the training output. '
-        'Precision, recall and F1-score below refer to class 1, matching the saved report values.</div>',
+        '<div class="subtle">These figures describe performance on the held-out test subset, '
+        'not the accuracy of a medical diagnosis in the real world.</div>',
         unsafe_allow_html=True,
     )
 
     if results:
-        comparison_rows = []
-        for model_name, values in results.items():
-            comparison_rows.append({
-                "Model": model_name,
-                "Accuracy": values.get("accuracy", 0),
-                "Precision (class 1)": values.get("precision", 0),
-                "Recall (class 1)": values.get("recall", 0),
-                "F1-score (class 1)": values.get("f1_score", 0),
+        rows = []
+        for name, values in results.items():
+            rows.append({
+                "Algorithm": name,
+                "Accuracy": safe_float(values.get("accuracy")),
+                "Precision · Group 1": safe_float(values.get("precision")),
+                "Recall · Group 1": safe_float(values.get("recall")),
+                "F1 · Group 1": safe_float(values.get("f1_score")),
             })
-        comparison_df = pd.DataFrame(comparison_rows).set_index("Model")
-        st.dataframe(
-            comparison_df.style.format("{:.1%}"),
-            use_container_width=True,
-        )
+        comparison_df = pd.DataFrame(rows).set_index("Algorithm")
+        st.dataframe(comparison_df.style.format("{:.1%}"), use_container_width=True)
 
-        st.markdown("#### Classifier comparison")
-        fig, ax = plt.subplots(figsize=(10, 4.5))
-        metric_names = list(comparison_df.columns)
-        model_names = list(comparison_df.index)
-        x = np.arange(len(model_names))
-        width = 0.19
-        palette = ["#0F766E", "#38BDF8", "#F59E0B", "#6366F1"]
-        for i, metric in enumerate(metric_names):
-            offsets = x + (i - (len(metric_names) - 1) / 2) * width
-            ax.bar(offsets, comparison_df[metric].values, width, label=metric, color=palette[i])
-        ax.set_xticks(x)
-        ax.set_xticklabels(model_names, fontsize=10)
-        ax.set_ylim(0, 1.05)
-        ax.set_ylabel("Score", color="#475569")
-        ax.set_title("Model performance by metric", loc="left", color="#10243A", fontsize=14, fontweight="bold", pad=14)
-        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-        ax.grid(axis="y", linestyle="--", alpha=.22)
-        ax.set_axisbelow(True)
-        ax.spines[["top", "right", "left"]].set_visible(False)
-        ax.spines["bottom"].set_color("#CBD5E1")
-        ax.tick_params(axis="y", length=0, colors="#64748B")
-        ax.legend(frameon=False, ncol=2, loc="upper center", bbox_to_anchor=(0.5, -0.14))
-        fig.patch.set_facecolor("white")
-        ax.set_facecolor("white")
-        fig.tight_layout()
+        st.markdown("#### 3D algorithm comparison")
+        st.caption("Each column represents a test metric. Higher bars indicate a higher score on this particular test split.")
+        fig = make_3d_metric_chart(comparison_df)
         st.pyplot(fig, use_container_width=True)
         plt.close(fig)
 
         st.markdown("#### Confusion matrix")
-        chosen_model = st.selectbox("Choose classifier", list(results.keys()))
-        cm = results[chosen_model].get("confusion_matrix")
-        if cm and len(cm) == 2:
-            cm_array = np.asarray(cm)
-            fig_cm, ax_cm = plt.subplots(figsize=(6.4, 4.2))
-            image = ax_cm.imshow(cm_array, cmap="GnBu")
-            ax_cm.set_xticks([0, 1], labels=["Predicted 0", "Predicted 1"])
-            ax_cm.set_yticks([0, 1], labels=["Actual 0", "Actual 1"])
-            ax_cm.set_title(f"{chosen_model} · Confusion Matrix", loc="left", fontsize=13, fontweight="bold", color="#10243A", pad=14)
-            threshold = cm_array.max() / 2 if cm_array.size else 0
-            for i in range(2):
-                for j in range(2):
-                    ax_cm.text(j, i, str(cm_array[i, j]), ha="center", va="center",
-                               color="white" if cm_array[i, j] > threshold else "#10243A",
-                               fontsize=16, fontweight="bold")
-            ax_cm.spines[:].set_visible(False)
-            ax_cm.tick_params(length=0, pad=10)
-            fig_cm.colorbar(image, ax=ax_cm, fraction=.045, pad=.04)
-            fig_cm.tight_layout()
-            st.pyplot(fig_cm, use_container_width=False)
-            plt.close(fig_cm)
-            st.caption("Rows show actual classes; columns show predicted classes.")
-        else:
-            st.info("A 2 × 2 confusion matrix is not available for this classifier.")
+        chosen_model = st.selectbox("Select an algorithm", list(results.keys()))
+        cm_values = results[chosen_model].get("confusion_matrix")
+        if cm_values and len(cm_values) == 2:
+            cm_array = np.asarray(cm_values)
+            c1, c2 = st.columns([1, 1.15])
+            with c1:
+                st.markdown("**Exact test counts**")
+                cm_table = pd.DataFrame(
+                    cm_array,
+                    index=["Actual Group 0", "Actual Group 1"],
+                    columns=["Predicted Group 0", "Predicted Group 1"],
+                )
+                st.dataframe(cm_table, use_container_width=True)
+                st.caption("Rows are actual dataset labels; columns are model predictions.")
+            with c2:
+                fig_cm = make_3d_confusion_matrix(cm_array, chosen_model)
+                st.pyplot(fig_cm, use_container_width=True)
+                plt.close(fig_cm)
+            st.markdown(
+                "- **Correct Group 0:** model correctly predicted a sample from the no-disease dataset group.\n"
+                "- **False positive:** model predicted Group 1 when the actual dataset label was Group 0.\n"
+                "- **Missed positive:** model predicted Group 0 when the actual dataset label was Group 1.\n"
+                "- **Correct Group 1:** model correctly predicted a sample from the disease-present dataset group."
+            )
     else:
-        st.info("No evaluation results found. Run the model training script first.")
+        st.info("No evaluation metrics were found. Run the training script first.")
 
-# ---------- About ----------
-with about_tab:
-    st.markdown('<div class="section-eyebrow">Project documentation</div>', unsafe_allow_html=True)
-    st.subheader("About this mini project")
+# ----------------------- Learn about CVD -------------------
+with learn_tab:
+    st.markdown('<div class="eyebrow">Health education</div>', unsafe_allow_html=True)
+    st.subheader("Understanding cardiovascular health")
     st.write(
-        "CardioPredict is an academic demonstration of a supervised binary-classification workflow. "
-        "It compares Logistic Regression and Random Forest using the UCI Cleveland Heart Disease dataset."
+        "Cardiovascular diseases affect the heart and blood vessels. Coronary artery disease is one form. "
+        "It can develop when deposits build up inside arteries and reduce blood flow to the heart."
     )
     a, b = st.columns(2)
     with a:
-        st.markdown("#### Workflow")
+        st.markdown("#### Risk factors people can discuss with a clinician")
         st.markdown(
-            "1. Load the public dataset and inspect its attributes.  \n"
-            "2. Prepare numerical and categorical features.  \n"
-            "3. Train Logistic Regression and Random Forest.  \n"
-            "4. Evaluate the models on a held-out test split.  \n"
-            "5. Save the selected model and metrics.  \n"
-            "6. Demonstrate predictions through this Streamlit interface."
+            "- High blood pressure\n"
+            "- High LDL cholesterol\n"
+            "- Diabetes\n"
+            "- Smoking or tobacco exposure\n"
+            "- Low physical activity\n"
+            "- Diet high in salt or unhealthy fats\n"
+            "- Family history and age"
         )
     with b:
-        st.markdown("#### Technology stack")
+        st.markdown("#### Helpful heart-health habits")
         st.markdown(
-            "- **Language:** Python  \n"
-            "- **ML library:** Scikit-learn  \n"
-            "- **Data handling:** Pandas and NumPy  \n"
-            "- **Visualizations:** Matplotlib  \n"
-            "- **Web interface:** Streamlit  \n"
-            "- **Dataset:** UCI Cleveland Heart Disease"
+            "- Avoid tobacco and smoking\n"
+            "- Be physically active as appropriate for your health\n"
+            "- Choose a balanced diet\n"
+            "- Attend recommended health checks\n"
+            "- Follow prescribed treatment\n"
+            "- Seek professional advice for symptoms"
         )
     st.markdown(
-        '<div class="info-strip"><b>Dataset target coding:</b> Original target 0 is mapped to class 0; '
-        'original targets 1–4 are mapped to class 1 in this project.</div>',
+        '<div class="info"><b>Remember:</b> Risk factors are not a diagnosis. Some risk factors can be changed, '
+        'while others cannot. A healthcare professional can assess an individual using history, examination and appropriate tests.</div>',
         unsafe_allow_html=True,
     )
-    st.write("")
+    st.markdown("#### When symptoms may be an emergency")
+    st.error(
+        "New or severe chest pressure/pain, pain spreading to the arm/jaw/back, severe shortness of breath, "
+        "fainting, cold sweating or sudden collapse can be signs of a medical emergency. Call emergency services; "
+        "do not wait for CardioPredict to produce a result."
+    )
+
+# ----------------------- Emergency & hospitals -------------
+with help_tab:
+    st.markdown('<div class="eyebrow">Emergency information</div>', unsafe_allow_html=True)
+    st.subheader("Get medical help when it is needed")
     st.markdown(
-        '<div class="notice"><b>Limitations:</b> The dataset is small and historical. '
-        'Test-set performance does not establish clinical validity, generalizability, or safety. '
-        'This application is intended only for academic demonstration.</div>',
+        '<div class="emergency"><h3>Possible medical emergency?</h3>'
+        '<p>Do not use this prediction app to decide whether to call for help. '
+        'If someone has possible heart-attack symptoms, severe breathing difficulty, faints or collapses, '
+        'call emergency services immediately.</p>'
+        '<a class="phone" href="tel:112">Call 112 · Emergency</a>'
+        '<a class="phone" href="tel:102">Call 102 · Ambulance service</a>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("India: 112 is the nationwide integrated emergency response number. 102 is listed by the National Portal of India as the National Ambulance Service. Availability and dispatch depend on local services.")
+    st.markdown("#### Find hospitals near a location")
+    st.write(
+        "This hosted app cannot reliably access a visitor's exact GPS position automatically. "
+        "Enter a city, area or PIN code below to open a live Google Maps search. Check the hospital's "
+        "emergency department availability and call before travelling when it is safe to do so."
+    )
+    location_text = st.text_input("Your city, area or PIN code", value="Mysuru, Karnataka",
+                                  placeholder="For example: Mysuru, Karnataka")
+    if location_text.strip():
+        hospital_query = quote("emergency hospital near " + location_text.strip())
+        map_url = "https://www.google.com/maps/search/?api=1&query=" + hospital_query
+        st.link_button("Find nearby hospitals on Google Maps ↗", map_url, use_container_width=True)
+        general_query = quote("hospital near " + location_text.strip())
+        st.markdown(
+            f"[Open general hospital search on Google Maps](https://www.google.com/maps/search/?api=1&query={general_query})"
+        )
+    st.markdown(
+        '<div class="notice"><b>Safety note:</b> Map listings, routes, phone numbers and emergency-department '
+        'availability can change. CardioPredict does not dispatch an ambulance, transmit a patient's location, '
+        'contact hospitals, or confirm that a facility can accept an emergency case.</div>',
         unsafe_allow_html=True,
     )
 
+# ----------------------- Footer ----------------------------
+st.markdown("---")
 st.markdown(
-    '<div class="footer">CARDIOPREDICT · BE CSE MINI PROJECT · MACHINE-LEARNING ACADEMIC DEMONSTRATION</div>',
+    '<div class="footer">CARDIOPREDICT · BE CSE MINI PROJECT · EDUCATIONAL MACHINE-LEARNING DEMONSTRATION<br>'
+    'Not a medical device · Not clinically validated · Do not use for diagnosis or emergency triage</div>',
     unsafe_allow_html=True,
 )
