@@ -591,7 +591,7 @@ with help_tab:
         )
     st.markdown(
         '<div class="notice"><b>Safety note:</b> Map listings, routes, phone numbers and emergency-department '
-        'availability can change. CardioPredict does not dispatch an ambulance, transmit a patient's location, '
+        "availability can change. CardioPredict does not dispatch an ambulance, transmit a patient's location, "
         'contact hospitals, or confirm that a facility can accept an emergency case.</div>',
         unsafe_allow_html=True,
     )
