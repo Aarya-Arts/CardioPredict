@@ -654,6 +654,80 @@ st.markdown(
       .stTabs [data-baseweb="tab"] {padding:9px 10px!important;font-size:.9rem!important;}
     }
 
+    
+    /* HEART-PALETTE SELECT MENUS — Sex, chest-pain, angina, slope, vessels, Thal, etc. */
+    div[data-baseweb="select"] > div {
+      background:#FFFFFF!important;
+      border:1.5px solid #D7AEB5!important;
+      border-radius:12px!important;
+      box-shadow:0 2px 7px rgba(128,39,62,.05)!important;
+      color:#542532!important;
+    }
+    div[data-baseweb="select"] > div:hover {
+      border-color:#B83250!important;
+      box-shadow:0 0 0 2px rgba(184,50,80,.10)!important;
+    }
+    div[data-baseweb="select"] > div:focus-within {
+      border-color:#A8324C!important;
+      box-shadow:0 0 0 3px rgba(184,50,80,.16)!important;
+    }
+    div[data-baseweb="select"] [data-testid="stMarkdownContainer"],
+    div[data-baseweb="select"] [role="combobox"],
+    div[data-baseweb="select"] input,
+    div[data-baseweb="select"] span {
+      color:#542532!important;
+      font-size:1.06rem!important;
+      font-weight:600!important;
+    }
+    div[data-baseweb="select"] svg {fill:#A8324C!important;color:#A8324C!important;}
+    /* Dropdown popover should be a clear white menu with a soft rose border. */
+    [data-baseweb="popover"],[data-baseweb="menu"],
+    [data-baseweb="popover"] > div,[data-baseweb="menu"] > div,
+    ul[role="listbox"] {
+      background:#FFFFFF!important;
+      border:1px solid #E5C9CC!important;
+      border-radius:12px!important;
+      box-shadow:0 12px 30px rgba(83,32,47,.16)!important;
+    }
+    [data-baseweb="popover"] *,[data-baseweb="menu"] *,
+    ul[role="listbox"] * {
+      color:#542532!important;
+      font-size:1.02rem!important;
+    }
+    [role="option"],[data-baseweb="menu"] [role="option"],
+    ul[role="listbox"] li {
+      background:#FFFFFF!important;
+      color:#542532!important;
+      padding-top:10px!important;
+      padding-bottom:10px!important;
+      min-height:42px!important;
+      font-weight:550!important;
+    }
+    [role="option"]:hover,[role="option"][data-highlighted="true"],
+    [role="option"][aria-selected="true"]:hover,
+    [data-baseweb="menu"] [role="option"]:hover,
+    ul[role="listbox"] li:hover {
+      background:#A8324C!important;
+      color:#FFFFFF!important;
+    }
+    [role="option"]:hover *,[role="option"][data-highlighted="true"] *,
+    [data-baseweb="menu"] [role="option"]:hover *,
+    ul[role="listbox"] li:hover * {
+      color:#FFFFFF!important;
+    }
+    [role="option"][aria-selected="true"],
+    [role="option"][data-selected="true"] {
+      background:#F8E2E5!important;
+      color:#84283F!important;
+      font-weight:800!important;
+      box-shadow:inset 3px 0 0 #B83250!important;
+    }
+    [role="option"][aria-selected="true"] *,
+    [role="option"][data-selected="true"] * {
+      color:#84283F!important;
+      font-weight:800!important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
