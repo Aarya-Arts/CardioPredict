@@ -110,6 +110,58 @@ input::placeholder,textarea::placeholder,::placeholder{color:#8C777D!important;o
 @media(max-width:900px){.block-container{padding-left:1.1rem!important;padding-right:1.1rem!important}.hero{padding:1.7rem;border-radius:22px}.hero:after{font-size:175px;right:-20px}.stTabs [data-baseweb="tab-list"]{overflow-x:auto!important}.stTabs [data-baseweb="tab"]{padding:8px 10px!important;font-size:.84rem!important}}
 @media(max-width:600px){.block-container{padding-top:.8rem!important;padding-left:.8rem!important;padding-right:.8rem!important}.hero{padding:1.35rem;border-radius:18px}.hero:after{font-size:130px;top:-15px;right:-25px}.hero h1{font-size:2rem!important}.hero p{font-size:.96rem!important}.hero-stat{font-size:.76rem}.glass-card{padding:15px}.stat-value{font-size:1.5rem!important}.stTabs [data-baseweb="tab"]{min-height:2.55rem!important;padding:7px 9px!important}.emergency{padding:1.1rem}.phone{margin-right:.25rem}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* DARK HEART-HEALTH THEME: white typography and deep burgundy surfaces */
+:root{color-scheme:dark;--ink:#FFF7F7;--soft:#F1E5E8;--muted:#D4C0C7;--wine:#FFDCE4;--rose:#F08AA3;--coral:#F2A0A0;--blush:#39242D;--paper:#21171C;--line:#67414F;--green:#A8D8B4;--blue:#A8CFE3;--amber:#E8C28D;--shadow:0 14px 34px rgba(0,0,0,.24)}
+.stApp{color:#FFF7F7!important;background:radial-gradient(ellipse at 8% 0%,rgba(185,79,104,.20),transparent 34rem),radial-gradient(ellipse at 96% 8%,rgba(71,123,97,.13),transparent 32rem),linear-gradient(145deg,#171116,#241820 52%,#1B2020)!important}
+[data-testid="stAppViewContainer"],[data-testid="stMain"],.main{background:transparent!important;color:#FFF7F7!important}
+[data-testid="stHeader"]{background:rgba(29,20,25,.96)!important;border-bottom:1px solid #67414F!important}
+h1,h2,h3,h4,h5,h6,[data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3,[data-testid="stMarkdownContainer"] h4{color:#FFE3E9!important}
+.stApp p,.stApp li,.stApp label,.stApp small,[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{color:#F1E5E8!important}
+[data-testid="stMarkdownContainer"] strong,.stApp strong{color:#FFFFFF!important}
+[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p,.stCaption,.small-muted{color:#D4C0C7!important}
+[data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] label,.stApp label{color:#FFF7F7!important}
+[data-testid="stMarkdownContainer"] a{color:#FFB6C7!important}
+section[data-testid="stSidebar"]{background:linear-gradient(180deg,#251820,#1A151A)!important;border-right:1px solid #67414F!important}
+section[data-testid="stSidebar"] *{color:#FFF7F7!important}
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,section[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{color:#EADCE0!important}
+section[data-testid="stSidebar"] hr{border-color:#67414F!important}
+.brand{color:#FFE3E9!important}.brand span{color:#F08AA3!important}
+.side-chip{background:#492B38!important;color:#FFE7EC!important;border-color:#865365!important}
+.glass-card{background:linear-gradient(145deg,#302129,#271B22)!important;border-color:#67414F!important;box-shadow:var(--shadow)}
+.glass-card:hover{border-color:#B66A80!important}
+.stat-label,.stat-note{color:#D4C0C7!important}.stat-value{color:#FFE3E9!important}
+div[data-testid="stForm"]{background:rgba(43,30,37,.96)!important;border-color:#67414F!important}
+div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,[data-testid="stTextArea"] textarea{background:#21171C!important;border:1px solid #805363!important;color:#FFFFFF!important}
+div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea,input,textarea{color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;caret-color:#FFB6C7!important}
+div[data-baseweb="select"] *,[data-testid="stSelectbox"] [data-baseweb="select"]{color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important}
+[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#2A1D24!important;border:1px solid #805363!important}
+[role="option"],[role="listbox"] *{color:#FFFFFF!important;background-color:#2A1D24!important}
+[role="option"]:hover{background:#52313F!important}
+input::placeholder,textarea::placeholder,::placeholder{color:#CBB6BE!important;opacity:1!important}
+[data-testid="stNumberInput"] button{color:#FFFFFF!important;background:#52313F!important;border-color:#805363!important}
+[data-testid="stCheckbox"] label,[data-testid="stRadio"] label{color:#FFFFFF!important}
+.stTabs [data-baseweb="tab-list"]{background:#2A1D24!important;border-color:#67414F!important}
+.stTabs [data-baseweb="tab"]{color:#EADCE0!important}
+.stTabs [data-baseweb="tab"] p{color:inherit!important}
+.stTabs [aria-selected="true"]{background:#50303D!important;border-color:#A65D73!important;color:#FFFFFF!important}
+[data-testid="stDataFrame"],[data-testid="stTable"]{background:#261B21!important;border-color:#67414F!important}
+[data-testid="stDataFrame"] *{color:#FFFFFF!important}
+[data-testid="stMetric"]{background:#302129!important;border-color:#67414F!important}
+[data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] *{color:#FFFFFF!important}
+[data-testid="stExpander"]{background:#2A1D24!important;border-color:#67414F!important}
+[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:#FFE3E9!important}
+[data-testid="stAlert"]{background:#302129!important;border-color:#805363!important}
+[data-testid="stAlert"] *{color:#FFFFFF!important}
+.info-box{background:#1D3039!important;border-color:#456A7C!important;border-left-color:#8EC1DA!important;color:#E8F5FB!important}
+.notice{background:#382B1D!important;border-color:#78603D!important;border-left-color:#E8C28D!important;color:#FFF0D8!important}
+.result-card{background:linear-gradient(120deg,#21372B,#29382E)!important;border-color:#547B60!important}
+.result-card.alert{background:linear-gradient(120deg,#482632,#352129)!important;border-color:#9E5268!important}
+.result-tag{color:#BCE8C6!important}.result-card.alert .result-tag{color:#FFDCE4!important}
+.result-title{color:#FFFFFF!important}.result-card .small-muted,.result-card.alert .small-muted{color:#E7DDE0!important}
+.footer{color:#CDBAC1!important}
+.emergency{background:linear-gradient(112deg,#512638,#702D43 58%,#81394A)!important}
+.phone{background:#FFF!important;color:#63263B!important}
 </style>
     """,
     unsafe_allow_html=True,
@@ -152,7 +204,7 @@ def synthetic_profile(rng):
 def make_performance_chart(frame):
     """Compare held-out model metrics with aligned, readable horizontal bars."""
     metrics=list(frame.columns); models=list(frame.index)
-    fig,ax=plt.subplots(figsize=(10.5,5.4),facecolor="#FFFCFA"); ax.set_facecolor("#FFFCFA")
+    fig,ax=plt.subplots(figsize=(10.5,5.4),facecolor="#21171C"); ax.set_facecolor("#21171C")
     palette={"Logistic Regression":"#6F967B","Random Forest":"#B94F68"}; fallback=["#B94F68","#6F967B","#567C91"]
     y=np.arange(len(metrics)); height=.34
     for i,name in enumerate(models):
@@ -162,18 +214,18 @@ def make_performance_chart(frame):
                      linewidth=1.4,label=str(name),zorder=3)
         for bar,value in zip(bars,values):
             ax.text(min(value+.014,1.045),bar.get_y()+bar.get_height()/2,f"{value:.1%}",
-                    va="center",ha="left",color="#49343B",fontsize=10,fontweight="bold")
+                    va="center",ha="left",color="#FFFFFF",fontsize=10,fontweight="bold")
     ax.set_yticks(y); ax.set_yticklabels([str(m).replace("_"," ").title() for m in metrics],
-                                          color="#49343B",fontsize=10,fontweight="medium")
+                                          color="#FFFFFF",fontsize=10,fontweight="medium")
     ax.invert_yaxis(); ax.set_xlim(0,1.14); ax.set_xticks(np.linspace(0,1,6))
     ax.set_xticklabels([f"{v:.0%}" for v in np.linspace(0,1,6)])
-    ax.set_xlabel("Evaluation score",color="#684B53",labelpad=10,fontsize=10)
-    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#7D2944",pad=18,fontsize=14,fontweight="bold")
-    ax.xaxis.grid(True,color="#EAD7D8",linewidth=.9,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#806B72",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
+    ax.set_xlabel("Evaluation score",color="#F1E5E8",labelpad=10,fontsize=10)
+    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#FFE3E9",pad=18,fontsize=14,fontweight="bold")
+    ax.xaxis.grid(True,color="#67414F",linewidth=.9,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#E2D1D7",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
     for spine in ax.spines.values(): spine.set_visible(False)
     ax.legend(loc="upper center",bbox_to_anchor=(.5,1.02),ncol=max(1,min(len(models),2)),
-              frameon=False,labelcolor="#49343B",fontsize=9)
+              frameon=False,labelcolor="#FFFFFF",fontsize=9)
     fig.subplots_adjust(left=.23,right=.96,top=.82,bottom=.15)
     return fig
 
@@ -182,14 +234,14 @@ def make_confusion_matrix_chart(cm_array,model_name):
     """Display confusion-matrix counts with a soft rose colour scale and labels."""
     from matplotlib.colors import LinearSegmentedColormap
     values=np.asarray(cm_array,dtype=int)
-    fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#FFFCFA"); ax.set_facecolor("#FFFCFA")
-    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#FBEAEC","#F0C7CE","#D98596","#963B55"])
+    fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#21171C"); ax.set_facecolor("#21171C")
+    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#39242D","#6D3448","#B94F68","#F08AA3"])
     vmax=max(int(values.max()),1); ax.imshow(values,cmap=cmap,vmin=0,vmax=vmax,aspect="equal")
     ax.set_xticks([0,1],labels=["Group 0","Group 1"]); ax.set_yticks([0,1],labels=["Group 0","Group 1"])
-    ax.set_xlabel("Predicted dataset group",color="#684B53",labelpad=10,fontsize=10)
-    ax.set_ylabel("Actual dataset group",color="#684B53",labelpad=10,fontsize=10)
-    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#7D2944",pad=18,fontsize=13,fontweight="bold")
-    ax.tick_params(axis="both",colors="#49343B",labelsize=10,length=0,pad=9)
+    ax.set_xlabel("Predicted dataset group",color="#F1E5E8",labelpad=10,fontsize=10)
+    ax.set_ylabel("Actual dataset group",color="#F1E5E8",labelpad=10,fontsize=10)
+    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#FFE3E9",pad=18,fontsize=13,fontweight="bold")
+    ax.tick_params(axis="both",colors="#FFFFFF",labelsize=10,length=0,pad=9)
     descriptions=[["True negative","False positive"],["False negative","True positive"]]; threshold=vmax*.52
     for row in range(2):
         for col in range(2):
@@ -197,7 +249,7 @@ def make_confusion_matrix_chart(cm_array,model_name):
             ax.text(col,row,f"{values[row,col]}\n{descriptions[row][col]}",ha="center",va="center",
                     color=ink,fontsize=9,fontweight="bold")
     ax.set_xticks(np.arange(-.5,2,1),minor=True); ax.set_yticks(np.arange(-.5,2,1),minor=True)
-    ax.grid(which="minor",color="#FFFFFF",linewidth=3); ax.tick_params(which="minor",bottom=False,left=False)
+    ax.grid(which="minor",color="#21171C",linewidth=3); ax.tick_params(which="minor",bottom=False,left=False)
     for spine in ax.spines.values(): spine.set_visible(False)
     fig.subplots_adjust(left=.20,right=.96,top=.84,bottom=.17)
     return fig
@@ -205,19 +257,19 @@ def make_confusion_matrix_chart(cm_array,model_name):
 
 def make_scenario_chart(group0,group1):
     """Plot synthetic output counts using the same accessible heart-health palette."""
-    fig,ax=plt.subplots(figsize=(8.5,3.2),facecolor="#FFFCFA"); ax.set_facecolor("#FFFCFA")
+    fig,ax=plt.subplots(figsize=(8.5,3.2),facecolor="#21171C"); ax.set_facecolor("#21171C")
     labels=["Output group 0","Output group 1"]; counts=[int(group0),int(group1)]
     bars=ax.barh(labels,counts,color=["#6F967B","#B94F68"],height=.56,
                  edgecolor="#FFFFFF",linewidth=1.4,zorder=3)
     maximum=max(max(counts),1); ax.set_xlim(0,maximum*1.18)
-    ax.xaxis.grid(True,color="#EAD7D8",linewidth=.8,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#806B72",labelsize=9,length=0)
-    ax.tick_params(axis="y",colors="#49343B",labelsize=10,length=0,pad=9)
-    ax.set_xlabel("Number of fictional test profiles",color="#684B53",fontsize=9,labelpad=8)
-    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#7D2944",fontsize=12,fontweight="bold",pad=13)
+    ax.xaxis.grid(True,color="#67414F",linewidth=.8,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#E2D1D7",labelsize=9,length=0)
+    ax.tick_params(axis="y",colors="#FFFFFF",labelsize=10,length=0,pad=9)
+    ax.set_xlabel("Number of fictional test profiles",color="#F1E5E8",fontsize=9,labelpad=8)
+    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#FFE3E9",fontsize=12,fontweight="bold",pad=13)
     for bar,count in zip(bars,counts):
         ax.text(count+maximum*.025,bar.get_y()+bar.get_height()/2,f"{count:,}",
-                va="center",ha="left",color="#49343B",fontsize=10,fontweight="bold")
+                va="center",ha="left",color="#FFFFFF",fontsize=10,fontweight="bold")
     for spine in ax.spines.values(): spine.set_visible(False)
     fig.subplots_adjust(left=.22,right=.96,top=.82,bottom=.22)
     return fig
