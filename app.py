@@ -133,6 +133,47 @@ st.markdown(
       border-bottom: 3px solid #0D9488 !important; font-weight: 800;
     }
     .footer { color: #8091A2; font-size: .78rem; text-align: center; padding-top: 1rem; }
+    
+    /* Cinematic motion layer — decorative only; prediction logic and inputs stay untouched */
+    @keyframes cp-heartbeat {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(45,212,191,0)); }
+      12% { transform: scale(1.13); filter: drop-shadow(0 0 18px rgba(45,212,191,.45)); }
+      24% { transform: scale(1); }
+      36% { transform: scale(1.08); }
+      48% { transform: scale(1); }
+    }
+    @keyframes cp-ecg-draw { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
+    @keyframes cp-glow-drift { 0%,100% { opacity:.25; transform:translate3d(0,0,0) scale(1); } 50% { opacity:.6; transform:translate3d(-12px,8px,0) scale(1.08); } }
+    @keyframes cp-rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes cp-shimmer { 0% { transform:translateX(-130%) skewX(-18deg); } 100% { transform:translateX(240%) skewX(-18deg); } }
+    .hero { isolation:isolate; animation:cp-rise .75s cubic-bezier(.2,.8,.2,1) both; }
+    .hero:after { animation:cp-heartbeat 2.1s ease-in-out infinite; transform-origin:center; }
+    .hero:before {
+      content:""; position:absolute; z-index:-1; width:310px; height:210px;
+      right:3%; bottom:-60px; border-radius:50%;
+      background:radial-gradient(circle,rgba(45,212,191,.22),transparent 68%);
+      filter:blur(8px); animation:cp-glow-drift 7s ease-in-out infinite;
+    }
+    .hero-ecg { position:relative; z-index:1; width:min(430px,72%); height:54px; margin-top:1.25rem; opacity:.88; }
+    .hero-ecg svg { width:100%; height:100%; overflow:visible; }
+    .hero-ecg path { fill:none; stroke:#99F6E4; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:900; stroke-dashoffset:900; animation:cp-ecg-draw 2.8s ease-in-out .35s forwards; filter:drop-shadow(0 0 5px rgba(153,246,228,.6)); }
+    .kpi { position:relative; overflow:hidden; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; animation:cp-rise .65s ease both; }
+    .kpi:after { content:""; position:absolute; top:0; left:0; width:42%; height:2px; background:linear-gradient(90deg,transparent,#2DD4BF,transparent); opacity:0; }
+    .kpi:hover { transform:translateY(-5px); box-shadow:0 15px 30px rgba(16,36,58,.10); border-color:#99F6E4; }
+    .kpi:hover:after { opacity:1; animation:cp-shimmer 1.1s ease; }
+    .stTabs [data-baseweb="tab"] { transition:all .2s ease; }
+    .stTabs [data-baseweb="tab"]:hover { transform:translateY(-2px); border-color:#99F6E4; }
+    div[data-testid="stForm"] { box-shadow:0 12px 34px rgba(16,36,58,.045); transition:box-shadow .25s ease; }
+    div[data-testid="stForm"]:hover { box-shadow:0 16px 40px rgba(16,36,58,.075); }
+    .result-card { animation:cp-rise .55s cubic-bezier(.2,.8,.2,1) both; box-shadow:0 10px 24px rgba(13,148,136,.07); }
+    .result-card.positive { box-shadow:0 10px 24px rgba(225,29,72,.07); }
+    .section-eyebrow { display:inline-flex; align-items:center; gap:8px; }
+    .section-eyebrow:before { content:""; width:20px; height:2px; background:#0D9488; border-radius:3px; }
+    .stProgress > div > div > div > div { background:linear-gradient(90deg,#0D9488,#5EEAD4); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *:before, *:after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -192,6 +233,11 @@ st.markdown(
     """
     <div class="hero">
       <div class="hero-kicker">Machine Learning · Academic Demonstration</div>
+      <div class="hero-ecg" aria-hidden="true">
+        <svg viewBox="0 0 520 70" preserveAspectRatio="none">
+          <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
+        </svg>
+      </div>
       <h1>Cardiovascular Disease Prediction</h1>
       <p>Explore a supervised learning workflow built around the UCI Cleveland dataset.
       Enter coded sample attributes, inspect model estimates, and compare classifier performance.</p>
