@@ -194,7 +194,7 @@ def make_confusion_matrix_chart(cm_array,model_name):
     for row in range(2):
         for col in range(2):
             ink="#FFFFFF" if values[row,col]>=threshold and values[row,col]>0 else "#49343B"
-            ax.text(col,row,f"{values[row,col]}\\n{descriptions[row][col]}",ha="center",va="center",
+            ax.text(col,row,f"{values[row,col]}\n{descriptions[row][col]}",ha="center",va="center",
                     color=ink,fontsize=9,fontweight="bold")
     ax.set_xticks(np.arange(-.5,2,1),minor=True); ax.set_yticks(np.arange(-.5,2,1),minor=True)
     ax.grid(which="minor",color="#FFFFFF",linewidth=3); ax.tick_params(which="minor",bottom=False,left=False)
