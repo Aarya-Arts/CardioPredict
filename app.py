@@ -896,62 +896,71 @@ def synthetic_profile(rng):
 
 
 def make_3d_performance_chart(frame):
-    models = list(frame.index)
+    """Aligned 2D comparison chart using a clear heart-health palette."""
     metrics = list(frame.columns)
-    fig = plt.figure(figsize=(10.5, 6.1), facecolor="#EEF4F3")
-    ax = fig.add_subplot(111, projection="3d")
-    colors = ["#347F82", "#C47B69", "#7C9C79", "#7893A8"]
-    dx, dy = .42, .42
-    for j, metric in enumerate(metrics):
-        vals = frame[metric].to_numpy(dtype=float)
-        xs = np.arange(len(models))
-        ys = np.full(len(models), j)
-        ax.bar3d(xs, ys, np.zeros(len(models)), dx, dy, vals,
-                 color=colors[j % len(colors)], alpha=.96, shade=True,
-                 edgecolor="#FFFFFF", linewidth=.35)
-        for x, y, z in zip(xs, ys, vals):
-            ax.text(x + dx/2, y + dy/2, z + .025, f"{z:.0%}",
-                    color="#542532", ha="center", fontsize=8, fontweight="bold")
-    ax.set_xticks(np.arange(len(models)) + dx/2)
-    ax.set_xticklabels(models, color="#294B58", fontsize=9)
-    ax.set_yticks(np.arange(len(metrics)) + dy/2)
-    ax.set_yticklabels(metrics, color="#405F69", fontsize=8)
-    ax.set_zlim(0, 1.12)
-    ax.set_zlabel("Score", color="#405B64", labelpad=8)
-    ax.set_title("MODEL PERFORMANCE · 3D VIEW", color="white", pad=18, fontsize=13, fontweight="bold")
-    ax.view_init(elev=26, azim=-55)
-    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
-        axis.set_pane_color((.91, .95, .94, .98))
-        axis.line.set_color("#8392B8")
-    ax.tick_params(colors="#D5E2FF")
-    fig.tight_layout()
+    models = list(frame.index)
+    fig, ax = plt.subplots(figsize=(10.5, 5.4), facecolor="#FFF9F7")
+    ax.set_facecolor("#FFFDFC")
+    colors = ["#D96C7B", "#E9A0A8", "#83B89A", "#75AEB0"]
+    y = np.arange(len(metrics))
+    height = 0.34
+    for i, model in enumerate(models):
+        vals = frame.loc[model, metrics].to_numpy(dtype=float)
+        bars = ax.barh(y + (i - (len(models)-1)/2) * height, vals,
+                       height=height * .88, color=colors[i % len(colors)],
+                       edgecolor="#FFFFFF", linewidth=1.2, label=str(model))
+        for bar, val in zip(bars, vals):
+            ax.text(min(val + .012, 1.015), bar.get_y() + bar.get_height()/2,
+                    f"{val:.0%}", va="center", ha="left",
+                    color="#69444D", fontsize=9, fontweight="bold")
+    ax.set_yticks(y)
+    ax.set_yticklabels([str(m).replace("_", " ").title() for m in metrics],
+                       color="#684B53", fontsize=10)
+    ax.set_xlim(0, 1.12)
+    ax.set_xlabel("Evaluation score", color="#765A60", labelpad=9)
+    ax.set_title("MODEL PERFORMANCE COMPARISON", color="#A94F63",
+                 pad=16, fontsize=14, fontweight="bold")
+    ax.xaxis.grid(True, color="#F0DDE0", linewidth=.9)
+    ax.set_axisbelow(True)
+    ax.tick_params(axis="x", colors="#806B70", labelsize=9)
+    ax.tick_params(axis="y", length=0, pad=9)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.legend(loc="lower right", frameon=True, facecolor="#FFFFFF",
+              edgecolor="#F0DDE0", labelcolor="#684B53", fontsize=9)
+    fig.subplots_adjust(left=.22, right=.96, top=.86, bottom=.16)
     return fig
 
 
 def make_3d_confusion(cm_array, model_name):
-    fig = plt.figure(figsize=(7.6, 5.4), facecolor="#F3F7F6")
-    ax = fig.add_subplot(111, projection="3d")
-    coords = [(0, 0), (1, 0), (0, 1), (1, 1)]
-    values = [int(cm_array[0, 0]), int(cm_array[0, 1]),
-              int(cm_array[1, 0]), int(cm_array[1, 1])]
-    colors = ["#347F82", "#C28B54", "#C47B69", "#7C9C79"]
-    for (x, y), value, color in zip(coords, values, colors):
-        ax.bar3d(x, y, 0, .55, .55, value, color=color, alpha=.96,
-                 shade=True, edgecolor="white")
-        ax.text(x + .27, y + .27, value + .5, str(value),
-                color="white", ha="center", fontsize=12, fontweight="bold")
-    ax.set_xticks([.27, 1.27])
-    ax.set_xticklabels(["Actual 0", "Actual 1"], color="#294B56")
-    ax.set_yticks([.27, 1.27])
-    ax.set_yticklabels(["Predicted 0", "Predicted 1"], color="#653C46")
-    ax.set_zlabel("Samples", color="#76575E")
-    ax.set_title(f"{model_name} · CONFUSION MATRIX", color="white", pad=14, fontsize=12, fontweight="bold")
-    ax.view_init(elev=25, azim=-52)
-    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
-        axis.set_pane_color((.91, .95, .94, .98))
-        axis.line.set_color("#8392B8")
-    ax.tick_params(colors="#D5E2FF")
-    fig.tight_layout()
+    """Aligned confusion matrix heatmap with legible counts and labels."""
+    values = np.asarray(cm_array, dtype=int)
+    fig, ax = plt.subplots(figsize=(7.4, 5.3), facecolor="#FFF9F7")
+    ax.set_facecolor("#FFFDFC")
+    palette = ["#F7DDE1", "#EBAAB4", "#D97A8A", "#A94F63"]
+    from matplotlib.colors import ListedColormap
+    cmap = ListedColormap(palette)
+    vmax = max(int(values.max()), 1)
+    image = ax.imshow(values, cmap=cmap, vmin=0, vmax=vmax, aspect="equal")
+    ax.set_xticks([0, 1], labels=["Predicted: Group 0", "Predicted: Group 1"])
+    ax.set_yticks([0, 1], labels=["Actual: Group 0", "Actual: Group 1"])
+    ax.set_title(f"{model_name} · CONFUSION MATRIX", color="#A94F63",
+                 pad=16, fontsize=13, fontweight="bold")
+    ax.tick_params(axis="both", colors="#684B53", labelsize=9, length=0, pad=9)
+    threshold = vmax * .55
+    for row in range(2):
+        for col in range(2):
+            ax.text(col, row, f"{values[row, col]}",
+                    ha="center", va="center",
+                    color="#FFFFFF" if values[row, col] >= threshold else "#704653",
+                    fontsize=17, fontweight="bold")
+    ax.set_xticks(np.arange(-.5, 2, 1), minor=True)
+    ax.set_yticks(np.arange(-.5, 2, 1), minor=True)
+    ax.grid(which="minor", color="#FFFFFF", linewidth=3)
+    ax.tick_params(which="minor", bottom=False, left=False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    fig.subplots_adjust(left=.27, right=.96, top=.86, bottom=.20)
     return fig
 
 
@@ -981,7 +990,7 @@ with st.sidebar:
     st.caption("Explore a sample, run a model prediction, stress-test scenarios and inspect model performance.")
     st.markdown("**Under the hood**")
     st.caption("Python · Streamlit · Pandas · NumPy")
-    st.caption("Scikit-learn · Joblib · Matplotlib 3D")
+    st.caption("Scikit-learn · Joblib · Matplotlib charts")
     st.markdown("---")
     st.markdown("**Model pipeline**")
     st.caption("13 input features → saved preprocessing pipeline → classifier → binary output")
@@ -995,7 +1004,7 @@ st.markdown(
       <div class="hero-top">
         <span class="pill"><span class="live-dot"></span> Interactive model workspace</span>
         <span class="pill">13 feature signals</span>
-        <span class="pill">3D analytics</span>
+        <span class="pill">Heart analytics</span>
       </div>
       <h1>Understand the signals.<br><span>Explore the pattern.</span></h1>
       <p>CardioPredict turns a set of heart-related measurements into an easy-to-explore machine-learning output.
@@ -1034,7 +1043,7 @@ st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 
 # ----------------------------- WORKSPACE TABS ---------------------------
 live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab = st.tabs(
-    ["✦ Live explorer", "▦ Scenario lab", "◈ 3D analytics", "♡ Heart guide", "✚ Emergency & map"]
+    ["✦ Live explorer", "▦ Scenario lab", "♡ Heart analytics", "♡ Heart guide", "✚ Emergency & map"]
 )
 
 # ----------------------------- LIVE EXPLORER ----------------------------
@@ -1208,7 +1217,7 @@ with analytics_tab:
             })
         comparison = pd.DataFrame(rows).set_index("Algorithm")
         st.dataframe(comparison.style.format("{:.1%}"), use_container_width=True)
-        st.markdown("#### 3D performance landscape")
+        st.markdown("#### Model performance comparison")
         fig = make_3d_performance_chart(comparison)
         st.pyplot(fig, use_container_width=True)
         plt.close(fig)
