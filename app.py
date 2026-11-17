@@ -579,8 +579,8 @@ with help_tab:
         "Enter a city, area or PIN code below to open a live Google Maps search. Check the hospital's "
         "emergency department availability and call before travelling when it is safe to do so."
     )
-    location_text = st.text_input("Your city, area or PIN code", value="Mysuru, Karnataka",
-                                  placeholder="For example: Mysuru, Karnataka")
+    location_text = st.text_input("Your city, area or PIN code", value="",
+                                  placeholder="Enter your city or area, e.g. Mysuru, Karnataka")
     if location_text.strip():
         hospital_query = quote("emergency hospital near " + location_text.strip())
         map_url = "https://www.google.com/maps/search/?api=1&query=" + hospital_query
