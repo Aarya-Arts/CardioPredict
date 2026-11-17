@@ -110,6 +110,44 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 @media(max-width:900px){.block-container{padding-left:1.1rem!important;padding-right:1.1rem!important}.hero{padding:1.7rem;border-radius:22px}.hero:after{right:-20px}.stTabs [data-baseweb="tab-list"]{overflow-x:auto!important}.stTabs [data-baseweb="tab"]{padding:8px 10px!important;font-size:.84rem!important}}
 @media(max-width:600px){.block-container{padding-top:.8rem!important;padding-left:.8rem!important;padding-right:.8rem!important}.hero{padding:1.35rem;border-radius:18px}.hero h1{font-size:2rem!important}.hero p{font-size:.96rem!important}.hero-stat{font-size:.76rem}.glass-card{padding:15px}.stat-value{font-size:1.5rem!important}.stTabs [data-baseweb="tab"]{min-height:2.55rem!important;padding:7px 9px!important}.emergency{padding:1.1rem}.phone{margin-right:.25rem}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Numeric biomedical measurements: dark field with high-contrast white digits */
+[data-testid="stNumberInput"] [data-baseweb="input"]>div,
+[data-testid="stNumberInput"] div[data-baseweb="input"]>div{
+  background:#123451!important;
+  border:1px solid #2C7184!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.12)!important;
+}
+[data-testid="stNumberInput"] input,
+[data-testid="stNumberInput"] input[type="number"]{
+  background:transparent!important;
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  caret-color:#8DE0E1!important;
+  font-weight:700!important;
+  font-size:1.04rem!important;
+  opacity:1!important;
+}
+[data-testid="stNumberInput"] input::placeholder{
+  color:#C6DDE5!important;
+  -webkit-text-fill-color:#C6DDE5!important;
+  opacity:1!important;
+}
+[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within{
+  border-color:#28A6AD!important;
+  box-shadow:0 0 0 3px rgba(40,166,173,.2)!important;
+}
+[data-testid="stNumberInput"] button{
+  background:#1C4B69!important;
+  color:#FFFFFF!important;
+  border:1px solid #2C7184!important;
+}
+[data-testid="stNumberInput"] button svg{
+  fill:#FFFFFF!important;
+  color:#FFFFFF!important;
+}
+
 </style>
     """,
     unsafe_allow_html=True,
