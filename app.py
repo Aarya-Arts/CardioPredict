@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="CardioPredict | Heart Health Intelligence",
     page_icon="💓",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 MODEL_PATH = "models/cvd_model.joblib"
@@ -197,6 +197,111 @@ st.markdown(
     @media(prefers-reduced-motion:reduce) {
       *,*:before,*:after {animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
     }
+
+    /* Accessible warm-teal colour system and larger type */
+    :root {
+      --ink:#183342; --muted:#405968; --panel:#F7FAF9;
+      --line:rgba(22,62,73,.16); --cyan:#267D80; --pink:#C96E63;
+      --violet:#668A9A; --lime:#6F967A; --orange:#B8793F;
+    }
+    .stApp {
+      color:#203744!important;
+      background:linear-gradient(145deg,#EEF4F3 0%,#E5EFF0 52%,#F5F1E9 100%)!important;
+    }
+    [data-testid="stHeader"] {background:rgba(238,244,243,.94)!important;}
+    .block-container {padding-top:1.35rem!important;}
+    h1,h2,h3,h4,h5,h6,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4 {
+      color:#173B49!important;text-shadow:none!important;
+    }
+    .stApp p,.stApp li,.stApp label,.stApp span,.stApp small,
+    [data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li,
+    [data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p,
+    .section-sub,.small-muted,.stat-label,.stat-note,.footer {
+      color:#344F5C!important;
+    }
+    .stApp,[data-testid="stAppViewContainer"],[data-testid="stMarkdownContainer"] {
+      font-size:18px!important;
+    }
+    .stApp p,.stApp li {font-size:1.08rem!important;line-height:1.65!important;}
+    .stApp label,[data-testid="stWidgetLabel"] {font-size:1.04rem!important;font-weight:650!important;color:#203F4D!important;}
+    [data-testid="stCaptionContainer"],.stCaption,.small-muted,.section-sub {font-size:1rem!important;line-height:1.55!important;}
+    h1 {font-size:2.35rem!important;} h2 {font-size:1.9rem!important;} h3 {font-size:1.48rem!important;} h4 {font-size:1.25rem!important;}
+    section[data-testid="stSidebar"] {background:#E3ECEB!important;border-right:1px solid #C6D7D7!important;}
+    section[data-testid="stSidebar"] * {color:#203F4D!important;}
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {color:#405C67!important;}
+    .brand span,.section-kicker {color:#287D80!important;}
+    .side-chip {background:#D5E9E6!important;color:#205E61!important;border-color:#A9CFCA!important;font-size:.82rem!important;}
+    .hero {
+      background:linear-gradient(112deg,#173F4C 0%,#28616A 55%,#557D76 100%)!important;
+      border:1px solid rgba(255,255,255,.35)!important;
+      box-shadow:0 18px 42px rgba(27,66,74,.18)!important;
+    }
+    .hero h1,.hero h1 span {color:#FFFFFF!important;background:none!important;-webkit-text-fill-color:#FFFFFF!important;}
+    .hero p,.hero-stat,.pill {color:#FFFFFF!important;}
+    .hero-stat b {color:#C6E7D8!important;}
+    .pill {background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.28)!important;font-size:.85rem!important;}
+    .live-dot {background:#B7D8B5!important;box-shadow:none!important;}
+    .ecg path {stroke:#D4E9DD!important;filter:none!important;}
+    .glass-card {
+      background:linear-gradient(145deg,#FFFFFF,#F2F7F6)!important;
+      border:1px solid #D3E1E0!important;box-shadow:0 8px 24px rgba(35,72,78,.09)!important;
+    }
+    .glass-card:hover {border-color:#8AB9B4!important;box-shadow:0 12px 28px rgba(35,72,78,.14)!important;}
+    .glass-card p,.glass-card .stat-label,.glass-card .stat-note {color:#34525E!important;}
+    .stat-value {color:#173F4C!important;font-size:1.9rem!important;}
+    .stat-label {font-size:.88rem!important;letter-spacing:.06em!important;}
+    .stat-note {font-size:.92rem!important;color:#45616B!important;}
+    .glow-line {background:linear-gradient(90deg,#397F82,#82AFA4,#C78A70,transparent)!important;}
+    div[data-testid="stForm"] {background:#F8FBFA!important;border-color:#D3E1E0!important;}
+    div[data-baseweb="input"]>div,div[data-baseweb="select"]>div {
+      background:#FFFFFF!important;border:1px solid #AFC4C5!important;color:#173B49!important;
+    }
+    input,textarea,div[data-baseweb="input"] input,div[data-baseweb="select"] *,
+    [data-testid="stNumberInput"] input,[data-testid="stTextInput"] input,
+    [data-testid="stSelectbox"] [data-baseweb="select"] {color:#173B49!important;font-size:1.08rem!important;}
+    [data-baseweb="popover"],[data-baseweb="menu"] {background:#FFFFFF!important;}
+    [role="option"] {color:#173B49!important;font-size:1.02rem!important;}
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button {
+      color:#FFFFFF!important;background:linear-gradient(100deg,#286F73,#397F79 55%,#668C7A)!important;
+      box-shadow:0 6px 16px rgba(37,103,103,.18)!important;font-size:1.02rem!important;min-height:3.2rem!important;
+    }
+    .stTabs [data-baseweb="tab-list"] {background:#DDE9E8!important;border-color:#C8D9D8!important;}
+    .stTabs [data-baseweb="tab"] {color:#34535E!important;font-size:1rem!important;font-weight:750!important;}
+    .stTabs [aria-selected="true"] {background:#FFFFFF!important;border:1px solid #A8C6C2!important;color:#1F6568!important;}
+    [data-testid="stMetric"] {background:#F8FBFA!important;border-color:#D3E1E0!important;}
+    [data-testid="stMetricLabel"],[data-testid="stMetricValue"],[data-testid="stMetricDelta"] {color:#173F4C!important;}
+    .result-card {background:linear-gradient(120deg,#DCEFEB,#E9F0F5)!important;border-color:#8CBDB2!important;}
+    .result-card.alert {background:linear-gradient(120deg,#F7E8E2,#F1E9E7)!important;border-color:#D5A092!important;}
+    .result-title,.result-tag,.result-card .small-muted {color:#173F4C!important;}
+    .result-tag {color:#286F73!important;}
+    .result-card.alert .result-tag {color:#A6534D!important;}
+    .info-box {color:#214F58!important;background:#E1F0EF!important;border-color:#9CCBC5!important;font-size:1rem!important;}
+    .notice {color:#654629!important;background:#F7EEDF!important;border-color:#DCC49A!important;font-size:1rem!important;}
+    .emergency {background:linear-gradient(110deg,#8E4E4A,#A96055,#806477)!important;}
+    .emergency h3,.emergency p {color:#FFFFFF!important;}
+    .phone {color:#78413F!important;font-size:1rem!important;}
+    [data-testid="stExpander"] {background:#F8FBFA!important;border:1px solid #D3E1E0!important;border-radius:12px!important;}
+    [data-testid="stExpander"] summary,[data-testid="stExpander"] summary p {color:#173F4C!important;font-size:1rem!important;}
+    [data-testid="stDataFrame"] {background:#FFFFFF!important;}
+    [data-testid="stDataFrame"] * {color:#203F4D!important;}
+    [data-testid="stAlert"] * {color:#203F4D!important;}
+    ::placeholder {color:#647C85!important;opacity:1!important;}
+    @media(max-width:760px) {
+      .block-container {padding-left:1rem!important;padding-right:1rem!important;padding-top:.8rem!important;}
+      .stApp,[data-testid="stMarkdownContainer"] {font-size:17px!important;}
+      .stApp p,.stApp li {font-size:1.04rem!important;line-height:1.6!important;}
+      h1 {font-size:2rem!important;} h2 {font-size:1.65rem!important;} h3 {font-size:1.32rem!important;}
+      .hero {padding:1.45rem!important;border-radius:20px!important;}
+      .hero h1 {font-size:2.15rem!important;}
+      .stat-value {font-size:1.45rem!important;}
+      .stTabs [data-baseweb="tab"] {padding:9px 10px!important;font-size:.88rem!important;}
+      .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button {min-height:3.25rem!important;}
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -239,9 +344,9 @@ def synthetic_profile(rng):
 def make_3d_performance_chart(frame):
     models = list(frame.index)
     metrics = list(frame.columns)
-    fig = plt.figure(figsize=(10.5, 6.1), facecolor="#111831")
+    fig = plt.figure(figsize=(10.5, 6.1), facecolor="#EEF4F3")
     ax = fig.add_subplot(111, projection="3d")
-    colors = ["#4DEBFF", "#FF5DB1", "#B8FF73", "#A78BFA"]
+    colors = ["#347F82", "#C47B69", "#7C9C79", "#7893A8"]
     dx, dy = .42, .42
     for j, metric in enumerate(metrics):
         vals = frame[metric].to_numpy(dtype=float)
@@ -254,15 +359,15 @@ def make_3d_performance_chart(frame):
             ax.text(x + dx/2, y + dy/2, z + .025, f"{z:.0%}",
                     color="white", ha="center", fontsize=8, fontweight="bold")
     ax.set_xticks(np.arange(len(models)) + dx/2)
-    ax.set_xticklabels(models, color="#EAF3FF", fontsize=9)
+    ax.set_xticklabels(models, color="#294B58", fontsize=9)
     ax.set_yticks(np.arange(len(metrics)) + dy/2)
-    ax.set_yticklabels(metrics, color="#D5E2FF", fontsize=8)
+    ax.set_yticklabels(metrics, color="#405F69", fontsize=8)
     ax.set_zlim(0, 1.12)
     ax.set_zlabel("Score", color="#D5E2FF", labelpad=8)
     ax.set_title("MODEL PERFORMANCE · 3D VIEW", color="white", pad=18, fontsize=13, fontweight="bold")
     ax.view_init(elev=26, azim=-55)
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
-        axis.set_pane_color((.10, .14, .27, .95))
+        axis.set_pane_color((.91, .95, .94, .98))
         axis.line.set_color("#8392B8")
     ax.tick_params(colors="#D5E2FF")
     fig.tight_layout()
@@ -275,7 +380,7 @@ def make_3d_confusion(cm_array, model_name):
     coords = [(0, 0), (1, 0), (0, 1), (1, 1)]
     values = [int(cm_array[0, 0]), int(cm_array[0, 1]),
               int(cm_array[1, 0]), int(cm_array[1, 1])]
-    colors = ["#4DEBFF", "#FFB45E", "#FF5D91", "#B8FF73"]
+    colors = ["#347F82", "#C28B54", "#C47B69", "#7C9C79"]
     for (x, y), value, color in zip(coords, values, colors):
         ax.bar3d(x, y, 0, .55, .55, value, color=color, alpha=.96,
                  shade=True, edgecolor="white")
