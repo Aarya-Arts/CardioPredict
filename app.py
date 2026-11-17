@@ -302,6 +302,183 @@ st.markdown(
       .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button {min-height:3.25rem!important;}
     }
 
+    
+    /* FINAL ACCESSIBILITY OVERRIDE — LIGHT SURFACES + DARK TEXT */
+    :root { color-scheme: light; }
+    html, body, [data-testid="stAppViewContainer"], .stApp,
+    [data-testid="stMain"], [data-testid="stMainBlockContainer"] {
+      background:#F3F7F6 !important;
+      color:#203B46 !important;
+    }
+    [data-testid="stHeader"] {background:#F3F7F6 !important;}
+    [data-testid="stMain"] {background:#F3F7F6 !important;}
+    .stApp *:not(svg):not(path) {color:#203B46;}
+    h1,h2,h3,h4,h5,h6,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4 {
+      color:#173B49 !important;text-shadow:none !important;
+    }
+    .stApp p,.stApp li,.stApp label,.stApp small,
+    [data-testid="stCaptionContainer"],[data-testid="stWidgetLabel"],
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] li {
+      color:#294653 !important;
+    }
+    /* Sidebar is a light navigation panel; it starts collapsed on phones. */
+    section[data-testid="stSidebar"] {
+      background:#E7F0EE !important;border-right:1px solid #C4D8D4 !important;
+    }
+    section[data-testid="stSidebar"] * {color:#203F4D !important;}
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {color:#365662 !important;}
+    /* Dark hero is intentional: every text element in it stays white. */
+    .hero {
+      background:linear-gradient(118deg,#174653 0%,#236B70 58%,#547F70 100%) !important;
+      border:1px solid #A8C9C2 !important;
+      box-shadow:0 16px 38px rgba(28,73,76,.16) !important;
+    }
+    .hero * {color:#FFFFFF !important;}
+    .hero h1,.hero h1 span {
+      color:#FFFFFF !important;background:none !important;
+      -webkit-text-fill-color:#FFFFFF !important;
+    }
+    .hero p {color:#F5FAF8 !important;}
+    .hero-stat {background:rgba(5,28,34,.36)!important;border-color:rgba(255,255,255,.3)!important;}
+    .hero-stat b {color:#D6EEE2 !important;}
+    .pill {background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.34)!important;color:#FFFFFF!important;}
+    .live-dot {background:#C3E6B8!important;}
+    .ecg path {stroke:#D9F0E5!important;filter:none!important;}
+    /* Cards, forms, expanders and notices use opaque light surfaces. */
+    .glass-card {
+      background:#FFFFFF !important;border:1px solid #D0DFDC !important;
+      box-shadow:0 7px 20px rgba(32,70,73,.08) !important;
+    }
+    .glass-card * {color:#294653 !important;}
+    .glass-card .stat-value {color:#173F4C !important;}
+    .stat-label {color:#3C5963 !important;font-size:.9rem!important;}
+    .stat-value {color:#173F4C!important;font-size:1.9rem!important;}
+    .stat-note {color:#45616B!important;font-size:.95rem!important;}
+    div[data-testid="stForm"],[data-testid="stExpander"],
+    [data-testid="stVerticalBlockBorderWrapper"] {
+      background:#FFFFFF !important;border-color:#D2E0DE !important;
+    }
+    div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,
+    [data-testid="stNumberInput"] input,[data-testid="stTextInput"] input,
+    [data-testid="stTextArea"] textarea {
+      background:#FFFFFF !important;color:#183B48 !important;
+      border:1px solid #AABFBE !important;
+    }
+    input,textarea,[data-baseweb="input"] input,
+    [data-baseweb="select"] *,[data-testid="stWidgetLabel"] {
+      color:#183B48 !important;
+    }
+    input::placeholder,textarea::placeholder,::placeholder {color:#61777D!important;opacity:1!important;}
+    [data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"] {
+      background:#FFFFFF !important;border:1px solid #C6D6D3 !important;
+    }
+    [role="option"],[role="option"] * {background:#FFFFFF!important;color:#183B48!important;}
+    [data-testid="stNumberInput"] button {
+      background:#E4EFEC !important;color:#214D53 !important;border:1px solid #B8CECA!important;
+    }
+    /* Buttons always use white text on a solid dark teal fill. */
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,
+    [data-testid="stLinkButton"] a {
+      background:#286D70 !important;color:#FFFFFF !important;
+      border:1px solid #205D61 !important;border-radius:12px!important;
+      min-height:3.15rem!important;font-size:1.04rem!important;font-weight:800!important;
+      box-shadow:0 5px 14px rgba(34,91,92,.16)!important;
+    }
+    .stButton>button *, .stFormSubmitButton>button *,
+    .stDownloadButton>button *, [data-testid="stLinkButton"] a * {
+      color:#FFFFFF !important;
+    }
+    .stButton>button:hover,.stFormSubmitButton>button:hover,
+    .stDownloadButton>button:hover {background:#1E5C60!important;}
+    /* Tabs have dark labels on a light strip; active tab is distinctly shaded. */
+    .stTabs [data-baseweb="tab-list"] {
+      background:#E2ECEA!important;border:1px solid #C7D9D5!important;
+      border-radius:14px!important;
+    }
+    .stTabs [data-baseweb="tab"],.stTabs [data-baseweb="tab"] * {
+      color:#294B56!important;font-weight:750!important;
+    }
+    .stTabs [aria-selected="true"],.stTabs [aria-selected="true"] * {
+      background:#FFFFFF!important;color:#165E62!important;
+    }
+    /* Metrics and tables remain readable even when Streamlit's base theme is dark. */
+    [data-testid="stMetric"],[data-testid="stMetricLabel"],
+    [data-testid="stMetricValue"],[data-testid="stMetricDelta"] {
+      background:#FFFFFF!important;color:#173F4C!important;
+    }
+    [data-testid="stMetric"] {border:1px solid #D1E0DD!important;border-radius:13px!important;}
+    [data-testid="stMetricLabel"] *,[data-testid="stMetricValue"] *,
+    [data-testid="stMetricDelta"] * {color:#173F4C!important;}
+    [data-testid="stDataFrame"] {
+      background:#FFFFFF!important;border:1px solid #D1E0DD!important;border-radius:12px!important;
+    }
+    [data-testid="stDataFrame"] * {color:#203F4D!important;}
+    [data-testid="stExpander"] summary,[data-testid="stExpander"] summary * {
+      color:#203F4D!important;background:#FFFFFF!important;
+    }
+    [data-testid="stAlert"] {
+      background:#EAF2F0!important;border:1px solid #BDD3CE!important;
+    }
+    [data-testid="stAlert"] * {color:#244651!important;}
+    /* Informational/result panels: all use dark text on pale backgrounds. */
+    .info-box,.info-box * {
+      color:#214F58!important;background:#E2F0ED!important;
+      border-color:#A9CEC5!important;
+    }
+    .notice,.notice * {
+      color:#614A2C!important;background:#F7F0E3!important;
+      border-color:#DCC9A7!important;
+    }
+    .result-card {
+      background:#E4F1ED!important;border:1px solid #9FC8BC!important;
+      box-shadow:0 8px 22px rgba(32,70,73,.08)!important;
+    }
+    .result-card * {color:#214550!important;}
+    .result-card.alert {
+      background:#F5EAE5!important;border-color:#D9B3A5!important;
+    }
+    .result-card.alert * {color:#67423D!important;}
+    .result-title {font-size:1.55rem!important;font-weight:800!important;}
+    .result-tag {font-size:.9rem!important;font-weight:900!important;}
+    /* Emergency panel is the other intentional dark panel. */
+    .emergency {
+      background:linear-gradient(115deg,#784A4A,#985D55,#66566E)!important;
+      border:1px solid #B9918C!important;
+    }
+    .emergency * {color:#FFFFFF!important;}
+    .phone,.phone * {
+      background:#FFFFFF!important;color:#673D3B!important;
+      font-weight:900!important;
+    }
+    .section-kicker {color:#276E70!important;font-size:.85rem!important;}
+    .section-sub,.small-muted,.footer {color:#405B64!important;}
+    .footer {font-size:.9rem!important;}
+    .glow-line {background:linear-gradient(90deg,#347C7A,#8BAE9F,#C58B70,transparent)!important;}
+    /* Larger, consistent type for older and low-vision users. */
+    .stApp,[data-testid="stMarkdownContainer"] {font-size:18px!important;}
+    .stApp p,.stApp li {font-size:1.08rem!important;line-height:1.65!important;}
+    .stApp label,[data-testid="stWidgetLabel"] {font-size:1.05rem!important;font-weight:700!important;}
+    [data-testid="stCaptionContainer"],.stCaption,.small-muted,.section-sub {
+      font-size:1rem!important;line-height:1.55!important;
+    }
+    h1 {font-size:2.35rem!important;} h2 {font-size:1.95rem!important;}
+    h3 {font-size:1.5rem!important;} h4 {font-size:1.28rem!important;}
+    @media(max-width:760px) {
+      .block-container {padding-left:1rem!important;padding-right:1rem!important;padding-top:.8rem!important;}
+      .hero {padding:1.45rem!important;border-radius:20px!important;}
+      .hero h1 {font-size:2.1rem!important;}
+      h1 {font-size:2.05rem!important;} h2 {font-size:1.72rem!important;}
+      h3 {font-size:1.35rem!important;}
+      .stApp p,.stApp li {font-size:1.04rem!important;line-height:1.6!important;}
+      .stat-value {font-size:1.5rem!important;}
+      .stTabs [data-baseweb="tab"] {padding:9px 10px!important;font-size:.9rem!important;}
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -363,7 +540,7 @@ def make_3d_performance_chart(frame):
     ax.set_yticks(np.arange(len(metrics)) + dy/2)
     ax.set_yticklabels(metrics, color="#405F69", fontsize=8)
     ax.set_zlim(0, 1.12)
-    ax.set_zlabel("Score", color="#D5E2FF", labelpad=8)
+    ax.set_zlabel("Score", color="#405B64", labelpad=8)
     ax.set_title("MODEL PERFORMANCE · 3D VIEW", color="white", pad=18, fontsize=13, fontweight="bold")
     ax.view_init(elev=26, azim=-55)
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
@@ -375,7 +552,7 @@ def make_3d_performance_chart(frame):
 
 
 def make_3d_confusion(cm_array, model_name):
-    fig = plt.figure(figsize=(7.6, 5.4), facecolor="#111831")
+    fig = plt.figure(figsize=(7.6, 5.4), facecolor="#F3F7F6")
     ax = fig.add_subplot(111, projection="3d")
     coords = [(0, 0), (1, 0), (0, 1), (1, 1)]
     values = [int(cm_array[0, 0]), int(cm_array[0, 1]),
@@ -387,14 +564,14 @@ def make_3d_confusion(cm_array, model_name):
         ax.text(x + .27, y + .27, value + .5, str(value),
                 color="white", ha="center", fontsize=12, fontweight="bold")
     ax.set_xticks([.27, 1.27])
-    ax.set_xticklabels(["Actual 0", "Actual 1"], color="#EAF3FF")
+    ax.set_xticklabels(["Actual 0", "Actual 1"], color="#294B56")
     ax.set_yticks([.27, 1.27])
     ax.set_yticklabels(["Predicted 0", "Predicted 1"], color="#EAF3FF")
     ax.set_zlabel("Samples", color="#D5E2FF")
     ax.set_title(f"{model_name} · CONFUSION MATRIX", color="white", pad=14, fontsize=12, fontweight="bold")
     ax.view_init(elev=25, azim=-52)
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
-        axis.set_pane_color((.10, .14, .27, .95))
+        axis.set_pane_color((.91, .95, .94, .98))
         axis.line.set_color("#8392B8")
     ax.tick_params(colors="#D5E2FF")
     fig.tight_layout()
@@ -462,10 +639,10 @@ st.markdown(
 # ----------------------------- TOP METRICS ------------------------------
 metrics_cols = st.columns(4)
 cards = [
-    ("SELECTED MODEL", selected_model, "Chosen during model training", "#4DEBFF"),
-    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#B8FF73"),
-    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#FF8BCB"),
-    ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#B9A2FF"),
+    ("SELECTED MODEL", selected_model, "Chosen during model training", "#286D70"),
+    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#527B53"),
+    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#A85E4D"),
+    ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#5C7591"),
 ]
 for col, (label, value, note, accent) in zip(metrics_cols, cards):
     with col:
@@ -627,7 +804,7 @@ with lab_tab:
             st.metric("Output group 0", group0)
         st.caption(f"Reproducible random seed: {st.session_state.get('synthetic_batch_seed', '—')}")
         bar_df = pd.DataFrame({"Model output": ["Group 0", "Group 1"], "Profiles": [group0, group1]}).set_index("Model output")
-        st.bar_chart(bar_df, color=["#4DEBFF"])
+        st.bar_chart(bar_df, color=["#347C7A"])
         st.markdown("#### Generated sample data")
         st.dataframe(batch.head(50), use_container_width=True, hide_index=True)
         csv_bytes = batch.to_csv(index=False).encode("utf-8")
