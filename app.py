@@ -148,6 +148,60 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
   color:#FFFFFF!important;
 }
 
+
+/* High-contrast text for every user-entered or selected widget value */
+[data-testid="stNumberInput"] [data-baseweb="input"]>div,
+[data-testid="stTextInput"] [data-baseweb="input"]>div,
+[data-testid="stTextArea"] textarea,
+[data-testid="stSelectbox"] [data-baseweb="select"]>div,
+[data-testid="stMultiSelect"] [data-baseweb="select"]>div,
+[data-testid="stDateInput"] [data-baseweb="input"]>div,
+[data-testid="stTimeInput"] [data-baseweb="input"]>div{
+  background:#123451!important;
+  border:1px solid #2C7184!important;
+  border-radius:12px!important;
+}
+[data-testid="stNumberInput"] input,
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-testid="stDateInput"] input,
+[data-testid="stTimeInput"] input,
+[data-testid="stSelectbox"] [data-baseweb="select"] *,
+[data-testid="stMultiSelect"] [data-baseweb="select"] *,
+[data-testid="stMultiSelect"] [data-baseweb="tag"] *{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  caret-color:#8DE0E1!important;
+  opacity:1!important;
+  font-weight:650!important;
+  text-shadow:none!important;
+}
+[data-testid="stNumberInput"] input::placeholder,
+[data-testid="stTextInput"] input::placeholder,
+[data-testid="stTextArea"] textarea::placeholder,
+[data-testid="stDateInput"] input::placeholder,
+[data-testid="stTimeInput"] input::placeholder{
+  color:#C6DDE5!important;
+  -webkit-text-fill-color:#C6DDE5!important;
+  opacity:1!important;
+}
+[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within,
+[data-testid="stTextInput"] [data-baseweb="input"]>div:focus-within,
+[data-testid="stTextArea"] textarea:focus,
+[data-testid="stSelectbox"] [data-baseweb="select"]>div:focus-within,
+[data-testid="stMultiSelect"] [data-baseweb="select"]>div:focus-within{
+  border-color:#42C4C5!important;
+  box-shadow:0 0 0 3px rgba(66,196,197,.22)!important;
+}
+[data-testid="stNumberInput"] button{
+  background:#1C4B69!important;color:#FFFFFF!important;border:1px solid #2C7184!important;
+}
+[data-testid="stNumberInput"] button svg{fill:#FFFFFF!important;color:#FFFFFF!important}
+[data-testid="stSelectbox"] svg,[data-testid="stMultiSelect"] svg{fill:#FFFFFF!important;color:#FFFFFF!important}
+[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFFFFF!important}
+[role="option],[role="listbox"] *{color:#152B43!important;-webkit-text-fill-color:#152B43!important;background-color:#FFFFFF!important}
+[role="option"]:hover{background:#EAF6F7!important}
+
 </style>
     """,
     unsafe_allow_html=True,
