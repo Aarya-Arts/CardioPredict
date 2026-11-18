@@ -54,7 +54,7 @@ def _api_key():
 def _speak(text, number, language='en-IN'):
     safe = json.dumps(str(text))
     html = f"""
-    <button id="s{number}" style="background:#087f8c;color:white;border:0;
+    <button id="s{number}" style="background:#BD5969;color:white;border:0;
     border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer">
     🔊 Speak answer</button>
     <script>
