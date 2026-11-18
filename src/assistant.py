@@ -79,15 +79,15 @@ def _api_key():
 def _speak(text, number, language="en-IN"):
     """Speak clean text rather than Markdown symbols."""
     speech_text = str(text)
-    speech_text = re.sub(r"```[\\s\\S]*?```", " ", speech_text)
-    speech_text = re.sub(r"!?\\[([^\\]]+)\\]\\([^)]+\\)", r"\\1", speech_text)
-    speech_text = re.sub(r"^\\s{0,3}#{1,6}\\s*", "", speech_text, flags=re.MULTILINE)
-    speech_text = re.sub(r"(\\*\\*|__)(.*?)\\1", r"\\2", speech_text)
-    speech_text = re.sub(r"(?<!\\w)[*_~`]", "", speech_text)
-    speech_text = re.sub(r"^\\s*[-+*]\\s+", "", speech_text, flags=re.MULTILINE)
-    speech_text = re.sub(r"^\\s*\\d+[.)]\\s+", "", speech_text, flags=re.MULTILINE)
-    speech_text = re.sub(r"\\n{2,}", ". ", speech_text)
-    speech_text = re.sub(r"\\s+", " ", speech_text).strip()
+    speech_text = re.sub(r"```[\s\S]*?```", " ", speech_text)
+    speech_text = re.sub(r"!?\[([^\]]+)\]\([^)]+\)", r"\1", speech_text)
+    speech_text = re.sub(r"^\s{0,3}#{1,6}\s*", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"(\*\*|__)(.*?)\1", r"\2", speech_text)
+    speech_text = re.sub(r"(?<!\w)[*_~`]", "", speech_text)
+    speech_text = re.sub(r"^\s*[-+*]\s+", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"^\s*\d+[.)]\s+", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"\n{2,}", ". ", speech_text)
+    speech_text = re.sub(r"\s+", " ", speech_text).strip()
     safe = json.dumps(speech_text)
     html = f"""
     <div style="display:flex;gap:8px;align-items:center">
@@ -115,7 +115,6 @@ def _speak(text, number, language="en-IN"):
     </script>
     """
     components.html(html, height=58)
-
 
 def _answer(question, history, context, key, language):
     """Ask Gemini, falling back to a second Flash model on temporary outages."""
