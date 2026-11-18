@@ -1,6 +1,7 @@
 """CardioPredict educational AI and voice assistant."""
 import json
 import os
+import re
 import time
 
 import streamlit as st
@@ -76,8 +77,18 @@ def _api_key():
 
 
 def _speak(text, number, language="en-IN"):
-    """Use the browser's installed speech voice for the selected language."""
-    safe = json.dumps(str(text))
+    """Speak clean text rather than Markdown symbols."""
+    speech_text = str(text)
+    speech_text = re.sub(r"```[\\s\\S]*?```", " ", speech_text)
+    speech_text = re.sub(r"!?\\[([^\\]]+)\\]\\([^)]+\\)", r"\\1", speech_text)
+    speech_text = re.sub(r"^\\s{0,3}#{1,6}\\s*", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"(\\*\\*|__)(.*?)\\1", r"\\2", speech_text)
+    speech_text = re.sub(r"(?<!\\w)[*_~`]", "", speech_text)
+    speech_text = re.sub(r"^\\s*[-+*]\\s+", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"^\\s*\\d+[.)]\\s+", "", speech_text, flags=re.MULTILINE)
+    speech_text = re.sub(r"\\n{2,}", ". ", speech_text)
+    speech_text = re.sub(r"\\s+", " ", speech_text).strip()
+    safe = json.dumps(speech_text)
     html = f"""
     <button id="s{number}" style="background:#BD5969;color:white;border:0;
     border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer">
