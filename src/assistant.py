@@ -51,7 +51,7 @@ def _api_key():
     except Exception:
         return ""
 
-def _speak(text, number):
+def _speak(text, number, language='en-IN'):
     safe = json.dumps(str(text))
     html = f"""
     <button id="s{number}" style="background:#087f8c;color:white;border:0;
@@ -62,7 +62,7 @@ def _speak(text, number):
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance({safe});
-      u.lang="en-IN"; u.rate=0.96; window.speechSynthesis.speak(u);
+      u.lang={json.dumps(language)}; u.rate=0.96; window.speechSynthesis.speak(u);
     }};
     </script>
     """
@@ -109,7 +109,7 @@ def render_cardio_assistant(current_profile=None, prediction=None):
     )
     with st.expander("Privacy and safety", expanded=False):
         st.write(
-            "Questions are sent to the configured Gemini API. Google's free tier "
+            "Text questions go to the configured Gemini API. Voice is sent to the speech-recognition service for transcription. Google's free tier "
             "may use submitted prompts to improve its products. Do not enter names, "
             "contact details, IDs or identifiable patient information. This is "
             "an educational assistant, not a medical service."
@@ -143,7 +143,7 @@ def render_cardio_assistant(current_profile=None, prediction=None):
         with st.chat_message(item["role"]):
             st.markdown(item["content"])
             if item["role"] == "assistant":
-                _speak(item["content"], i)
+                _speak(item["content"], i, st.session_state.get("cp_voice_lang", "en-IN"))
 
     left, right = st.columns([1, 1])
     with left:
