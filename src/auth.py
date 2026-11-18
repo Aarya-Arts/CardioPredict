@@ -126,7 +126,17 @@ def render_auth_gate():
         sign_in, sign_up = st.tabs(["Sign in", "Create account"])
         with sign_in:
             with st.form("cp_sign_in_form", clear_on_submit=False):
-                email = st.text_input("Email address", key="cp_login_email", placeholder="you@example.com")
+                remember_email = st.checkbox(
+    "Remember my email on this device (never save my password)",
+    key="cp_remember_email_choice",
+)
+saved_email = st.session_state.get("cp_saved_email", "")
+email = st.text_input(
+    "Email address",
+    value=saved_email if remember_email else "",
+    key="cp_login_email",
+    placeholder="you@example.com",
+)
                 password = st.text_input("Password", type="password", key="cp_login_password", placeholder="Enter your password")
                 submitted = st.form_submit_button("Sign in securely", use_container_width=True)
             if submitted:
@@ -138,6 +148,10 @@ def render_auth_gate():
                             {"email": email.strip(), "password": password}
                         )
                         if _save_session(response):
+                            if remember_email:
+                                st.session_state["cp_saved_email"] = email.strip()
+                            else:
+                                st.session_state.pop("cp_saved_email", None)
                             st.success("Signed in successfully.")
                             st.rerun()
                         st.error("Sign-in did not return a session. Check your email confirmation settings.")
