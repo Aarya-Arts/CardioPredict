@@ -99,7 +99,7 @@ def render_auth_gate():
     left, right = st.columns([1.02, 0.98], gap="large")
     with left:
         st.markdown(
-            """
+            f"""
             <div class="auth-brand">
               <div>
                 <div class="auth-brand-lockup">{brand_svg}<div><div class="auth-mark">Cardio<span>Predict</span></div><div class="auth-brand-subtitle">H E A R T &nbsp; &amp; &nbsp; L I F E</div></div></div>
