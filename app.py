@@ -203,6 +203,98 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 [role="option],[role="listbox"] *{color:#152B43!important;-webkit-text-fill-color:#152B43!important;background-color:#FFFFFF!important}
 [role="option"]:hover{background:#EAF6F7!important}
 
+
+/* ---------------- HEART & LIFE LIGHT THEME ---------------- */
+:root{
+ --ink:#49363B;--soft:#66545A;--muted:#8B777D;--navy:#743F4A;
+ --teal:#BD5969;--coral:#D96F7A;--line:#F0D8DA;--green:#4D896F;
+ --shadow:0 10px 26px rgba(130,76,84,.075)
+}
+.stApp{background:linear-gradient(180deg,#FFFCFB 0%,#FFF6F4 52%,#FFF9F7 100%)!important;color:var(--ink)!important}
+[data-testid="stHeader"]{background:rgba(255,252,251,.96)!important;border-bottom:1px solid #F0D8DA!important}
+h1,h2,h3,h4,h5,h6,[data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3,[data-testid="stMarkdownContainer"] h4{color:#743F4A!important}
+.stApp p,.stApp li,.stApp label,[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{color:#66545A!important}
+[data-testid="stMarkdownContainer"] strong,.stApp strong{color:#743F4A!important}
+[data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] label,.stApp label{color:#49363B!important}
+[data-testid="stMarkdownContainer"] a{color:#A8465A!important}
+section[data-testid="stSidebar"]{background:linear-gradient(180deg,#FFF0EE,#FCE7E6)!important;border-right:1px solid #F0D8DA!important}
+section[data-testid="stSidebar"] *{color:#49363B!important}
+.brand{color:#743F4A!important}.brand span{color:#BD5969!important}
+.side-chip{background:#FADFE0!important;color:#8E3F50!important;border-color:#EABFC4!important}
+.hero{background:linear-gradient(112deg,#FCE8E6 0%,#F9DCDD 58%,#F4E7E2 100%)!important;border:1px solid #EFCBCD!important;box-shadow:0 16px 36px rgba(145,76,85,.10)!important}
+.hero:before{background:radial-gradient(circle,rgba(218,126,137,.22),rgba(218,126,137,.04) 58%,transparent 72%)}
+.hero:after{background:#A84F60!important;opacity:.13!important}
+.hero h1{color:#743F4A!important}
+.hero h1 span{color:#B44F62!important;-webkit-text-fill-color:#B44F62!important}
+.hero p{color:#60464D!important}
+.pill{background:rgba(255,255,255,.66)!important;border:1px solid rgba(170,91,103,.20)!important;color:#784451!important}
+.live-dot{background:#68A987!important;box-shadow:0 0 0 3px rgba(104,169,135,.16)}
+.hero-stat{background:rgba(255,255,255,.62)!important;border:1px solid rgba(170,91,103,.18)!important;color:#60464D!important}
+.hero-stat b{color:#A8465A!important}
+.ecg path{stroke:#B64F63!important}
+.section-kicker{color:#B14F62!important}
+.glass-card{background:linear-gradient(145deg,#FFFFFF,#FFF7F5)!important;border-color:#F0D8DA!important;box-shadow:var(--shadow)!important}
+.glass-card:hover{border-color:#E4AEB5!important;box-shadow:0 14px 30px rgba(130,76,84,.11)!important}
+.stat-value{color:#743F4A!important}
+.glow-line{background:linear-gradient(90deg,#BD5969,#E7A1A7,#F4D5D3,transparent)!important}
+div[data-testid="stForm"]{background:rgba(255,255,255,.96)!important;border-color:#F0D8DA!important}
+div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,[data-testid="stTextArea"] textarea{background:#FFFBFA!important;border:1px solid #E7C9CC!important;color:#49363B!important}
+div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea,input,textarea{color:#49363B!important;-webkit-text-fill-color:#49363B!important;caret-color:#BD5969!important}
+div[data-baseweb="select"] *{color:#49363B!important;-webkit-text-fill-color:#49363B!important}
+[data-testid="stNumberInput"] [data-baseweb="input"]>div,
+[data-testid="stTextInput"] [data-baseweb="input"]>div,
+[data-testid="stTextArea"] textarea,
+[data-testid="stSelectbox"] [data-baseweb="select"]>div,
+[data-testid="stMultiSelect"] [data-baseweb="select"]>div,
+[data-testid="stDateInput"] [data-baseweb="input"]>div,
+[data-testid="stTimeInput"] [data-baseweb="input"]>div{
+ background:#FFF8F6!important;border:1px solid #E7C9CC!important;border-radius:12px!important
+}
+[data-testid="stNumberInput"] input,[data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,
+[data-testid="stDateInput"] input,[data-testid="stTimeInput"] input,
+[data-testid="stSelectbox"] [data-baseweb="select"] *,
+[data-testid="stMultiSelect"] [data-baseweb="select"] *,
+[data-testid="stMultiSelect"] [data-baseweb="tag"] *{
+ color:#49363B!important;-webkit-text-fill-color:#49363B!important;caret-color:#BD5969!important;
+ font-weight:650!important;opacity:1!important
+}
+[data-testid="stNumberInput"] input::placeholder,[data-testid="stTextInput"] input::placeholder,
+[data-testid="stTextArea"] textarea::placeholder{color:#9A8589!important;-webkit-text-fill-color:#9A8589!important}
+[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within,
+[data-testid="stTextInput"] [data-baseweb="input"]>div:focus-within,
+[data-testid="stTextArea"] textarea:focus,[data-testid="stSelectbox"] [data-baseweb="select"]>div:focus-within{
+ border-color:#D78A95!important;box-shadow:0 0 0 3px rgba(189,89,105,.15)!important
+}
+[data-testid="stNumberInput"] button{background:#FBE9E7!important;color:#884653!important;border:1px solid #E7C9CC!important}
+[data-testid="stNumberInput"] button svg,[data-testid="stSelectbox"] svg{fill:#884653!important;color:#884653!important}
+[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFFEFD!important;border:1px solid #F0D8DA!important}
+[role="option"],[role="listbox"] *{color:#49363B!important;-webkit-text-fill-color:#49363B!important;background:#FFFEFD!important}
+[role="option"]:hover{background:#FCEBE9!important}
+.stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a{
+ background:linear-gradient(100deg,#B84F62,#D77983)!important;border:1px solid #B84F62!important;
+ color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;box-shadow:0 7px 18px rgba(184,79,98,.16)!important
+}
+.stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover,.stLinkButton>a:hover{box-shadow:0 10px 22px rgba(184,79,98,.22)!important}
+.stTabs [data-baseweb="tab-list"]{background:#FBECEB!important;border-color:#F0D8DA!important}
+.stTabs [data-baseweb="tab"]{color:#79545B!important}
+.stTabs [data-baseweb="tab"] p{color:inherit!important}
+.stTabs [aria-selected="true"]{background:#FFFFFF!important;border-color:#E8BFC4!important;color:#98495A!important}
+.stTabs [data-baseweb="tab-highlight"]{background:#BD5969!important}
+[data-testid="stDataFrame"],[data-testid="stTable"],[data-testid="stMetric"]{border-color:#F0D8DA!important;background:#FFFFFF!important}
+[data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] *{color:#49363B!important}
+[data-testid="stProgressBar"]>div{background:#F6E5E4!important}
+[data-testid="stProgressBar"]>div>div{background:linear-gradient(90deg,#BD5969,#E7A1A7)!important}
+[data-testid="stExpander"]{border-color:#F0D8DA!important;background:rgba(255,255,255,.9)!important}
+[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:#743F4A!important}
+[data-testid="stAlert"]{border-color:#F0D8DA!important;background:#FFF8F6!important}
+.info-box{background:#FCEFED!important;border-color:#F0D0D1!important;border-left-color:#BD5969!important;color:#68474E!important}
+.notice{background:#FFF5E9!important}
+.result-card{background:linear-gradient(120deg,#EAF5EF,#FAFCF9)!important}
+.result-card.alert{background:linear-gradient(120deg,#FBEAEC,#FFF9F8)!important;border-color:#E8C2C7!important}
+.emergency{background:linear-gradient(112deg,#8F3F51,#B95566 65%,#D47C82)!important;border-color:#B95566!important}
+.phone{color:#8F3F51!important}
+.footer{color:#8B777D!important}
+
 </style>
     """,
     unsafe_allow_html=True,
@@ -336,7 +428,7 @@ selected_metrics = results.get(selected_model, {})
 # ----------------------------- SIDEBAR ----------------------------------
 with st.sidebar:
     st.markdown('<div class="brand">💓 Cardio<span>Predict</span></div>', unsafe_allow_html=True)
-    st.markdown('<span class="side-chip">HEART HEALTH INTELLIGENCE</span>', unsafe_allow_html=True)
+    st.markdown('<span class="side-chip">HEART &amp; LIFE · HEALTH INTELLIGENCE</span>', unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("**Your workspace**")
     st.caption("Explore a sample, run a model prediction, stress-test scenarios and inspect model performance.")
@@ -354,13 +446,13 @@ st.markdown(
     """
     <div class="hero">
       <div class="hero-top">
-        <span class="pill"><span class="live-dot"></span> Biomedical signal intelligence</span>
+        <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
         <span class="pill">13 feature signals</span>
         <span class="pill">Cardiovascular analytics</span>
       </div>
-      <h1>Understand the signals.<br><span>Explore the pattern.</span></h1>
-      <p>CardioPredict is a focused biomedical intelligence workspace for exploring cardiovascular measurements and machine-learning patterns.
-      Run a single profile, generate a batch of fictional scenarios, and see how the model behaves.</p>
+      <h1>HEART &amp; LIFE.<br><span>Understand. Care. Live well.</span></h1>
+      <p>CardioPredict brings heart health and the science of living well into one learning space.
+      Explore cardiovascular measurements, understand model patterns and discover how everyday heart-health knowledge supports informed conversations with healthcare professionals.</p>
       <div class="ecg"><svg viewBox="0 0 520 70" preserveAspectRatio="none">
         <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
       </svg></div>
@@ -668,7 +760,7 @@ with assistant_tab:
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="footer">CARDIOPREDICT · HEART HEALTH INTELLIGENCE · MACHINE-LEARNING PROJECT<br>'
+    '<div class="footer">CARDIOPREDICT · HEART & LIFE · HEART HEALTH LEARNING<br>'
     'Synthetic scenarios are fictional software-test inputs · Prototype not clinically validated · Not for diagnosis or emergency triage</div>',
     unsafe_allow_html=True,
 )
