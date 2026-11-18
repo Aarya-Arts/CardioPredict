@@ -42,6 +42,12 @@ You are CardioPredict's educational assistant. Explain the app, its 13 input
 fields, the Cleveland dataset, Logistic Regression, Random Forest, preprocessing,
 evaluation metrics and model outputs in clear, student-friendly language.
 
+Emotional awareness and natural conversation:
+- Notice clear emotional cues such as worry, fear, frustration, sadness, or confusion without claiming certainty about the user's feelings.
+- If a cue is present, acknowledge it briefly and kindly, then answer the actual question. Do not overdo sympathy or use forced cheerfulness.
+- Use natural everyday spoken Hindi in Devanagari and Kannada in Kannada script. Avoid stiff literal translations and unnecessary English.
+- Keep medical explanations calm, simple, respectful, and accurate. Never diagnose emotions or medical conditions.
+
 Medical and privacy safety:
 - This is a small historical UCI Cleveland academic prototype. It is not
   clinically validated and has not been validated for Indian patients.
@@ -106,7 +112,13 @@ def _speak(text, number, language="en-IN"):
       window.speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance({safe});
       u.lang={json.dumps(language)};
-      u.rate=0.96;
+      const langPrefix={json.dumps(language.split("-")[0])}.toLowerCase();
+      const voices=window.speechSynthesis.getVoices();
+      const matches=voices.filter(v => (v.lang || "").toLowerCase().startsWith(langPrefix));
+      const chosen=matches.find(v => v.default) || matches[0];
+      if(chosen) u.voice=chosen;
+      u.rate=langPrefix==="hi" ? 0.92 : (langPrefix==="kn" ? 0.93 : 0.96);
+      u.pitch=1.0;
       window.speechSynthesis.speak(u);
     }};
     stopButton.onclick=()=>{{
@@ -332,8 +344,8 @@ def render_cardio_assistant(current_profile=None, prediction=None):
 
     st.caption(
         f"Questions this session: {st.session_state.cp_chat_count}/30. "
-        "Spoken answers use your browser's available voice. Voice availability "
-        "varies by device and installed language packs."
+        "Spoken answers prefer an installed voice matching your selected language. "
+        "Voice naturalness depends on the browser and installed language packs."
     )
     if st.button("Clear conversation", key="cp_clear_conversation"):
         st.session_state.cp_chat_history = []
