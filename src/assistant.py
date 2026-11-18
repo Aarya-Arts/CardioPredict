@@ -177,6 +177,18 @@ Answer clearly and briefly. Follow all medical, privacy and prototype limits.
                 return answer.strip()
             except Exception as exc:
                 message = str(exc).upper()
+                # A 429 / RESOURCE_EXHAUSTED response means this model's quota
+                # or rate limit is exhausted. Do not waste retries on it: move
+                # straight to the backup model, which has its own quota.
+                quota_exhausted = any(marker in message for marker in (
+                    "429", "RESOURCE_EXHAUSTED", "QUOTA EXCEEDED",
+                    "RATE LIMIT EXCEEDED",
+                ))
+                if quota_exhausted:
+                    if model_index < len(models) - 1:
+                        break
+                    raise
+
                 temporary = any(code in message for code in (
                     "503", "UNAVAILABLE", "INTERNAL SERVER ERROR", "500"
                 ))
