@@ -15,8 +15,8 @@ from src.assistant import render_cardio_assistant
 # only and are never added to the training dataset.
 
 st.set_page_config(
-    page_title="CardioPredict | Heart Health Intelligence",
-    page_icon="💓",
+    page_title="CardioPredict | Heart & Life",
+    page_icon="💗",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -40,9 +40,9 @@ st.markdown(
     """
     <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-:root{color-scheme:light;--ink:#152B43;--soft:#40566B;--muted:#64798C;--navy:#123451;--teal:#087F8C;--coral:#D95D68;--line:#DCE7EE;--green:#367B63;--shadow:0 12px 30px rgba(19,54,79,.08)}
+:root{color-scheme:light;--ink:#152B43;--soft:#66545A;--muted:#8B777D;--navy:#743F4A;--teal:#BD5969;--coral:#D77983;--line:#F0D8DA;--green:#367B63;--shadow:0 12px 30px rgba(19,54,79,.08)}
 html,body,[class*="css"],button,input,textarea,select{font-family:'DM Sans','Segoe UI',sans-serif!important}
-.stApp{color:var(--ink)!important;background:linear-gradient(180deg,#F7FAFC,#F1F6F9)!important}
+.stApp{color:var(--ink)!important;background:linear-gradient(180deg,#FFFCFB,#FFF6F4)!important}
 [data-testid="stAppViewContainer"],[data-testid="stMain"],.main{background:transparent!important;color:var(--ink)!important}
 [data-testid="stHeader"]{background:rgba(247,250,252,.96)!important;border-bottom:1px solid var(--line)!important}
 .block-container{max-width:1460px!important;padding:1.35rem 1.55rem 3rem!important}
@@ -57,7 +57,7 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#EDF5F8,#E7F1
 section[data-testid="stSidebar"] *{color:var(--ink)!important}section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,section[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{color:var(--soft)!important}section[data-testid="stSidebar"] hr{border-color:var(--line)!important}
 .brand{font:800 1.35rem 'Manrope',sans-serif;letter-spacing:-.045em;color:var(--navy)!important}.brand span{color:var(--teal)!important}
 .side-chip{display:inline-block;padding:6px 10px;border-radius:99px;background:#DDF3F4!important;color:#075D68!important;border:1px solid #A9D9DD;font-size:.72rem;font-weight:800;letter-spacing:.08em}
-.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:25px;padding:2.05rem 2.3rem;margin:.2rem 0 1.35rem;background:linear-gradient(112deg,#102E49,#174B68 62%,#087F8C)!important;border:1px solid rgba(255,255,255,.22);box-shadow:0 20px 46px rgba(15,55,80,.17);animation:cp-rise .5s ease both}
+.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:25px;padding:2.05rem 2.3rem;margin:.2rem 0 1.35rem;background:linear-gradient(112deg,#102E49,#174B68 62%,#BD5969)!important;border:1px solid rgba(255,255,255,.22);box-shadow:0 20px 46px rgba(15,55,80,.17);animation:cp-rise .5s ease both}
 .hero:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-115px;top:-220px;border-radius:50%;background:radial-gradient(circle,rgba(85,205,207,.25),rgba(85,205,207,.05) 58%,transparent 72%)}
 .hero:after{content:"";position:absolute;z-index:-1;right:4%;top:12%;width:270px;height:145px;opacity:.16;background:#FFFFFF;clip-path:polygon(0 48%,24% 48%,31% 43%,37% 53%,43% 48%,49% 48%,54% 7%,60% 91%,66% 34%,72% 48%,100% 48%,100% 53%,73% 53%,66% 40%,60% 100%,54% 16%,50% 53%,43% 53%,37% 58%,31% 48%,24% 53%,0 53%)}
 .hero-top,.hero-foot{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.hero-top{margin-bottom:1rem}
@@ -75,26 +75,26 @@ section[data-testid="stSidebar"] *{color:var(--ink)!important}section[data-testi
 .glass-card:hover{transform:translateY(-2px);border-color:#9CCDD3!important;box-shadow:0 16px 34px rgba(19,54,79,.12)}
 .stat-label{color:var(--muted)!important;font-size:.76rem!important;font-weight:900!important;letter-spacing:.075em!important;text-transform:uppercase}
 .stat-value{color:var(--navy)!important;font:800 1.8rem 'Manrope',sans-serif!important;margin-top:7px;line-height:1.25}.stat-note{color:var(--muted)!important;font-size:.88rem!important;margin-top:5px;line-height:1.5!important}
-.glow-line{height:2px;border-radius:5px;background:linear-gradient(90deg,#087F8C,#45B8BB,#D95D68,transparent);margin:1.25rem 0}
+.glow-line{height:2px;border-radius:5px;background:linear-gradient(90deg,#BD5969,#45B8BB,#D77983,transparent);margin:1.25rem 0}
 div[data-testid="stForm"]{background:rgba(255,255,255,.94)!important;border:1px solid var(--line)!important;border-radius:20px!important;padding:1.05rem 1.15rem!important;box-shadow:var(--shadow)}
 div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,[data-testid="stTextArea"] textarea{background:#FFF!important;border:1px solid #C9D9E2!important;border-radius:12px!important;color:var(--ink)!important;box-shadow:none!important}
 div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea,input,textarea{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;font-size:1rem!important;caret-color:var(--teal)!important}
 div[data-baseweb="select"] *,[data-testid="stSelectbox"] [data-baseweb="select"]{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;font-size:.98rem!important}
 [data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFF!important;border:1px solid var(--line)!important;box-shadow:0 12px 30px rgba(19,54,79,.14)!important}
-[role="option"],[role="listbox"] *{color:var(--ink)!important;background-color:#FFF!important}[role="option"]:hover{background:#EAF6F7!important}
+[role="option"],[role="listbox"] *{color:var(--ink)!important;background-color:#FFF!important}[role="option"]:hover{background:#FCEBE9!important}
 input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;opacity:1!important}
 [data-testid="stNumberInput"] button{color:var(--navy)!important;background:#EAF4F7!important;border:1px solid #C9DDE5!important}
 [data-testid="stCheckbox"] label,[data-testid="stRadio"] label{color:var(--ink)!important}
-.stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a{min-height:2.9rem!important;border:1px solid #087F8C!important;border-radius:12px!important;padding:.55rem 1.05rem!important;background:linear-gradient(100deg,#087F8C,#1599A0)!important;color:#FFF!important;-webkit-text-fill-color:#FFF!important;font-size:.98rem!important;font-weight:800!important;box-shadow:0 7px 18px rgba(8,127,140,.16)!important;transition:transform .18s ease,filter .18s ease!important;text-decoration:none!important}
+.stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a{min-height:2.9rem!important;border:1px solid #BD5969!important;border-radius:12px!important;padding:.55rem 1.05rem!important;background:linear-gradient(100deg,#BD5969,#1599A0)!important;color:#FFF!important;-webkit-text-fill-color:#FFF!important;font-size:.98rem!important;font-weight:800!important;box-shadow:0 7px 18px rgba(8,127,140,.16)!important;transition:transform .18s ease,filter .18s ease!important;text-decoration:none!important}
 .stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover,.stLinkButton>a:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 10px 22px rgba(8,127,140,.22)!important}
 .stButton>button:focus-visible,.stFormSubmitButton>button:focus-visible,.stDownloadButton>button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(8,127,140,.28)!important;outline-offset:2px!important}
-.stTabs [data-baseweb="tab-list"]{gap:6px!important;background:#E8F0F4!important;border:1px solid #D4E2E9!important;border-radius:15px!important;padding:6px!important}
+.stTabs [data-baseweb="tab-list"]{gap:6px!important;background:#FBECEB!important;border:1px solid #D4E2E9!important;border-radius:15px!important;padding:6px!important}
 .stTabs [data-baseweb="tab"]{min-height:2.75rem!important;padding:9px 14px!important;border-radius:10px!important;color:#40596D!important;font-size:.91rem!important;font-weight:750!important;white-space:nowrap!important}
 .stTabs [data-baseweb="tab"] p{color:inherit!important;font-size:inherit!important}.stTabs [aria-selected="true"]{background:#FFF!important;border:1px solid #B8D6DF!important;color:#075D68!important;box-shadow:0 2px 8px rgba(19,54,79,.07)}.stTabs [data-baseweb="tab-highlight"]{background:var(--teal)!important}
 [data-testid="stDataFrame"],[data-testid="stTable"]{border:1px solid var(--line)!important;border-radius:13px!important;overflow:hidden!important;background:#FFF!important}[data-testid="stDataFrame"] *{font-size:.91rem!important}
 [data-testid="stMetric"]{background:#FFF!important;border:1px solid var(--line)!important;border-radius:15px!important;padding:13px 15px!important;box-shadow:0 5px 16px rgba(19,54,79,.05)}
 [data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] *{color:var(--ink)!important}
-[data-testid="stMetricValue"]{font-family:'Manrope',sans-serif!important}[data-testid="stProgressBar"]>div{background:#E2EFF2!important}[data-testid="stProgressBar"]>div>div{background:linear-gradient(90deg,#087F8C,#45B8BB)!important}
+[data-testid="stMetricValue"]{font-family:'Manrope',sans-serif!important}[data-testid="stProgressBar"]>div{background:#E2EFF2!important}[data-testid="stProgressBar"]>div>div{background:linear-gradient(90deg,#BD5969,#45B8BB)!important}
 [data-testid="stExpander"]{border:1px solid var(--line)!important;border-radius:13px!important;background:rgba(255,255,255,.86)!important}
 [data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--navy)!important;font-weight:750!important}
 [data-testid="stAlert"]{border-radius:13px!important;border:1px solid var(--line)!important}[data-testid="stAlert"] *{color:var(--ink)!important}
@@ -104,7 +104,7 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 .result-card.alert{border-color:#E5BBC2;border-left-color:var(--coral);background:linear-gradient(120deg,#FBECEF,#FFF8F7)!important}
 .result-tag{color:#367B63!important;font-size:.74rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.result-card.alert .result-tag{color:#A33B50!important}
 .result-title{color:var(--navy)!important;font:800 1.35rem 'Manrope',sans-serif;margin:.4rem 0;line-height:1.35}.result-card .small-muted{color:#526B5D!important}.result-card.alert .small-muted{color:#704F56!important}
-.emergency{background:linear-gradient(112deg,#102E49,#174B68 58%,#087F8C)!important;border:1px solid #174B68;border-radius:20px;padding:1.35rem 1.5rem;box-shadow:0 12px 30px rgba(16,46,73,.16)}
+.emergency{background:linear-gradient(112deg,#102E49,#174B68 58%,#BD5969)!important;border:1px solid #174B68;border-radius:20px;padding:1.35rem 1.5rem;box-shadow:0 12px 30px rgba(16,46,73,.16)}
 .emergency h3{color:#FFF!important;margin-top:0}.emergency p{color:#EAF6FA!important}
 .phone{display:inline-block;background:#FFF!important;color:#075D68!important;text-decoration:none!important;padding:10px 16px;border-radius:10px;font-weight:900;margin:.4rem .5rem .2rem 0}
 .footer{color:var(--muted)!important;font-size:.82rem!important;line-height:1.7!important;text-align:center;padding:1.35rem 0 .4rem}
@@ -115,7 +115,7 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 /* Numeric biomedical measurements: dark field with high-contrast white digits */
 [data-testid="stNumberInput"] [data-baseweb="input"]>div,
 [data-testid="stNumberInput"] div[data-baseweb="input"]>div{
-  background:#123451!important;
+  background:#743F4A!important;
   border:1px solid #2C7184!important;
   border-radius:12px!important;
   box-shadow:inset 0 1px 2px rgba(0,0,0,.12)!important;
@@ -158,7 +158,7 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 [data-testid="stMultiSelect"] [data-baseweb="select"]>div,
 [data-testid="stDateInput"] [data-baseweb="input"]>div,
 [data-testid="stTimeInput"] [data-baseweb="input"]>div{
-  background:#123451!important;
+  background:#743F4A!important;
   border:1px solid #2C7184!important;
   border-radius:12px!important;
 }
@@ -201,7 +201,7 @@ input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;o
 [data-testid="stSelectbox"] svg,[data-testid="stMultiSelect"] svg{fill:#FFFFFF!important;color:#FFFFFF!important}
 [data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFFFFF!important}
 [role="option],[role="listbox"] *{color:#152B43!important;-webkit-text-fill-color:#152B43!important;background-color:#FFFFFF!important}
-[role="option"]:hover{background:#EAF6F7!important}
+[role="option"]:hover{background:#FCEBE9!important}
 
 
 /* ---------------- HEART & LIFE LIGHT THEME ---------------- */
@@ -338,7 +338,7 @@ def make_performance_chart(frame):
     """Compare held-out model metrics with aligned, readable horizontal bars."""
     metrics=list(frame.columns); models=list(frame.index)
     fig,ax=plt.subplots(figsize=(10.5,5.4),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    palette={"Logistic Regression":"#087F8C","Random Forest":"#D95D68"}; fallback=["#087F8C","#D95D68","#567C91"]
+    palette={"Logistic Regression":"#BD5969","Random Forest":"#D77983"}; fallback=["#BD5969","#D77983","#567C91"]
     y=np.arange(len(metrics)); height=.34
     for i,name in enumerate(models):
         values=frame.loc[name,metrics].to_numpy(dtype=float)
@@ -347,18 +347,18 @@ def make_performance_chart(frame):
                      linewidth=1.4,label=str(name),zorder=3)
         for bar,value in zip(bars,values):
             ax.text(min(value+.014,1.045),bar.get_y()+bar.get_height()/2,f"{value:.1%}",
-                    va="center",ha="left",color="#18354D",fontsize=10,fontweight="bold")
+                    va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
     ax.set_yticks(y); ax.set_yticklabels([str(m).replace("_"," ").title() for m in metrics],
-                                          color="#18354D",fontsize=10,fontweight="medium")
+                                          color="#49363B",fontsize=10,fontweight="medium")
     ax.invert_yaxis(); ax.set_xlim(0,1.14); ax.set_xticks(np.linspace(0,1,6))
     ax.set_xticklabels([f"{v:.0%}" for v in np.linspace(0,1,6)])
-    ax.set_xlabel("Evaluation score",color="#40566B",labelpad=10,fontsize=10)
-    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#123451",pad=18,fontsize=14,fontweight="bold")
-    ax.xaxis.grid(True,color="#DCE7EE",linewidth=.9,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#64798C",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
+    ax.set_xlabel("Evaluation score",color="#66545A",labelpad=10,fontsize=10)
+    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#743F4A",pad=18,fontsize=14,fontweight="bold")
+    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.9,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
     for spine in ax.spines.values(): spine.set_visible(False)
     ax.legend(loc="upper center",bbox_to_anchor=(.5,1.02),ncol=max(1,min(len(models),2)),
-              frameon=False,labelcolor="#18354D",fontsize=9)
+              frameon=False,labelcolor="#49363B",fontsize=9)
     fig.subplots_adjust(left=.23,right=.96,top=.82,bottom=.15)
     return fig
 
@@ -368,13 +368,13 @@ def make_confusion_matrix_chart(cm_array,model_name):
     from matplotlib.colors import LinearSegmentedColormap
     values=np.asarray(cm_array,dtype=int)
     fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#087F8C"])
+    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#BD5969"])
     vmax=max(int(values.max()),1); ax.imshow(values,cmap=cmap,vmin=0,vmax=vmax,aspect="equal")
     ax.set_xticks([0,1],labels=["Group 0","Group 1"]); ax.set_yticks([0,1],labels=["Group 0","Group 1"])
-    ax.set_xlabel("Predicted dataset group",color="#40566B",labelpad=10,fontsize=10)
-    ax.set_ylabel("Actual dataset group",color="#40566B",labelpad=10,fontsize=10)
-    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#123451",pad=18,fontsize=13,fontweight="bold")
-    ax.tick_params(axis="both",colors="#18354D",labelsize=10,length=0,pad=9)
+    ax.set_xlabel("Predicted dataset group",color="#66545A",labelpad=10,fontsize=10)
+    ax.set_ylabel("Actual dataset group",color="#66545A",labelpad=10,fontsize=10)
+    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#743F4A",pad=18,fontsize=13,fontweight="bold")
+    ax.tick_params(axis="both",colors="#49363B",labelsize=10,length=0,pad=9)
     descriptions=[["True negative","False positive"],["False negative","True positive"]]; threshold=vmax*.52
     for row in range(2):
         for col in range(2):
@@ -392,17 +392,17 @@ def make_scenario_chart(group0,group1):
     """Plot synthetic output counts using the same accessible heart-health palette."""
     fig,ax=plt.subplots(figsize=(8.5,3.2),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
     labels=["Output group 0","Output group 1"]; counts=[int(group0),int(group1)]
-    bars=ax.barh(labels,counts,color=["#367B63","#D95D68"],height=.56,
+    bars=ax.barh(labels,counts,color=["#367B63","#D77983"],height=.56,
                  edgecolor="#FFFFFF",linewidth=1.4,zorder=3)
     maximum=max(max(counts),1); ax.set_xlim(0,maximum*1.18)
-    ax.xaxis.grid(True,color="#DCE7EE",linewidth=.8,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#64798C",labelsize=9,length=0)
-    ax.tick_params(axis="y",colors="#18354D",labelsize=10,length=0,pad=9)
+    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.8,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0)
+    ax.tick_params(axis="y",colors="#49363B",labelsize=10,length=0,pad=9)
     ax.set_xlabel("Number of fictional test profiles",color="#F1E5E8",fontsize=9,labelpad=8)
-    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#123451",fontsize=12,fontweight="bold",pad=13)
+    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#743F4A",fontsize=12,fontweight="bold",pad=13)
     for bar,count in zip(bars,counts):
         ax.text(count+maximum*.025,bar.get_y()+bar.get_height()/2,f"{count:,}",
-                va="center",ha="left",color="#18354D",fontsize=10,fontweight="bold")
+                va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
     for spine in ax.spines.values(): spine.set_visible(False)
     fig.subplots_adjust(left=.22,right=.96,top=.82,bottom=.22)
     return fig
@@ -446,7 +446,7 @@ st.markdown(
     """
     <div class="hero">
       <div class="hero-top">
-        <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
+        <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEART HEALTH LEARNING</span>
         <span class="pill">13 feature signals</span>
         <span class="pill">Cardiovascular analytics</span>
       </div>
@@ -469,9 +469,9 @@ st.markdown(
 # ----------------------------- TOP METRICS ------------------------------
 metrics_cols = st.columns(4)
 cards = [
-    ("SELECTED MODEL", selected_model, "Chosen during model training", "#123451"),
-    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#087F8C"),
-    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#D95D68"),
+    ("SELECTED MODEL", selected_model, "Chosen during model training", "#743F4A"),
+    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#BD5969"),
+    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#D77983"),
     ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
 ]
 for col, (label, value, note, accent) in zip(metrics_cols, cards):
