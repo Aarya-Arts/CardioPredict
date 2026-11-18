@@ -3,8 +3,19 @@
 Only the Supabase project URL and public anon/publishable key belong in
 Streamlit Secrets. Never use a service-role key in this app.
 """
+from pathlib import Path
+
 import streamlit as st
 from supabase import create_client
+
+
+def _brand_svg():
+    """Read the shared CardioPredict brand emblem for the sign-in screen."""
+    asset = Path(__file__).resolve().parents[1] / "assets" / "cardiopredict-mark.svg"
+    try:
+        return asset.read_text(encoding="utf-8")
+    except OSError:
+        return ""
 
 
 def _credentials():
@@ -84,13 +95,14 @@ def render_auth_gate():
                 _clear_session()
 
     url, key = _credentials()
+    brand_svg = _brand_svg()
     left, right = st.columns([1.02, 0.98], gap="large")
     with left:
         st.markdown(
             """
             <div class="auth-brand">
               <div>
-                <div class="auth-mark">CARDIO<span>PREDICT</span></div>
+                <div class="auth-brand-lockup">{brand_svg}<div><div class="auth-mark">Cardio<span>Predict</span></div><div class="auth-brand-subtitle">H E A R T &nbsp; &amp; &nbsp; L I F E</div></div></div>
                 <div class="eyebrow" style="margin-top:2.2rem">HEART &amp; LIFE · HEALTH INTELLIGENCE</div>
                 <h1>Understand your heart.<br>Make knowledge matter.</h1>
                 <p>A thoughtful space to explore cardiovascular data, learn how predictive models work, and build a clearer understanding of heart-health concepts.</p>
