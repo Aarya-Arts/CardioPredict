@@ -90,11 +90,18 @@ def _speak(text, number, language="en-IN"):
     speech_text = re.sub(r"\\s+", " ", speech_text).strip()
     safe = json.dumps(speech_text)
     html = f"""
-    <button id="s{number}" style="background:#BD5969;color:white;border:0;
-    border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer">
-    🔊 Speak answer</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="s{number}" style="background:#BD5969;color:white;border:0;
+      border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer">
+      🔊 Speak answer</button>
+      <button id="stop{number}" style="background:#F2E6E7;color:#743F4A;border:1px solid #D9BFC2;
+      border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer">
+      ⏹ Stop speaking</button>
+    </div>
     <script>
-    document.getElementById("s{number}").onclick=()=>{{
+    const speakButton = document.getElementById("s{number}");
+    const stopButton = document.getElementById("stop{number}");
+    speakButton.onclick=()=>{{
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance({safe});
@@ -102,9 +109,12 @@ def _speak(text, number, language="en-IN"):
       u.rate=0.96;
       window.speechSynthesis.speak(u);
     }};
+    stopButton.onclick=()=>{{
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }};
     </script>
     """
-    components.html(html, height=48)
+    components.html(html, height=58)
 
 
 def _answer(question, history, context, key, language):
