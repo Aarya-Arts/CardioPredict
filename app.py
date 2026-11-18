@@ -1,6 +1,7 @@
 import json
 import os
 from urllib.parse import quote
+from pathlib import Path
 
 import joblib
 import matplotlib.pyplot as plt
@@ -10,6 +11,12 @@ import streamlit as st
 from src.assistant import render_cardio_assistant
 from src.auth import render_auth_gate, render_logout_control
 
+BRAND_MARK_PATH = Path(__file__).resolve().parent / "assets" / "cardiopredict-mark.svg"
+try:
+    BRAND_MARK_SVG = BRAND_MARK_PATH.read_text(encoding="utf-8")
+except OSError:
+    BRAND_MARK_SVG = ""
+
 # CardioPredict - product-style interface and synthetic scenario explorer.
 # The saved model, original 13 features, preprocessing and training pipeline
 # are intentionally unchanged. Synthetic profiles are for software testing
@@ -17,7 +24,7 @@ from src.auth import render_auth_gate, render_logout_control
 
 st.set_page_config(
     page_title="CardioPredict | Heart & Life",
-    page_icon="💗",
+    page_icon=BRAND_MARK_SVG or "💗",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -176,6 +183,108 @@ st.markdown(
       .glass-card {padding:15px}
     }
     @media(prefers-reduced-motion:reduce) {*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    
+    /* HEART & LIFE — second approved blush/rose visual direction */
+    :root {
+      --ink:#172B42; --body:#536477; --muted:#748394; --navy:#142F49;
+      --rose:#C91446; --rose-dark:#9E173C; --teal:#168C91;
+      --line:#F0D8E0; --paper:#FFF8FA; --white:#FFFFFF;
+      --shadow:0 16px 38px rgba(117,34,65,.09);
+    }
+    .stApp {background:linear-gradient(135deg,#FFF8FA 0%,#FCECF1 45%,#FFF9FB 100%)!important}
+    [data-testid="stHeader"] {background:rgba(255,248,250,.94)!important;border-bottom:1px solid #F1D9E1!important}
+    section[data-testid="stSidebar"] {background:linear-gradient(180deg,#FFF4F7,#F9E8EF)!important;border-right:1px solid #F0D8E0!important}
+    .brand-bar {display:flex;align-items:center;justify-content:space-between;gap:1.1rem;
+      padding:.75rem 1.1rem;margin:.15rem 0 1.25rem;background:rgba(255,255,255,.88);
+      border:1px solid #F1D5DF;border-radius:18px;box-shadow:0 10px 28px rgba(117,34,65,.065)}
+    .brand-lockup {display:flex;align-items:center;gap:.7rem;min-width:230px}
+    .brand-lockup svg {width:58px;height:58px;flex:0 0 58px;filter:drop-shadow(0 5px 10px rgba(201,20,70,.16))}
+    .brand-name {font:800 1.48rem 'Manrope',sans-serif;letter-spacing:-.055em;color:#172B42;line-height:1.05}
+    .brand-name span {color:#C91446}
+    .brand-subtitle {margin-top:5px;font-size:.69rem;letter-spacing:.32em;font-weight:900;color:#27384D}
+    .brand-nav {display:flex;align-items:center;justify-content:center;gap:clamp(.8rem,2vw,2rem);flex-wrap:wrap}
+    .brand-nav a {text-decoration:none!important;color:#24374B!important;font-weight:750;font-size:.9rem;padding:.48rem .2rem;border-bottom:2px solid transparent}
+    .brand-nav a.active,.brand-nav a:hover {color:#C91446!important;border-color:#C91446}
+    .brand-status {font-size:.72rem;letter-spacing:.1em;font-weight:900;color:#9E173C;background:#FBE6ED;border:1px solid #F1C9D6;border-radius:999px;padding:.55rem .8rem;white-space:nowrap}
+    .sidebar-brand {display:flex;align-items:center;gap:.65rem;margin-bottom:.25rem}
+    .sidebar-brand svg {width:44px;height:44px}
+    .sidebar-brand .brand-copy {font:800 1.12rem 'Manrope',sans-serif;color:#172B42;letter-spacing:-.04em}
+    .sidebar-brand .brand-copy span {color:#C91446}
+    .sidebar-brand small {display:block;font:800 .57rem 'DM Sans',sans-serif;letter-spacing:.25em;color:#6C7887;margin-top:3px}
+    .hero {display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);align-items:center;gap:1.2rem;
+      min-height:365px;padding:2.1rem 2.2rem;margin:.25rem 0 1.25rem;
+      background:linear-gradient(112deg,#FFF9FB 0%,#FBE5EC 53%,#F5B6C8 100%)!important;
+      border:1px solid #F0C8D5;border-radius:25px;box-shadow:0 20px 46px rgba(148,27,65,.12);overflow:hidden}
+    .hero:before,.hero:after {display:none!important}
+    .hero-copy {position:relative;z-index:1;min-width:0}
+    .hero-top {margin-bottom:1.15rem}
+    .pill {background:#FFFFFF!important;color:#8F173A!important;border:1px solid #F1C4D2!important;
+      box-shadow:0 4px 12px rgba(151,25,64,.055);font-size:.72rem}
+    .live-dot {background:#D7194C!important;box-shadow:0 0 0 3px rgba(215,25,76,.12)!important}
+    .hero h1 {color:#142F49!important;font-size:clamp(2.35rem,4.8vw,3.65rem)!important;max-width:700px}
+    .hero h1 span {color:#C91446!important;-webkit-text-fill-color:#C91446!important}
+    .hero .hero-tagline {font:700 clamp(1.08rem,2vw,1.42rem) 'Manrope',sans-serif!important;color:#172B42!important;margin:.75rem 0 .85rem!important;line-height:1.35!important}
+    .hero .hero-tagline span {color:#C91446!important}
+    .hero p {max-width:620px;color:#43566A!important;font-size:1rem!important;line-height:1.65!important}
+    .hero-actions {display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:1.25rem 0 .25rem}
+    .hero-cta {display:inline-flex;align-items:center;gap:.55rem;padding:.78rem 1.05rem;border-radius:999px;
+      text-decoration:none!important;font-weight:850;font-size:.91rem;border:1px solid #C91446}
+    .hero-cta.primary {background:linear-gradient(100deg,#F04768,#C91446);color:#FFFFFF!important;
+      box-shadow:0 8px 20px rgba(201,20,70,.2)}
+    .hero-cta.secondary {background:rgba(255,255,255,.62);color:#8F173A!important;border-color:#C75A78}
+    .hero-foot {margin-top:1.05rem;gap:.55rem}
+    .hero-stat {background:rgba(255,255,255,.76);border:1px solid #F0C8D5;color:#35485B!important;
+      padding:8px 11px;border-radius:11px;font-size:.78rem}
+    .hero-stat b {color:#9E173C!important}
+    .hero-art {min-width:0;display:flex;align-items:center;justify-content:center;position:relative}
+    .hero-art svg {width:100%;max-width:520px;height:auto;overflow:visible;filter:drop-shadow(0 14px 22px rgba(180,20,70,.15))}
+    .feature-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin:0 0 1.25rem}
+    .feature-card {display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.9);
+      border:1px solid #F0D8E0;border-radius:17px;padding:1rem 1.05rem;box-shadow:0 8px 23px rgba(117,34,65,.055)}
+    .feature-icon {width:45px;height:45px;display:grid;place-items:center;flex:0 0 45px;border-radius:50%;
+      background:#FCE5EC;color:#C91446;font-size:1.35rem}
+    .feature-card strong {display:block;color:#172B42!important;font:800 .9rem 'Manrope',sans-serif}
+    .feature-card small {display:block;color:#69788A;font-size:.76rem;line-height:1.4;margin-top:3px}
+    .glass-card {background:linear-gradient(145deg,#FFFFFF,#FFF7FA)!important;border:1px solid #F0D8E0!important;
+      box-shadow:0 10px 25px rgba(117,34,65,.065)}
+    .stat-value {color:#9E173C!important}
+    .glow-line {background:linear-gradient(90deg,#C91446,#F49DB4,#D8A5B9,transparent)!important}
+    .stTabs [data-baseweb="tab-list"] {background:#FBEAF0!important;border-color:#F0D3DE!important}
+    .stTabs [aria-selected="true"] {background:#FFFFFF!important;color:#A31540!important;border-color:#F0C8D5!important}
+    .stTabs [data-baseweb="tab-highlight"] {background:#C91446!important}
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a {
+      background:linear-gradient(100deg,#F04768,#C91446)!important;border-color:#C91446!important;
+      box-shadow:0 7px 18px rgba(201,20,70,.16)!important}
+    .auth-brand {background:linear-gradient(145deg,#FFF1F6 0%,#F8D8E3 63%,#F2B4C7 100%)!important;
+      border-right:1px solid #F0D0DA!important;color:#172B42!important}
+    .auth-brand h1 {color:#142F49!important}
+    .auth-brand p {color:#43566A!important}
+    .auth-brand .eyebrow {color:#A31540!important}
+    .auth-brand .trust {color:#536477!important}
+    .auth-mark {color:#172B42!important}
+    .auth-mark span {color:#C91446!important}
+    .auth-panel {background:#FFFFFF!important}
+    @media(max-width:900px) {
+      .brand-bar {flex-wrap:wrap}
+      .brand-nav {order:3;width:100%;justify-content:space-around}
+      .hero {grid-template-columns:1fr;gap:.4rem}
+      .hero-art {max-height:270px}
+      .hero-art svg {max-height:260px}
+      .feature-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:560px) {
+      .brand-lockup {min-width:0}
+      .brand-lockup svg {width:47px;height:47px;flex-basis:47px}
+      .brand-name {font-size:1.2rem}
+      .brand-status {font-size:.62rem;padding:.45rem .6rem}
+      .brand-nav {gap:.45rem}
+      .brand-nav a {font-size:.78rem}
+      .hero {padding:1.35rem;border-radius:19px}
+      .hero h1 {font-size:2.15rem!important}
+      .hero-art {max-height:215px}
+      .feature-grid {grid-template-columns:1fr}
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -222,7 +331,7 @@ def make_performance_chart(frame):
     """Compare held-out model metrics with aligned, readable horizontal bars."""
     metrics=list(frame.columns); models=list(frame.index)
     fig,ax=plt.subplots(figsize=(10.5,5.4),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    palette={"Logistic Regression":"#BD5969","Random Forest":"#D77983"}; fallback=["#BD5969","#D77983","#567C91"]
+    palette={"Logistic Regression":"#C91446","Random Forest":"#F05C7B"}; fallback=["#C91446","#F05C7B","#567C91"]
     y=np.arange(len(metrics)); height=.34
     for i,name in enumerate(models):
         values=frame.loc[name,metrics].to_numpy(dtype=float)
@@ -231,18 +340,18 @@ def make_performance_chart(frame):
                      linewidth=1.4,label=str(name),zorder=3)
         for bar,value in zip(bars,values):
             ax.text(min(value+.014,1.045),bar.get_y()+bar.get_height()/2,f"{value:.1%}",
-                    va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
+                    va="center",ha="left",color="#172B42",fontsize=10,fontweight="bold")
     ax.set_yticks(y); ax.set_yticklabels([str(m).replace("_"," ").title() for m in metrics],
-                                          color="#49363B",fontsize=10,fontweight="medium")
+                                          color="#172B42",fontsize=10,fontweight="medium")
     ax.invert_yaxis(); ax.set_xlim(0,1.14); ax.set_xticks(np.linspace(0,1,6))
     ax.set_xticklabels([f"{v:.0%}" for v in np.linspace(0,1,6)])
-    ax.set_xlabel("Evaluation score",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#743F4A",pad=18,fontsize=14,fontweight="bold")
-    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.9,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
+    ax.set_xlabel("Evaluation score",color="#536477",labelpad=10,fontsize=10)
+    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#8F173A",pad=18,fontsize=14,fontweight="bold")
+    ax.xaxis.grid(True,color="#F2CED9",linewidth=.9,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#748394",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
     for spine in ax.spines.values(): spine.set_visible(False)
     ax.legend(loc="upper center",bbox_to_anchor=(.5,1.02),ncol=max(1,min(len(models),2)),
-              frameon=False,labelcolor="#49363B",fontsize=9)
+              frameon=False,labelcolor="#172B42",fontsize=9)
     fig.subplots_adjust(left=.23,right=.96,top=.82,bottom=.15)
     return fig
 
@@ -252,13 +361,13 @@ def make_confusion_matrix_chart(cm_array,model_name):
     from matplotlib.colors import LinearSegmentedColormap
     values=np.asarray(cm_array,dtype=int)
     fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#BD5969"])
+    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#C91446"])
     vmax=max(int(values.max()),1); ax.imshow(values,cmap=cmap,vmin=0,vmax=vmax,aspect="equal")
     ax.set_xticks([0,1],labels=["Group 0","Group 1"]); ax.set_yticks([0,1],labels=["Group 0","Group 1"])
-    ax.set_xlabel("Predicted dataset group",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_ylabel("Actual dataset group",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#743F4A",pad=18,fontsize=13,fontweight="bold")
-    ax.tick_params(axis="both",colors="#49363B",labelsize=10,length=0,pad=9)
+    ax.set_xlabel("Predicted dataset group",color="#536477",labelpad=10,fontsize=10)
+    ax.set_ylabel("Actual dataset group",color="#536477",labelpad=10,fontsize=10)
+    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#8F173A",pad=18,fontsize=13,fontweight="bold")
+    ax.tick_params(axis="both",colors="#172B42",labelsize=10,length=0,pad=9)
     descriptions=[["True negative","False positive"],["False negative","True positive"]]; threshold=vmax*.52
     for row in range(2):
         for col in range(2):
@@ -276,17 +385,17 @@ def make_scenario_chart(group0,group1):
     """Plot synthetic output counts using the same accessible heart-health palette."""
     fig,ax=plt.subplots(figsize=(8.5,3.2),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
     labels=["Output group 0","Output group 1"]; counts=[int(group0),int(group1)]
-    bars=ax.barh(labels,counts,color=["#367B63","#D77983"],height=.56,
+    bars=ax.barh(labels,counts,color=["#367B63","#F05C7B"],height=.56,
                  edgecolor="#FFFFFF",linewidth=1.4,zorder=3)
     maximum=max(max(counts),1); ax.set_xlim(0,maximum*1.18)
-    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.8,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0)
-    ax.tick_params(axis="y",colors="#49363B",labelsize=10,length=0,pad=9)
+    ax.xaxis.grid(True,color="#F2CED9",linewidth=.8,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#748394",labelsize=9,length=0)
+    ax.tick_params(axis="y",colors="#172B42",labelsize=10,length=0,pad=9)
     ax.set_xlabel("Number of fictional test profiles",color="#F1E5E8",fontsize=9,labelpad=8)
-    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#743F4A",fontsize=12,fontweight="bold",pad=13)
+    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#8F173A",fontsize=12,fontweight="bold",pad=13)
     for bar,count in zip(bars,counts):
         ax.text(count+maximum*.025,bar.get_y()+bar.get_height()/2,f"{count:,}",
-                va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
+                va="center",ha="left",color="#172B42",fontsize=10,fontweight="bold")
     for spine in ax.spines.values(): spine.set_visible(False)
     fig.subplots_adjust(left=.22,right=.96,top=.82,bottom=.22)
     return fig
@@ -311,7 +420,10 @@ selected_metrics = results.get(selected_model, {})
 
 # ----------------------------- SIDEBAR ----------------------------------
 with st.sidebar:
-    st.markdown('<div class="brand">💓 Cardio<span>Predict</span></div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="sidebar-brand">{BRAND_MARK_SVG}<div class="brand-copy">Cardio<span>Predict</span><small>HEART &amp; LIFE</small></div></div>',
+        unsafe_allow_html=True,
+    )
     st.markdown('<span class="side-chip">HEART &amp; LIFE · HEALTH INTELLIGENCE</span>', unsafe_allow_html=True)
     st.markdown("---")
     render_logout_control()
@@ -326,37 +438,80 @@ with st.sidebar:
     st.markdown("---")
     st.caption("Prototype notice: not clinically validated. Never use this app to diagnose, screen or decide whether to seek emergency care.")
 
+st.markdown(
+    f"""
+    <header class="brand-bar" id="top-nav">
+      <div class="brand-lockup">
+        {BRAND_MARK_SVG}
+        <div><div class="brand-name">Cardio<span>Predict</span></div><div class="brand-subtitle">H E A R T &nbsp; &amp; &nbsp; L I F E</div></div>
+      </div>
+      <nav class="brand-nav" aria-label="Main navigation">
+        <a class="active" href="#top">Home</a>
+        <a href="#live-explorer">Predict</a>
+        <a href="#ai-guide">AI Guide</a>
+        <a href="#about-project">About</a>
+      </nav>
+      <div class="brand-status">HEART HEALTH LEARNING</div>
+    </header>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ----------------------------- HERO -------------------------------------
 st.markdown(
-    """
-    <div class="hero">
-      <div class="hero-top">
-        <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEART HEALTH LEARNING</span>
-        <span class="pill">13 feature signals</span>
-        <span class="pill">Cardiovascular analytics</span>
+    f"""
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <div class="hero-top">
+          <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
+          <span class="pill">13 model features</span>
+        </div>
+        <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
+        <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
+        <p>Explore cardiovascular measurements, understand how machine-learning models work,
+        and use the AI guide to learn more about the science behind heart-health data.</p>
+        <div class="hero-actions">
+          <a class="hero-cta primary" href="#live-explorer">♡ &nbsp; Start Prediction&nbsp; →</a>
+          <a class="hero-cta secondary" href="#ai-guide">☏ &nbsp; Ask AI Guide</a>
+        </div>
+        <div class="hero-foot">
+          <div class="hero-stat"><b>Model</b> · {selected_model}</div>
+          <div class="hero-stat"><b>Dataset</b> · Cleveland</div>
+          <div class="hero-stat"><b>Workspace</b> · Explore + learn</div>
+        </div>
       </div>
-      <h1>HEART &amp; LIFE.<br><span>Understand. Care. Live well.</span></h1>
-      <p>CardioPredict brings heart health and the science of living well into one learning space.
-      Explore cardiovascular measurements, understand model patterns and discover how everyday heart-health knowledge supports informed conversations with healthcare professionals.</p>
-      <div class="ecg"><svg viewBox="0 0 520 70" preserveAspectRatio="none">
-        <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
-      </svg></div>
-      <div class="hero-foot">
-        <div class="hero-stat"><b>Model</b> · {model_name}</div>
-        <div class="hero-stat"><b>Dataset</b> · Cleveland heart-disease dataset</div>
-        <div class="hero-stat"><b>Mode</b> · Explore + test</div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 560 430" role="img" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="heartAura"><stop stop-color="#FF7898" stop-opacity=".55"/><stop offset="1" stop-color="#F5B8CA" stop-opacity="0"/></radialGradient>
+            <linearGradient id="heartFill" x1="130" y1="40" x2="430" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7995"/><stop offset=".45" stop-color="#D9194D"/><stop offset="1" stop-color="#850D35"/></linearGradient>
+            <linearGradient id="heartLight" x1="180" y1="100" x2="360" y2="350" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE2EA"/><stop offset=".55" stop-color="#F34B73"/><stop offset="1" stop-color="#B30D3E"/></linearGradient>
+            <filter id="heartGlow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <circle cx="300" cy="214" r="196" fill="url(#heartAura)"/>
+          <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#FFFFFF" stroke-width="5" opacity=".88"/>
+          <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#E34D78" stroke-width="2" opacity=".7"/>
+          <path d="M279 358C245 326 130 246 128 162c-2-70 73-108 127-47 44-67 133-47 139 21 8 87-72 164-115 222Z" fill="url(#heartFill)" stroke="#FFF0F4" stroke-width="5" filter="url(#heartGlow)"/>
+          <path d="M279 328c-41-39-94-90-95-151-1-43 41-64 73-26l21 28 23-31c29-39 76-14 73 26-4 55-57 114-95 154Z" fill="#8D113B" opacity=".45"/>
+          <path d="M252 105 248 65c-2-20 8-31 23-31 14 0 21 13 19 30l-5 41M309 109l15-47c6-18 20-25 33-18 12 8 12 22 3 39l-27 47M356 129l30-37c11-13 27-15 37-4 9 11 5 25-9 37l-48 43" fill="none" stroke="#C91446" stroke-width="22" stroke-linecap="round"/>
+          <path d="M238 220c29-35 47-46 69-42 30 5 42 34 31 61-10 26-35 58-57 78-25-27-54-66-56-91-2-11 3-19 13-28Z" fill="url(#heartLight)" opacity=".84"/>
+          <path d="M149 232h87l18-1 18-42 25 83 25-123 23 83 17 1h96" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#heartGlow)"/>
+          <path d="M65 361c84 39 226 34 340-30 45-25 78-61 91-95" fill="none" stroke="#D83162" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+          <circle cx="443" cy="83" r="7" fill="#FFFFFF"/><circle cx="96" cy="138" r="5" fill="#E83C69"/><circle cx="457" cy="286" r="5" fill="#FFFFFF"/>
+          <path d="M455 43h34M472 26v34" stroke="#D7194C" stroke-width="10" stroke-linecap="round"/>
+        </svg>
       </div>
-    </div>
-    """.replace("{model_name}", str(selected_model)),
+    </section>
+    """,
     unsafe_allow_html=True,
 )
 
 # ----------------------------- TOP METRICS ------------------------------
 metrics_cols = st.columns(4)
 cards = [
-    ("SELECTED MODEL", selected_model, "Chosen during model training", "#743F4A"),
-    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#BD5969"),
-    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#D77983"),
+    ("SELECTED MODEL", selected_model, "Chosen during model training", "#8F173A"),
+    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#C91446"),
+    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#F05C7B"),
     ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
 ]
 for col, (label, value, note, accent) in zip(metrics_cols, cards):
@@ -377,6 +532,7 @@ live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab, assistant_tab = st.t
 
 # ----------------------------- LIVE EXPLORER ----------------------------
 with live_tab:
+    st.markdown('<div id="live-explorer"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">01 / Live explorer</div>', unsafe_allow_html=True)
     st.header("Run a profile through the model")
     st.markdown('<div class="section-sub">Enter recorded measurements, or generate a fictional profile to see how the interface works.</div>', unsafe_allow_html=True)
@@ -637,6 +793,7 @@ with emergency_tab:
 
 # ----------------------------- AI ASSISTANT ------------------------------
 with assistant_tab:
+    st.markdown('<div id="ai-guide"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
     st.header("Ask CardioPredict")
     st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
@@ -645,7 +802,7 @@ with assistant_tab:
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="footer">CARDIOPREDICT · HEART & LIFE · HEART HEALTH LEARNING<br>'
+    '<div class="footer" id="about-project">CARDIOPREDICT · HEART & LIFE · HEART HEALTH LEARNING<br>'
     'Synthetic scenarios are fictional software-test inputs · Prototype not clinically validated · Not for diagnosis or emergency triage</div>',
     unsafe_allow_html=True,
 )
