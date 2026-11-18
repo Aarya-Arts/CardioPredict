@@ -125,20 +125,28 @@ def render_auth_gate():
 
         sign_in, sign_up = st.tabs(["Sign in", "Create account"])
         with sign_in:
+            remember_email = st.checkbox(
+                "Remember my email during this app session (never save my password)",
+                key="cp_remember_email_choice",
+            )
+            saved_email = st.session_state.get("cp_saved_email", "")
+            if remember_email and saved_email and not st.session_state.get("cp_login_email"):
+                st.session_state["cp_login_email"] = saved_email
             with st.form("cp_sign_in_form", clear_on_submit=False):
-                remember_email = st.checkbox(
-    "Remember my email on this device (never save my password)",
-    key="cp_remember_email_choice",
-)
-saved_email = st.session_state.get("cp_saved_email", "")
-email = st.text_input(
-    "Email address",
-    value=saved_email if remember_email else "",
-    key="cp_login_email",
-    placeholder="you@example.com",
-)
-                password = st.text_input("Password", type="password", key="cp_login_password", placeholder="Enter your password")
-                submitted = st.form_submit_button("Sign in securely", use_container_width=True)
+                email = st.text_input(
+                    "Email address",
+                    key="cp_login_email",
+                    placeholder="you@example.com",
+                )
+                password = st.text_input(
+                    "Password",
+                    type="password",
+                    key="cp_login_password",
+                    placeholder="Enter your password",
+                )
+                submitted = st.form_submit_button(
+                    "Sign in securely", use_container_width=True
+                )
             if submitted:
                 if not email.strip() or not password:
                     st.error("Enter both your email and password.")
