@@ -255,6 +255,9 @@ st.markdown(
     .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a {
       background:linear-gradient(100deg,#F04768,#C91446)!important;border-color:#C91446!important;
       box-shadow:0 7px 18px rgba(201,20,70,.16)!important}
+    .auth-brand-lockup {display:flex;align-items:center;gap:1rem}
+    .auth-brand-lockup svg {width:72px;height:72px;flex:0 0 72px;filter:drop-shadow(0 6px 12px rgba(201,20,70,.18))}
+    .auth-brand-subtitle {font-size:.63rem;letter-spacing:.24em;font-weight:900;color:#536477;margin-top:5px}
     .auth-brand {background:linear-gradient(145deg,#FFF1F6 0%,#F8D8E3 63%,#F2B4C7 100%)!important;
       border-right:1px solid #F0D0DA!important;color:#172B42!important}
     .auth-brand h1 {color:#142F49!important}
