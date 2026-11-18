@@ -417,6 +417,33 @@ ul[role="listbox"] [role="option"] {
 }
 .stApp [role="option"]:hover {background:#FCEBE9!important;}
 
+
+/* FINAL READABILITY PATCH: numeric values were still white on pale fields */
+.stApp div[data-testid="stNumberInput"] input[type="number"],
+.stApp div[data-testid="stNumberInput"] input,
+.stApp [data-testid="stNumberInput"] [data-baseweb="input"] input {
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  text-shadow:none!important;
+  opacity:1!important;
+  font-weight:700!important;
+  background:transparent!important;
+  caret-color:#BD5969!important;
+}
+.stApp div[data-testid="stNumberInput"] [data-baseweb="input"] > div {
+  background:#FFFBFA!important;
+  border:1px solid #E3BEC3!important;
+}
+.stApp div[data-testid="stNumberInput"] button {
+  background:#FBE9E7!important;
+  color:#884653!important;
+  border-color:#E3BEC3!important;
+}
+.stApp div[data-testid="stNumberInput"] button svg {
+  color:#884653!important;
+  fill:#884653!important;
+}
+
 </style>
     """,
     unsafe_allow_html=True,
