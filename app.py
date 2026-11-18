@@ -509,6 +509,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.markdown(
+    """
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feature-icon">♡</div><div><strong>Machine Learning</strong><small>Explore the Cleveland dataset model</small></div></div>
+      <div class="feature-card"><div class="feature-icon">✦</div><div><strong>AI Health Guide</strong><small>Understand inputs and model outputs</small></div></div>
+      <div class="feature-card"><div class="feature-icon">▥</div><div><strong>Model Analytics</strong><small>Review metrics and test scenarios</small></div></div>
+      <div class="feature-card"><div class="feature-icon">♥</div><div><strong>Heart &amp; Life</strong><small>Learn heart-health concepts clearly</small></div></div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 # ----------------------------- TOP METRICS ------------------------------
 metrics_cols = st.columns(4)
 cards = [
