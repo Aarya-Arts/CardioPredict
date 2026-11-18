@@ -7,3 +7,4 @@ matplotlib
 google-genai>=1.0.0
 streamlit-mic-recorder>=0.0.8
 python-dotenv>=1.0.0
+supabase>=2.0.0
