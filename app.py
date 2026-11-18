@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import streamlit as st
+from src.assistant import render_cardio_assistant
 
 # CardioPredict - product-style interface and synthetic scenario explorer.
 # The saved model, original 13 features, preprocessing and training pipeline
@@ -393,8 +394,8 @@ for col, (label, value, note, accent) in zip(metrics_cols, cards):
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 
 # ----------------------------- WORKSPACE TABS ---------------------------
-live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab = st.tabs(
-    ["✦ Live explorer", "▦ Scenario lab", "♡ Heart analytics", "♡ Heart guide", "✚ Emergency & map"]
+live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab, assistant_tab = st.tabs(
+    ["✦ Live explorer", "▦ Scenario lab", "♡ Heart analytics", "♡ Heart guide", "✚ Emergency & map", "✧ AI voice assistant"]
 )
 
 # ----------------------------- LIVE EXPLORER ----------------------------
@@ -657,6 +658,13 @@ with emergency_tab:
         st.info("Enter a location to create your Google Maps hospital search.")
     st.markdown('<div class="notice"><b>Important:</b> This app does not access GPS, call hospitals, dispatch an ambulance or confirm emergency-department availability. For an emergency, call the emergency number directly.</div>', unsafe_allow_html=True)
 
+# ----------------------------- AI ASSISTANT ------------------------------
+with assistant_tab:
+    st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
+    st.header("Ask CardioPredict")
+    st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
+    current_profile = {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
+    render_cardio_assistant(current_profile=current_profile, prediction=st.session_state.get("last_prediction"))
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 st.markdown(
