@@ -14,6 +14,7 @@ except ImportError:
     pass
 
 MODEL_NAME = "gemini-3.8-flash"
+FALLBACK_MODEL_NAME = "gemini-3.5-flash-lite"
 
 FIELD_GUIDE = """
 13 historical Cleveland inputs:
@@ -96,7 +97,7 @@ def _speak(text, number, language="en-IN"):
 
 
 def _answer(question, history, context, key, language):
-    """Ask Gemini for a safe answer in the selected response language."""
+    """Ask Gemini, falling back to a second Flash model on temporary outages."""
     from google import genai
     from google.genai import types
 
@@ -136,27 +137,39 @@ Answer clearly and briefly. Follow all medical, privacy and prototype limits.
         max_output_tokens=650,
     )
 
-    # Retry temporary overloads. Invalid keys and exhausted quotas are not retried.
-    for attempt in range(3):
-        try:
-            result = client.models.generate_content(
-                model=MODEL_NAME,
-                contents=prompt,
-                config=config,
-            )
-            answer = getattr(result, "text", None)
-            if not answer or not answer.strip():
-                raise RuntimeError("Gemini returned an empty answer.")
-            return answer.strip()
-        except Exception as exc:
-            message = str(exc).upper()
-            temporary = any(code in message for code in (
-                "503", "UNAVAILABLE", "INTERNAL SERVER ERROR", "500"
-            ))
-            if temporary and attempt < 2:
-                time.sleep(1.5 * (2 ** attempt))
-                continue
-            raise
+    models = (MODEL_NAME, FALLBACK_MODEL_NAME)
+    for model_index, model_name in enumerate(models):
+        # Retry temporary service overloads on the primary model. If it remains
+        # unavailable, try the backup model while preserving the same prompt.
+        attempts = 3 if model_index == 0 else 2
+        for attempt in range(attempts):
+            try:
+                result = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=config,
+                )
+                answer = getattr(result, "text", None)
+                if not answer or not answer.strip():
+                    raise RuntimeError(
+                        f"{model_name} returned an empty answer."
+                    )
+                return answer.strip()
+            except Exception as exc:
+                message = str(exc).upper()
+                temporary = any(code in message for code in (
+                    "503", "UNAVAILABLE", "INTERNAL SERVER ERROR", "500"
+                ))
+                if not temporary:
+                    raise
+                if attempt < attempts - 1:
+                    time.sleep(1.5 * (2 ** attempt))
+                    continue
+                if model_index == len(models) - 1:
+                    raise
+                # Move to the backup model after the primary's retries fail.
+
+    raise RuntimeError("Both Gemini models are temporarily unavailable.")
 
 
 def render_cardio_assistant(current_profile=None, prediction=None):
