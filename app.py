@@ -663,7 +663,7 @@ with assistant_tab:
     st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
     st.header("Ask CardioPredict")
     st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
-    current_profile = {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
+    current_profile = (st.session_state.get("last_prediction") or {}).get("profile") or {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
     render_cardio_assistant(current_profile=current_profile, prediction=st.session_state.get("last_prediction"))
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
