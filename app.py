@@ -295,6 +295,71 @@ div[data-baseweb="select"] *{color:#49363B!important;-webkit-text-fill-color:#49
 .phone{color:#8F3F51!important}
 .footer{color:#8B777D!important}
 
+
+/* ---------------- FINAL FORM CONTRAST FIX ---------------- */
+/* Keep all form controls light, readable, and consistent with Heart & Life. */
+div[data-testid="stForm"] [data-baseweb="input"] > div,
+div[data-testid="stForm"] [data-baseweb="select"] > div,
+div[data-testid="stForm"] [data-baseweb="textarea"] > div,
+div[data-testid="stForm"] textarea,
+div[data-testid="stForm"] input {
+  background-color:#FFFBFA!important;
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  border-color:#E3BEC3!important;
+  opacity:1!important;
+}
+div[data-testid="stForm"] [data-baseweb="select"] [class*="singleValue"],
+div[data-testid="stForm"] [data-baseweb="select"] [class*="placeholder"],
+div[data-testid="stForm"] [data-baseweb="select"] [class*="valueContainer"],
+div[data-testid="stForm"] [data-baseweb="select"] [class*="input"],
+div[data-testid="stForm"] [data-baseweb="select"] svg {
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  fill:#884653!important;
+  opacity:1!important;
+}
+div[data-testid="stForm"] [data-baseweb="select"] [class*="control"] {
+  background:#FFFBFA!important;
+  border:1px solid #E3BEC3!important;
+  border-radius:12px!important;
+}
+div[data-testid="stForm"] [data-baseweb="input"] input,
+div[data-testid="stForm"] [data-baseweb="textarea"] textarea {
+  background:transparent!important;
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  caret-color:#BD5969!important;
+}
+div[data-testid="stForm"] [data-testid="stNumberInput"] button {
+  background:#FBE9E7!important;
+  color:#884653!important;
+  border:1px solid #E3BEC3!important;
+}
+div[data-testid="stForm"] [data-testid="stNumberInput"] button svg {
+  color:#884653!important;
+  fill:#884653!important;
+}
+div[data-testid="stForm"] [data-baseweb="select"]:focus-within,
+div[data-testid="stForm"] [data-baseweb="input"]:focus-within {
+  border-color:#C66B78!important;
+  box-shadow:0 0 0 3px rgba(189,89,105,.14)!important;
+}
+[data-baseweb="popover"] [role="listbox"],
+[data-baseweb="popover"] [role="option"],
+[data-baseweb="menu"] [role="option"],
+ul[role="listbox"] [role="option"] {
+  background:#FFFEFD!important;
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  opacity:1!important;
+}
+[data-baseweb="popover"] [role="option"]:hover,
+[data-baseweb="menu"] [role="option"]:hover {
+  background:#FCEBE9!important;
+  color:#743F4A!important;
+}
+
 </style>
     """,
     unsafe_allow_html=True,
