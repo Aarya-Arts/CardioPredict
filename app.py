@@ -360,6 +360,63 @@ ul[role="listbox"] [role="option"] {
   color:#743F4A!important;
 }
 
+
+/* FINAL OVERRIDE: Streamlit/BaseWeb controls (global, including form widgets) */
+.stApp [data-testid="stNumberInput"] [data-baseweb="input"],
+.stApp [data-testid="stTextInput"] [data-baseweb="input"],
+.stApp [data-testid="stDateInput"] [data-baseweb="input"],
+.stApp [data-testid="stTimeInput"] [data-baseweb="input"],
+.stApp [data-testid="stSelectbox"] [data-baseweb="select"],
+.stApp [data-testid="stMultiSelect"] [data-baseweb="select"] {
+  background:#FFFBFA!important;
+  border:1px solid #E3BEC3!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+.stApp [data-testid="stNumberInput"] [data-baseweb="input"] *,
+.stApp [data-testid="stTextInput"] [data-baseweb="input"] *,
+.stApp [data-testid="stDateInput"] [data-baseweb="input"] *,
+.stApp [data-testid="stTimeInput"] [data-baseweb="input"] *,
+.stApp [data-testid="stSelectbox"] [data-baseweb="select"] *,
+.stApp [data-testid="stMultiSelect"] [data-baseweb="select"] * {
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  opacity:1!important;
+}
+.stApp [data-testid="stNumberInput"] input,
+.stApp [data-testid="stTextInput"] input,
+.stApp [data-testid="stDateInput"] input,
+.stApp [data-testid="stTimeInput"] input,
+.stApp [data-testid="stTextArea"] textarea {
+  background:transparent!important;
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+  caret-color:#BD5969!important;
+}
+.stApp [data-testid="stNumberInput"] button {
+  background:#FBE9E7!important;
+  color:#884653!important;
+  border:1px solid #E3BEC3!important;
+}
+.stApp [data-testid="stNumberInput"] button *,
+.stApp [data-testid="stSelectbox"] svg,
+.stApp [data-testid="stMultiSelect"] svg {
+  color:#884653!important;
+  fill:#884653!important;
+}
+.stApp [data-baseweb="popover"],
+.stApp [data-baseweb="menu"],
+.stApp ul[role="listbox"] {
+  background:#FFFEFD!important;
+  border:1px solid #E3BEC3!important;
+}
+.stApp [role="option"] {
+  background:#FFFEFD!important;
+  color:#49363B!important;
+  -webkit-text-fill-color:#49363B!important;
+}
+.stApp [role="option"]:hover {background:#FCEBE9!important;}
+
 </style>
     """,
     unsafe_allow_html=True,
