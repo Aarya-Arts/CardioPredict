@@ -75,7 +75,6 @@ def _auth_error(exc):
 def render_auth_gate():
     """Render the branded login/registration screen; return True when signed in."""
     if st.session_state.get("cp_supabase_access") and st.session_state.get("cp_auth_email"):
-        # Revalidate/refresh the user's session on each app run.
         client = _client()
         if client is not None:
             try:
@@ -85,113 +84,97 @@ def render_auth_gate():
                 _clear_session()
 
     url, key = _credentials()
-    st.markdown(
-        """
-        <div class="auth-shell">
-          <section class="auth-brand">
-            <div>
-              <div class="auth-mark">CARDIO<span>PREDICT</span></div>
-              <div class="eyebrow" style="margin-top:2.2rem">HEART &amp; LIFE · HEALTH INTELLIGENCE</div>
-              <h1>Understand your heart. Make knowledge matter.</h1>
-              <p>A thoughtful space to explore cardiovascular data, learn how predictive models work, and build a clearer understanding of heart-health concepts.</p>
-            </div>
-            <div class="trust">13 model features &nbsp;·&nbsp; Machine learning &nbsp;·&nbsp; Educational AI</div>
-          </section>
-          <section class="auth-panel">
-            <div class="section-kicker">YOUR PRIVATE WORKSPACE</div>
-            <h2>Welcome to CardioPredict</h2>
-            <p>Sign in or create an account to continue.</p>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    if not url or not key:
-        st.warning(
-            "Email authentication is not connected yet. Add SUPABASE_URL and "
-            "SUPABASE_ANON_KEY to Streamlit Secrets to activate account sign-in."
-        )
+    left, right = st.columns([1.02, 0.98], gap="large")
+    with left:
         st.markdown(
-            "Open the [Supabase dashboard](https://supabase.com/dashboard), create "
-            "a project, then copy its Project URL and anon/public key into "
-            "Streamlit Cloud → App settings → Secrets. Never use the service-role key."
+            """
+            <div class="auth-brand">
+              <div>
+                <div class="auth-mark">CARDIO<span>PREDICT</span></div>
+                <div class="eyebrow" style="margin-top:2.2rem">HEART &amp; LIFE · HEALTH INTELLIGENCE</div>
+                <h1>Understand your heart.<br>Make knowledge matter.</h1>
+                <p>A thoughtful space to explore cardiovascular data, learn how predictive models work, and build a clearer understanding of heart-health concepts.</p>
+              </div>
+              <div class="trust">13 model features &nbsp;·&nbsp; Machine learning &nbsp;·&nbsp; Educational AI</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
-        st.markdown("</section></div>", unsafe_allow_html=True)
-        return False
 
-    client = _client()
-    if client is None:
-        st.error("Authentication could not be initialized. Check the Supabase settings.")
-        st.markdown("</section></div>", unsafe_allow_html=True)
-        return False
+    with right:
+        st.markdown('<div class="section-kicker">YOUR PRIVATE WORKSPACE</div>', unsafe_allow_html=True)
+        st.markdown("## Welcome to CardioPredict")
+        st.caption("Sign in or create an account to continue.")
 
-    sign_in, sign_up, reset = st.tabs(["Sign in", "Create account", "Reset password"])
-    with sign_in:
-        with st.form("cp_sign_in_form", clear_on_submit=False):
-            email = st.text_input("Email address", key="cp_login_email", placeholder="you@example.com")
-            password = st.text_input("Password", type="password", key="cp_login_password", placeholder="Enter your password")
-            submitted = st.form_submit_button("Sign in securely", use_container_width=True)
-        if submitted:
-            if not email.strip() or not password:
-                st.error("Enter both your email and password.")
-            else:
-                try:
-                    response = client.auth.sign_in_with_password(
-                        {"email": email.strip(), "password": password}
-                    )
-                    if _save_session(response):
-                        st.success("Signed in successfully.")
-                        st.rerun()
-                    st.error("Sign-in did not return a session. Check your email confirmation settings.")
-                except Exception as exc:
-                    st.error(_auth_error(exc))
+        if not url or not key:
+            st.warning(
+                "Email authentication is not connected yet. Add SUPABASE_URL and "
+                "SUPABASE_ANON_KEY to Streamlit Secrets to activate account sign-in."
+            )
+            st.markdown(
+                "Open the [Supabase dashboard](https://supabase.com/dashboard), create "
+                "a project, then add its Project URL and anon/public key to "
+                "Streamlit Cloud → App settings → Secrets. Never use the service-role key."
+            )
+            return False
 
-    with sign_up:
-        with st.form("cp_sign_up_form", clear_on_submit=False):
-            new_email = st.text_input("Email address", key="cp_register_email", placeholder="you@example.com")
-            new_password = st.text_input("Create password", type="password", key="cp_register_password", placeholder="At least 8 characters")
-            confirm = st.text_input("Confirm password", type="password", key="cp_register_confirm", placeholder="Re-enter your password")
-            registered = st.form_submit_button("Create my account", use_container_width=True)
-        if registered:
-            if not new_email.strip() or not new_password or not confirm:
-                st.error("Complete all three fields.")
-            elif len(new_password) < 8:
-                st.error("Use a password with at least 8 characters.")
-            elif new_password != confirm:
-                st.error("The passwords do not match.")
-            else:
-                try:
-                    response = client.auth.sign_up(
-                        {"email": new_email.strip(), "password": new_password}
-                    )
-                    if _save_session(response):
-                        st.success("Your account is ready. Welcome to CardioPredict!")
-                        st.rerun()
-                    else:
-                        st.success("Account created. Check your inbox for the confirmation link, then sign in.")
-                except Exception as exc:
-                    st.error(_auth_error(exc))
+        client = _client()
+        if client is None:
+            st.error("Authentication could not be initialized. Check the Supabase settings.")
+            return False
 
-    with reset:
-        st.caption("We'll send a password-reset link if the email belongs to an account.")
-        with st.form("cp_reset_form", clear_on_submit=True):
-            reset_email = st.text_input("Account email", key="cp_reset_email", placeholder="you@example.com")
-            reset_submitted = st.form_submit_button("Send reset link", use_container_width=True)
-        if reset_submitted:
-            if not reset_email.strip():
-                st.error("Enter your account email.")
-            else:
-                try:
-                    client.auth.reset_password_for_email(reset_email.strip())
-                    st.success("If the account exists, a password-reset email has been requested.")
-                except Exception:
-                    st.error("The reset email could not be sent. Check your Supabase email settings.")
+        sign_in, sign_up = st.tabs(["Sign in", "Create account"])
+        with sign_in:
+            with st.form("cp_sign_in_form", clear_on_submit=False):
+                email = st.text_input("Email address", key="cp_login_email", placeholder="you@example.com")
+                password = st.text_input("Password", type="password", key="cp_login_password", placeholder="Enter your password")
+                submitted = st.form_submit_button("Sign in securely", use_container_width=True)
+            if submitted:
+                if not email.strip() or not password:
+                    st.error("Enter both your email and password.")
+                else:
+                    try:
+                        response = client.auth.sign_in_with_password(
+                            {"email": email.strip(), "password": password}
+                        )
+                        if _save_session(response):
+                            st.success("Signed in successfully.")
+                            st.rerun()
+                        st.error("Sign-in did not return a session. Check your email confirmation settings.")
+                    except Exception as exc:
+                        st.error(_auth_error(exc))
 
-    st.markdown(
-        '<p class="trust" style="margin-top:1.4rem">Your password is handled by Supabase Authentication. '
-        'CardioPredict does not store plain-text passwords. This prototype is educational, not a medical service.</p>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("</section></div>", unsafe_allow_html=True)
+        with sign_up:
+            with st.form("cp_sign_up_form", clear_on_submit=False):
+                new_email = st.text_input("Email address", key="cp_register_email", placeholder="you@example.com")
+                new_password = st.text_input("Create password", type="password", key="cp_register_password", placeholder="At least 8 characters")
+                confirm = st.text_input("Confirm password", type="password", key="cp_register_confirm", placeholder="Re-enter your password")
+                registered = st.form_submit_button("Create my account", use_container_width=True)
+            if registered:
+                if not new_email.strip() or not new_password or not confirm:
+                    st.error("Complete all three fields.")
+                elif len(new_password) < 8:
+                    st.error("Use a password with at least 8 characters.")
+                elif new_password != confirm:
+                    st.error("The passwords do not match.")
+                else:
+                    try:
+                        response = client.auth.sign_up(
+                            {"email": new_email.strip(), "password": new_password}
+                        )
+                        if _save_session(response):
+                            st.success("Your account is ready. Welcome to CardioPredict!")
+                            st.rerun()
+                        else:
+                            st.success("Account created. Check your inbox for the confirmation link, then sign in.")
+                    except Exception as exc:
+                        st.error(_auth_error(exc))
+
+        st.markdown(
+            '<p class="trust" style="margin-top:1.2rem">Passwords are managed by Supabase Authentication. '
+            'CardioPredict does not store plain-text passwords. Educational prototype, not a medical service.</p>',
+            unsafe_allow_html=True,
+        )
     return False
 
 
