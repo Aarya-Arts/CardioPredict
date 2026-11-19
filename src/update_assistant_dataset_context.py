@@ -26,7 +26,7 @@ if end < 0:
     print("FIELD_GUIDE closing marker not found; no changes made.")
     raise SystemExit(1)
 
-new_guide = """FIELD_GUIDE = """
+new_guide = '''FIELD_GUIDE = """
 12 predictors in the current Cardiovascular Disease Dataset model:
 age: age in years.
 gender: dataset code 0=female, 1=male.
@@ -46,7 +46,7 @@ Rows with undocumented slope code 0 are excluded from the cleaned training data.
 Target 0 means the record belongs to the dataset's absence-labelled group;
 target 1 means the record belongs to the dataset's presence-labelled group.
 These are historical dataset labels, not a medical diagnosis or a measure of personal clinical risk.
-""" """
+"""'''
 
 source = source[:start] + new_guide + source[end + 3:]
 
