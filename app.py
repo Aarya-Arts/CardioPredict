@@ -815,72 +815,119 @@ def render_scenario_lab():
 def render_analytics_page():
     st.markdown('<div class="section-kicker">03 / Model analytics</div>', unsafe_allow_html=True)
     st.header("Explore the model's test performance")
-    st.markdown('<div class="section-sub">The metrics below come from the saved evaluation results on the held-out test split.</div>', unsafe_allow_html=True)
-    if results:
-        rows = []
-        for name, values in results.items():
-            rows.append({
-                "Algorithm": name,
-                "Accuracy": safe_float(values.get("accuracy")),
-                "Precision · Group 1": safe_float(values.get("precision")),
-                "Recall · Group 1": safe_float(values.get("recall")),
-                "F1 · Group 1": safe_float(values.get("f1_score")),
-            })
-        comparison = pd.DataFrame(rows).set_index("Algorithm")
-        st.dataframe(comparison.style.format("{:.1%}"), use_container_width=True)
-        st.markdown("#### Model performance comparison")
-        fig = make_performance_chart(comparison)
+    st.markdown('<div class="section-sub">These are internal experimental results from a held-out split of the uploaded dataset. They are not clinical validation results.</div>', unsafe_allow_html=True)
+
+    test_metrics = metrics_data.get("held_out_test_metrics")
+    cv_results = metrics_data.get("cv_model_comparison", {})
+    if test_metrics:
+        st.info(
+            f"Selected candidate: {selected_model} · "
+            f"{metrics_data.get('records_after_slope_validation', '—')} records after data checks · "
+            f"{test_metrics.get('test_records', '—')} held-out test records."
+        )
+        metric_cols = st.columns(5)
+        metric_items = [
+            ("Accuracy", test_metrics.get("accuracy")),
+            ("Precision", test_metrics.get("precision")),
+            ("Recall", test_metrics.get("recall")),
+            ("F1-score", test_metrics.get("f1_score")),
+            ("ROC-AUC", test_metrics.get("roc_auc")),
+        ]
+        for col, (label, value) in zip(metric_cols, metric_items):
+            with col:
+                st.metric(label, pct(value))
+
+        if cv_results:
+            st.markdown("#### Candidate comparison · 5-fold CV on training partition")
+            cv_rows = [
+                {
+                    "Algorithm": name,
+                    "Mean ROC-AUC": safe_float(values.get("roc_auc_mean")),
+                    "Standard deviation": safe_float(values.get("roc_auc_std")),
+                }
+                for name, values in cv_results.items()
+            ]
+            cv_frame = pd.DataFrame(cv_rows).set_index("Algorithm")
+            st.dataframe(
+                cv_frame.style.format({
+                    "Mean ROC-AUC": "{:.3f}",
+                    "Standard deviation": "{:.3f}",
+                }),
+                use_container_width=True,
+            )
+
+        st.markdown("#### Selected model · held-out test metrics")
+        test_frame = pd.DataFrame(
+            [{
+                "Accuracy": safe_float(test_metrics.get("accuracy")),
+                "Precision": safe_float(test_metrics.get("precision")),
+                "Recall": safe_float(test_metrics.get("recall")),
+                "F1-score": safe_float(test_metrics.get("f1_score")),
+                "ROC-AUC": safe_float(test_metrics.get("roc_auc")),
+            }],
+            index=[selected_model],
+        )
+        fig = make_performance_chart(test_frame)
         st.pyplot(fig, use_container_width=True)
         plt.close(fig)
-        st.markdown("#### Confusion matrix explorer")
-        chosen = st.selectbox("Choose an algorithm", list(results.keys()), key="cm_model")
-        matrix = results[chosen].get("confusion_matrix")
+
+        matrix = test_metrics.get("confusion_matrix")
         if matrix and len(matrix) == 2:
-            matrix_array = np.asarray(matrix)
+            st.markdown("#### Confusion matrix · held-out test split")
+            matrix_array = np.asarray(matrix, dtype=int)
             a, b = st.columns([.9, 1.1])
             with a:
                 st.dataframe(
-                    pd.DataFrame(matrix_array,
-                                 index=["Actual group 0", "Actual group 1"],
-                                 columns=["Predicted group 0", "Predicted group 1"]),
+                    pd.DataFrame(
+                        matrix_array,
+                        index=["Actual group 0", "Actual group 1"],
+                        columns=["Predicted group 0", "Predicted group 1"],
+                    ),
                     use_container_width=True,
                 )
                 st.caption("Rows are actual dataset labels; columns are model predictions.")
             with b:
-                fig_cm = make_confusion_matrix_chart(matrix_array, chosen)
+                fig_cm = make_confusion_matrix_chart(matrix_array, selected_model)
                 st.pyplot(fig_cm, use_container_width=True)
                 plt.close(fig_cm)
-            st.markdown("- **True negative:** correctly assigned to Group 0.\n- **False positive:** assigned to Group 1 when the dataset label was Group 0.\n- **False negative:** assigned to Group 0 when the dataset label was Group 1.\n- **True positive:** correctly assigned to Group 1.")
+
+        st.markdown(
+            '<div class="notice"><b>Interpretation:</b> The dataset is small and comes from one hospital. '
+            'The high internal scores require independent external validation and must not be presented as '
+            'real-world or clinical accuracy. The model output is educational only.</div>',
+            unsafe_allow_html=True,
+        )
     else:
-        st.info("No saved evaluation results were found. Check models/metrics.json.")
+        st.warning("Candidate evaluation metrics are missing or use an unexpected format. Check the candidate metrics JSON file.")
+
 
 # ----------------------------- HEART GUIDE -------------------------------
 def render_heart_guide():
     st.markdown('<div class="section-kicker">04 / Heart guide</div>', unsafe_allow_html=True)
-    st.header("Cardiovascular health, in everyday language")
-    st.markdown('<div class="section-sub">A quick guide to the measurements represented in the original dataset.</div>', unsafe_allow_html=True)
+    st.header("Cardiovascular measurements in everyday language")
+    st.markdown('<div class="section-sub">A quick guide to the 12 input fields used by the Cardiovascular Disease Dataset candidate model.</div>', unsafe_allow_html=True)
     g1, g2, g3 = st.columns(3)
     with g1:
-        st.markdown('<div class="glass-card"><div class="stat-label">01 · BLOOD PRESSURE</div><div class="stat-value">Pressure</div><p>Measures the force of blood against artery walls. Persistent high blood pressure should be discussed with a healthcare professional.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card"><div class="stat-label">01 · BLOOD PRESSURE</div><div class="stat-value">Pressure</div><p>Resting blood pressure is recorded in mm Hg. A single reading needs context and should be interpreted by a healthcare professional.</p></div>', unsafe_allow_html=True)
     with g2:
-        st.markdown('<div class="glass-card"><div class="stat-label">02 · CHOLESTEROL</div><div class="stat-value">Blood fats</div><p>Cholesterol is a fatty substance in the blood. A lipid profile helps clinicians understand different cholesterol components.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card"><div class="stat-label">02 · CHOLESTEROL</div><div class="stat-value">Blood fats</div><p>Serum cholesterol is a laboratory measurement. A full lipid profile provides more context than one total-cholesterol value.</p></div>', unsafe_allow_html=True)
     with g3:
-        st.markdown('<div class="glass-card"><div class="stat-label">03 · HEART RATE</div><div class="stat-value">Beats</div><p>Heart rate is the number of heartbeats per minute. Exercise-test readings need context and professional interpretation.</p></div>', unsafe_allow_html=True)
-    st.markdown("#### The 13 model inputs")
+        st.markdown('<div class="glass-card"><div class="stat-label">03 · HEART RATE</div><div class="stat-value">Beats</div><p>Maximum heart rate is recorded during an exercise test. It is not a value to estimate without a test report.</p></div>', unsafe_allow_html=True)
+
+    st.markdown("#### The 12 model inputs")
     descriptions = [
         ("Age", "Age in years."),
-        ("Sex", "Original dataset coding: 0 or 1."),
-        ("Chest pain category", "One of four historical dataset categories."),
-        ("Resting blood pressure", "Blood pressure recorded at rest, in mm Hg."),
-        ("Cholesterol", "Serum cholesterol, in mg/dL."),
-        ("Fasting blood sugar", "Whether fasting blood sugar was above 120 mg/dL."),
-        ("Resting ECG", "Coded resting electrocardiogram category."),
-        ("Maximum heart rate", "Maximum rate achieved during the exercise test."),
-        ("Exercise-induced angina", "Recorded yes/no exercise-test field."),
-        ("Oldpeak", "ST depression measurement in the exercise test."),
-        ("ST slope", "Coded slope category during peak exercise."),
-        ("Major vessels", "Number of major vessels recorded by fluoroscopy."),
-        ("Thal", "Historical coded thal test result."),
+        ("Gender", "Dataset code: 0 = female, 1 = male."),
+        ("Chest pain category", "0 = typical angina; 1 = atypical angina; 2 = non-anginal pain; 3 = asymptomatic."),
+        ("Resting blood pressure", "Recorded at rest, in mm Hg."),
+        ("Serum cholesterol", "Laboratory total cholesterol, in mg/dL."),
+        ("Fasting blood sugar", "0 = not above 120 mg/dL; 1 = above 120 mg/dL."),
+        ("Resting ECG", "0 = normal; 1 = ST-T wave abnormality; 2 = possible/definite LVH."),
+        ("Maximum heart rate", "Maximum rate achieved during the exercise test, in bpm."),
+        ("Exercise-induced angina", "0 = no; 1 = yes, as recorded during the exercise test."),
+        ("Oldpeak", "ST depression value recorded during the exercise test."),
+        ("ST slope", "1 = upsloping; 2 = flat; 3 = downsloping."),
+        ("Number of major vessels", "Coded count from 0 to 3."),
     ]
     left, right = st.columns(2)
     for i, (name, desc) in enumerate(descriptions):
@@ -888,9 +935,14 @@ def render_heart_guide():
         with target:
             st.markdown(f"**{i+1:02d}. {name}**")
             st.caption(desc)
-    st.markdown('<div class="info-box">The original Cleveland dataset uses historical clinical test fields and numeric codes. Some inputs are not measurements a person can safely estimate at home. Use the values only when they are available from an appropriate clinical report.</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="info-box">Several inputs require laboratory, ECG or exercise-test records. '
+        'Do not guess these values. The numeric codes are dataset encodings, not a self-assessment guide.</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown("#### Everyday habits that support heart health")
     st.markdown("- Avoid tobacco and smoking.\n- Stay physically active in a way that is appropriate for your health.\n- Choose a balanced diet and limit excess salt.\n- Attend recommended health checks.\n- Follow treatment prescribed by your clinician.\n- Seek medical advice for new, persistent or worrying symptoms.")
+
 
 # ----------------------------- EMERGENCY & MAP ---------------------------
 def render_emergency_page():
@@ -921,7 +973,7 @@ def render_ai_guide():
     st.markdown('<div id="ai-guide"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
     st.header("Ask CardioPredict")
-    st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains the model inputs, dataset codes and limits of the educational prediction output.</div>', unsafe_allow_html=True)
     current_profile = (st.session_state.get("last_prediction") or {}).get("profile") or {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
     render_cardio_assistant(current_profile=current_profile, prediction=st.session_state.get("last_prediction"))
 def render_about_page():
