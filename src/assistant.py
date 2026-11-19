@@ -208,7 +208,8 @@ Answer clearly and briefly. Follow all medical, privacy and prototype limits.
         max_output_tokens=650,
     )
 
-    models = (MODEL_NAME, FALLBACK_MODEL_NAME)
+    # Start with the lighter Flash-Lite model; retain Flash as the fallback route.
+    models = (FALLBACK_MODEL_NAME, MODEL_NAME)
     for model_index, model_name in enumerate(models):
         try:
             result = client.models.generate_content(
@@ -251,7 +252,7 @@ def render_cardio_assistant(current_profile=None, prediction=None):
 
     st.markdown(
         '<div class="info-box"><b>HEART & LIFE · AI GUIDE</b><br>'
-        'Ask about the 13 input fields, heart-health concepts, model algorithms, '
+        'Ask about the 12 input fields, heart-health concepts, model algorithms, '
         'metrics and what a CardioPredict result means.</div>',
         unsafe_allow_html=True,
     )
@@ -269,14 +270,14 @@ def render_cardio_assistant(current_profile=None, prediction=None):
         )
 
     share = st.checkbox(
-        "Include my current 13 input values and latest prediction in this chat. "
+        "Include my current 12 input values and latest prediction in this chat. "
         "I understand these values will be sent to the AI provider.",
         value=False,
         key="cp_share_health_values",
     )
     context = ""
     if share and current_profile:
-        context = "Current 13 values: " + repr(current_profile)
+        context = "Current 12 values: " + repr(current_profile)
         if prediction:
             context += "\nLatest model class: " + str(prediction.get("predicted"))
             context += "; model probability for class 1: " + str(
@@ -357,12 +358,36 @@ def render_cardio_assistant(current_profile=None, prediction=None):
                     language,
                 )
             except Exception as exc:
-                detail = str(exc)[:240]
-                answer = (
-                    "I couldn't get a response from Gemini right now. Please try "
-                    "again shortly. If the problem continues, check the API key "
-                    "and Gemini API quota. Technical detail: " + detail
-                )
+                message = str(exc).upper()
+                detail = str(exc)[:180]
+                if any(code in message for code in (
+                    "503", "UNAVAILABLE", "504", "DEADLINE_EXCEEDED",
+                    "GATEWAY TIMEOUT",
+                )):
+                    answer = (
+                        "The CardioPredict AI Guide is temporarily busy because "
+                        "Gemini is experiencing high demand. This is a service "
+                        "availability issue, not necessarily an API-key or quota "
+                        "problem. Please try again in a little while. The prediction "
+                        "and analytics features are not affected. Technical detail: "
+                        + detail
+                    )
+                elif any(code in message for code in (
+                    "429", "RESOURCE_EXHAUSTED", "QUOTA EXCEEDED",
+                    "RATE LIMIT EXCEEDED",
+                )):
+                    answer = (
+                        "The Gemini request limit for this project has been reached. "
+                        "Please wait for the limit to reset or check the project's "
+                        "AI Studio rate limits. CardioPredict prediction and analytics "
+                        "remain available. Technical detail: " + detail
+                    )
+                else:
+                    answer = (
+                        "The AI Guide could not complete this request. Please retry. "
+                        "Your CardioPredict prediction and analytics features remain "
+                        "available. Technical detail: " + detail
+                    )
 
         st.session_state.cp_chat_history.append(
             {"role": "assistant", "content": answer}
