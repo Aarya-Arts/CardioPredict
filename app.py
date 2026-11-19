@@ -590,7 +590,7 @@ if active_page == NAVIGATION_PAGES[0]:
     metrics_cols = st.columns(4)
     cards = [
         ("SELECTED MODEL", selected_model, "Chosen during model training", "#8F173A"),
-        ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#C91446"),
+        ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Internal held-out test split", "#C91446"),
         ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#F05C7B"),
         ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
     ]
@@ -980,17 +980,17 @@ def render_about_page():
     st.markdown('<div class="section-kicker">ABOUT / CARDIOPREDICT</div>', unsafe_allow_html=True)
     st.header("About CardioPredict – Heart & Life")
     st.markdown(
-        '<div class="section-sub">A machine-learning mini-project that demonstrates how a historical heart-disease dataset can be explored through an interactive educational interface.</div>',
+        '<div class="section-sub">A machine-learning mini-project that demonstrates how a cardiovascular dataset can be explored through an interactive educational interface.</div>',
         unsafe_allow_html=True,
     )
 
     summary_cols = st.columns(3)
     with summary_cols[0]:
-        st.markdown('<div class="glass-card"><div class="stat-label">DATASET</div><div class="stat-value">Cleveland</div><div class="stat-note">UCI processed heart-disease dataset</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card"><div class="stat-label">DATASET</div><div class="stat-value">Mendeley</div><div class="stat-note">Cardiovascular Disease Dataset · 2021</div></div>', unsafe_allow_html=True)
     with summary_cols[1]:
-        st.markdown('<div class="glass-card"><div class="stat-label">MODEL INPUTS</div><div class="stat-value">13</div><div class="stat-note">Historical dataset attributes</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card"><div class="stat-label">MODEL INPUTS</div><div class="stat-value">12</div><div class="stat-note">Dataset predictor attributes</div></div>', unsafe_allow_html=True)
     with summary_cols[2]:
-        st.markdown('<div class="glass-card"><div class="stat-label">ALGORITHMS</div><div class="stat-value">2</div><div class="stat-note">Logistic Regression and Random Forest</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="glass-card"><div class="stat-label">SELECTED ALGORITHM</div><div class="stat-value">{selected_model}</div><div class="stat-note">Chosen using cross-validation ROC-AUC</div></div>', unsafe_allow_html=True)
 
     st.markdown("### Project objective")
     st.markdown(
@@ -1002,43 +1002,30 @@ def render_about_page():
     st.markdown("### Dataset and machine-learning workflow")
     st.markdown(
         """
-        1. Load the processed Cleveland heart-disease dataset from the UCI repository.
-        2. Convert missing-value markers and prepare the dataset fields.
-        3. Convert the original target into two demonstration groups: target 0 becomes Group 0, while targets 1–4 become Group 1.
-        4. Split the data into stratified training and test sets using an 80:20 split.
-        5. Preprocess numeric and categorical fields using imputation, scaling and one-hot encoding.
-        6. Train and compare Logistic Regression and Random Forest classifiers.
-        7. Evaluate the models using accuracy, precision, recall, F1-score and a confusion matrix; select the model with the higher test F1-score.
+        1. Load the Cardiovascular Disease Dataset published on Mendeley Data by Doppala and Bhattacharyya (2021).
+        2. Exclude the patient identifier from model features.
+        3. Validate the documented ST-slope codes and exclude records with undocumented slope value 0.
+        4. Treat zero serum-cholesterol values as missing and impute them within the training pipeline.
+        5. Compare Logistic Regression, Random Forest and Gradient Boosting using 5-fold stratified cross-validation on the training partition.
+        6. Evaluate the selected candidate on a separate stratified holdout test split.
+        7. Display the dataset labels and evaluation metrics with explicit educational and non-clinical limitations.
         """
     )
-
-    st.markdown("### Application modules")
-    modules = [
-        ("Prediction", "Enter the 13 dataset fields and view the saved classifier's output."),
-        ("Scenario Lab", "Generate fictional profiles to test the application workflow."),
-        ("Analytics", "Review saved evaluation metrics and confusion matrices."),
-        ("Heart Guide", "Read plain-language explanations of the dataset measurements."),
-        ("AI Guide", "Ask the Gemini-powered educational assistant about inputs and model outputs."),
-        ("Emergency & Map", "View emergency guidance and create a nearby-hospital search in Google Maps."),
-    ]
-    for title, description in modules:
-        st.markdown(f"**{title}** — {description}")
-
-    st.markdown("### Technology stack")
     st.markdown(
-        "Python, Streamlit, Pandas, NumPy, scikit-learn, Joblib and Matplotlib support the application "
-        "and model workflow. Supabase provides email authentication, while the Google Gemini API powers "
-        "the optional educational AI assistant."
+        "Dataset source: Doppala, B. P., & Bhattacharyya (2021), "
+        "[Cardiovascular_Disease_Dataset, Mendeley Data, Version 1](https://doi.org/10.17632/dzz48mvjht.1). "
+        "Licensed under CC BY 4.0; attribution is provided for academic reuse."
     )
 
     st.markdown("### Scope and limitations")
     st.markdown(
-        "The Cleveland dataset is historical and limited in size. The model is an academic prototype, "
-        "not a clinically validated risk calculator or medical device. Its output must not be used for "
-        "diagnosis, screening, treatment decisions or emergency triage. Synthetic profiles are fictional "
-        "software-test inputs and are not patient records."
+        "The dataset contains 1,000 records described as originating from one multispecialty hospital. "
+        "The reported metrics are internal experimental results from this dataset and do not establish "
+        "performance on independent hospitals, populations or real-world clinical settings. The model is "
+        "not clinically validated and must not be used for diagnosis, screening, treatment decisions or emergency triage."
     )
-    st.info("For health concerns, consult a qualified healthcare professional. In an emergency, contact local emergency services directly.")
+    st.info("Several fields require actual laboratory, ECG or exercise-test records. Do not guess measurements. For health concerns, consult a qualified healthcare professional.")
+
 
 
 # ----------------------------- PAGE ROUTER -------------------------------
