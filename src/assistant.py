@@ -18,29 +18,32 @@ MODEL_NAME = "gemini-3.8-flash"
 FALLBACK_MODEL_NAME = "gemini-3.5-flash-lite"
 
 FIELD_GUIDE = """
-13 historical Cleveland inputs:
+12 predictors in the current Cardiovascular Disease Dataset model:
 age: age in years.
-sex: original dataset code 0 or 1; do not infer identity from this code.
-cp: chest pain category code 1 typical angina, 2 atypical angina,
-3 non-anginal pain, 4 asymptomatic in the dataset.
-trestbps: resting blood pressure in mm Hg.
-chol: serum cholesterol in mg/dL.
-fbs: fasting blood sugar above 120 mg/dL (0=no, 1=yes).
-restecg: resting ECG category (0 normal, 1 ST-T abnormality, 2 LV hypertrophy).
-thalach: maximum heart rate achieved during exercise test, bpm.
-exang: exercise-induced angina recorded during test (0=no, 1=yes).
-oldpeak: exercise-induced ST depression relative to rest.
-slope: peak exercise ST slope (1 upsloping, 2 flat, 3 downsloping).
-ca: number of major vessels recorded by fluoroscopy (0-3).
-thal: historical thal category (3 normal, 6 fixed defect, 7 reversible defect).
-Original target 0 maps to class 0; original targets 1-4 map to class 1.
-These codes and classes are dataset labels, not a medical diagnosis.
+gender: dataset code 0=female, 1=male.
+chestpain: 0=typical angina, 1=atypical angina,
+2=non-anginal pain, 3=asymptomatic. These are dataset categories, not a symptom quiz.
+restingBP: resting blood pressure in mm Hg.
+serumcholestrol: serum cholesterol in mg/dL. Zero values in the source data are treated as missing during training.
+fastingbloodsugar: fasting blood sugar above 120 mg/dL (0=no, 1=yes).
+restingrelectro: resting ECG code (0=normal, 1=ST-T wave abnormality, 2=possible/definite LVH).
+maxheartrate: maximum heart rate achieved during an exercise test, bpm.
+exerciseangia: exercise-induced angina recorded during testing (0=no, 1=yes).
+oldpeak: exercise-test ST depression value.
+slope: peak exercise ST slope (1=upsloping, 2=flat, 3=downsloping).
+noofmajorvessels: coded number of major vessels, from 0 to 3.
+patientid is an identifier and is not used as a predictor.
+Rows with undocumented slope code 0 are excluded from the cleaned training data.
+Target 0 means the record belongs to the dataset's absence-labelled group;
+target 1 means the record belongs to the dataset's presence-labelled group.
+These are historical dataset labels, not a medical diagnosis or a measure of personal clinical risk.
 """
 
 INSTRUCTIONS = """
-You are CardioPredict's educational assistant. Explain the app, its 13 input
-fields, the Cleveland dataset, Logistic Regression, Random Forest, preprocessing,
-evaluation metrics and model outputs in clear, student-friendly language.
+You are CardioPredict's educational assistant. Explain the app, its 12 input
+fields, the Mendeley Cardiovascular Disease Dataset, the selected candidate
+classifier, preprocessing, evaluation metrics and model outputs in clear,
+student-friendly language.
 
 Emotional awareness and natural conversation:
 - Notice clear emotional cues such as worry, fear, frustration, sadness, or confusion without claiming certainty about the user's feelings.
@@ -49,8 +52,9 @@ Emotional awareness and natural conversation:
 - Keep medical explanations calm, simple, respectful, and accurate. Never diagnose emotions or medical conditions.
 
 Medical and privacy safety:
-- This is a small historical UCI Cleveland academic prototype. It is not
-  clinically validated and has not been validated for Indian patients.
+- This is a small educational prototype trained on a dataset described as
+  coming from one multispecialty hospital in India. It is not clinically
+  validated and must not be represented as validated for any population.
 - Never diagnose, rule out disease, prescribe medicines or claim true personal
   risk. The model's output/probability is not calibrated clinical risk.
 - Do not encourage users to guess clinical measurements. Recommend using
@@ -107,16 +111,45 @@ def _speak(text, number, language="en-IN"):
     <script>
     const speakButton = document.getElementById("s{number}");
     const stopButton = document.getElementById("stop{number}");
-    speakButton.onclick=()=>{{
+    speakButton.onclick=async()=>{{
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance({safe});
       u.lang={json.dumps(language)};
       const langPrefix={json.dumps(language.split("-")[0])}.toLowerCase();
-      const voices=window.speechSynthesis.getVoices();
-      const matches=voices.filter(v => (v.lang || "").toLowerCase().startsWith(langPrefix));
-      const chosen=matches.find(v => v.default) || matches[0];
-      if(chosen) u.voice=chosen;
+      const voices = await new Promise(resolve => {{
+        const current = window.speechSynthesis.getVoices();
+        if (current.length) return resolve(current);
+
+        let finished = false;
+        const finish = () => {{
+          if (finished) return;
+          finished = true;
+          resolve(window.speechSynthesis.getVoices());
+        }};
+
+        window.speechSynthesis.addEventListener(
+          "voiceschanged", finish, {{ once: true }}
+        );
+        setTimeout(finish, 1200);
+      }});
+
+      const normalize = value =>
+        (value || "").replace("_", "-").toLowerCase();
+      const matches = voices.filter(v =>
+        normalize(v.lang).startsWith(langPrefix)
+      );
+      const exact = matches.find(v =>
+        normalize(v.lang) === normalize({json.dumps(language)})
+      );
+      const chosen = exact || matches.find(v => v.default) || matches[0];
+
+      if (!chosen && langPrefix !== "en") {{
+        alert("No voice for " + {json.dumps(language)} +
+          " is available in this browser or device. The text response still works.");
+        return;
+      }}
+      if (chosen) u.voice = chosen;
       u.rate=langPrefix==="hi" ? 0.92 : (langPrefix==="kn" ? 0.93 : 0.96);
       u.pitch=1.0;
       window.speechSynthesis.speak(u);
@@ -163,7 +196,13 @@ New question:
 
 Answer clearly and briefly. Follow all medical, privacy and prototype limits.
 """
-    client = genai.Client(api_key=key)
+    client = genai.Client(
+        api_key=key,
+        http_options=types.HttpOptions(
+            timeout=20000,
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
     config = types.GenerateContentConfig(
         system_instruction=INSTRUCTIONS,
         max_output_tokens=650,
@@ -171,47 +210,35 @@ Answer clearly and briefly. Follow all medical, privacy and prototype limits.
 
     models = (MODEL_NAME, FALLBACK_MODEL_NAME)
     for model_index, model_name in enumerate(models):
-        # Retry temporary service overloads on the primary model. If it remains
-        # unavailable, try the backup model while preserving the same prompt.
-        attempts = 3 if model_index == 0 else 2
-        for attempt in range(attempts):
-            try:
-                result = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=config,
+        try:
+            result = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config,
+            )
+            answer = getattr(result, "text", None)
+            if not answer or not answer.strip():
+                raise RuntimeError(
+                    f"{model_name} returned an empty answer."
                 )
-                answer = getattr(result, "text", None)
-                if not answer or not answer.strip():
-                    raise RuntimeError(
-                        f"{model_name} returned an empty answer."
-                    )
-                return answer.strip()
-            except Exception as exc:
-                message = str(exc).upper()
-                # A 429 / RESOURCE_EXHAUSTED response means this model's quota
-                # or rate limit is exhausted. Do not waste retries on it: move
-                # straight to the backup model, which has its own quota.
-                quota_exhausted = any(marker in message for marker in (
-                    "429", "RESOURCE_EXHAUSTED", "QUOTA EXCEEDED",
-                    "RATE LIMIT EXCEEDED",
-                ))
-                if quota_exhausted:
-                    if model_index < len(models) - 1:
-                        break
-                    raise
+            return answer.strip()
 
-                temporary = any(code in message for code in (
-                    "503", "UNAVAILABLE", "INTERNAL SERVER ERROR", "500"
-                ))
-                if not temporary:
-                    raise
-                if attempt < attempts - 1:
-                    time.sleep(1.5 * (2 ** attempt))
-                    continue
-                if model_index == len(models) - 1:
-                    raise
-                # Move to the backup model after the primary's retries fail.
+        except Exception as exc:
+            message = str(exc).upper()
+            quota_exhausted = any(marker in message for marker in (
+                "429", "RESOURCE_EXHAUSTED", "QUOTA EXCEEDED",
+                "RATE LIMIT EXCEEDED",
+            ))
+            temporary = any(code in message for code in (
+                "503", "504", "DEADLINE_EXCEEDED", "DEADLINE EXCEEDED",
+                "GATEWAY TIMEOUT", "UNAVAILABLE", "INTERNAL SERVER ERROR", "500"
+            ))
+
+            if not quota_exhausted and not temporary:
+                raise
+
+            if model_index == len(models) - 1:
+                raise
 
     raise RuntimeError("Both Gemini models are temporarily unavailable.")
 

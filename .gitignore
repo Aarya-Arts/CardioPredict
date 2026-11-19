@@ -7,3 +7,7 @@ __pycache__/
 .DS_Store
 .env
 .streamlit/secrets.toml
+
+# Local backup files
+*.bak
+*.bak-*
