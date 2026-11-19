@@ -530,7 +530,7 @@ if active_page == NAVIGATION_PAGES[0]:
             and use the AI guide to learn more about the science behind heart-health data.</p>
             <div class="hero-foot">
               <div class="hero-stat"><b>Model</b> · {selected_model}</div>
-              <div class="hero-stat"><b>Dataset</b> · Cleveland</div>
+              <div class="hero-stat"><b>Dataset</b> · Mendeley CVD</div>
               <div class="hero-stat"><b>Workspace</b> · Explore + learn</div>
             </div>
           </div>
@@ -570,7 +570,7 @@ if active_page == NAVIGATION_PAGES[0]:
 
     quick_columns = st.columns(4)
     quick_cards = [
-        ("Machine Learning", "Explore the Cleveland dataset model", "♡ Predict", "Open prediction"),
+        ("Machine Learning", "Explore the Mendeley cardiovascular dataset model", "♡ Predict", "Open prediction"),
         ("AI Health Guide", "Ask questions about heart-health data", "✧ AI Guide", "Ask the AI guide"),
         ("Model Analytics", "Review evaluation metrics and charts", "▥ Analytics", "View analytics"),
         ("Heart & Life", "Learn about cardiovascular measurements", "♥ Heart Guide", "Open heart guide"),
