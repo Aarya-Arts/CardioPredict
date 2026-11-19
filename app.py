@@ -375,7 +375,7 @@ def make_confusion_matrix_chart(cm_array,model_name):
     fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
     cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#C91446"])
     vmax=max(int(values.max()),1); ax.imshow(values,cmap=cmap,vmin=0,vmax=vmax,aspect="equal")
-    ax.set_xticks([0,1],labels=["Group 0","Group 1"]); ax.set_yticks([0,1],labels=["Group 0","Group 1"])
+    ax.set_xticks([0,1],labels=["Group 0\n(absence-labelled)","Group 1\n(presence-labelled)"]); ax.set_yticks([0,1],labels=["Group 0\n(absence-labelled)","Group 1\n(presence-labelled)"])
     ax.set_xlabel("Predicted dataset group",color="#536477",labelpad=10,fontsize=10)
     ax.set_ylabel("Actual dataset group",color="#536477",labelpad=10,fontsize=10)
     ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#8F173A",pad=18,fontsize=13,fontweight="bold")
@@ -880,12 +880,12 @@ def render_analytics_page():
                 st.dataframe(
                     pd.DataFrame(
                         matrix_array,
-                        index=["Actual group 0", "Actual group 1"],
-                        columns=["Predicted group 0", "Predicted group 1"],
+                        index=["Actual group 0 · absence-labelled", "Actual group 1 · presence-labelled"],
+                        columns=["Predicted group 0 · absence-labelled", "Predicted group 1 · presence-labelled"],
                     ),
                     use_container_width=True,
                 )
-                st.caption("Rows are actual dataset labels; columns are model predictions.")
+                st.caption("Group 0 = absence-labelled in this dataset; Group 1 = presence-labelled. Rows are actual labels and columns are model predictions. These are historical dataset labels, not clinical diagnoses.")
             with b:
                 fig_cm = make_confusion_matrix_chart(matrix_array, selected_model)
                 st.pyplot(fig_cm, use_container_width=True)
