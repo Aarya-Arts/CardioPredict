@@ -18,9 +18,9 @@ except OSError:
     BRAND_MARK_SVG = ""
 
 # CardioPredict - product-style interface and synthetic scenario explorer.
-# The saved model, original 13 features, preprocessing and training pipeline
-# are intentionally unchanged. Synthetic profiles are for software testing
-# only and are never added to the training dataset.
+# The active prediction form uses the 12-feature Mendeley candidate model.
+# The original Cleveland model and metrics remain preserved as backup artifacts.
+# Synthetic profiles are fictional software tests, never training records.
 
 st.set_page_config(
     page_title="CardioPredict | Heart & Life",
@@ -29,19 +29,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-MODEL_PATH = "models/cvd_model.joblib"
-METRICS_PATH = "models/metrics.json"
+MODEL_PATH = "models/cvd_model_new_dataset_candidate.joblib"
+METRICS_PATH = "models/cvd_metrics_new_dataset_candidate.json"
+MODEL_SCHEMA_ID = "mendeley-cvd-12-v1"
 FEATURES = [
-    "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
-    "thalach", "exang", "oldpeak", "slope", "ca", "thal",
+    "age", "restingBP", "serumcholestrol", "maxheartrate", "oldpeak",
+    "noofmajorvessels", "gender", "chestpain", "fastingbloodsugar",
+    "restingrelectro", "exerciseangia", "slope",
 ]
 DEFAULTS = {
-    "age": 50, "sex": 0, "cp": 2, "trestbps": 120, "chol": 200,
-    "fbs": 0, "restecg": 0, "thalach": 150, "exang": 0,
-    "oldpeak": 1.0, "slope": 2, "ca": 0, "thal": 3,
+    "age": 49, "restingBP": 147, "serumcholestrol": 318,
+    "maxheartrate": 146, "oldpeak": 2.4, "noofmajorvessels": 1,
+    "gender": 1, "chestpain": 1, "fastingbloodsugar": 0,
+    "restingrelectro": 1, "exerciseangia": 0, "slope": 2,
 }
-for key, value in DEFAULTS.items():
-    st.session_state.setdefault("field_" + key, value)
+if st.session_state.get("_cardiopredict_model_schema") != MODEL_SCHEMA_ID:
+    for key, value in DEFAULTS.items():
+        st.session_state["field_" + key] = value
+    st.session_state["last_prediction"] = None
+    st.session_state["synthetic_batch"] = None
+    st.session_state["_cardiopredict_model_schema"] = MODEL_SCHEMA_ID
+else:
+    for key, value in DEFAULTS.items():
+        st.session_state.setdefault("field_" + key, value)
 
 # ----------------------------- VISUAL SYSTEM -----------------------------
 st.markdown(
@@ -312,21 +322,20 @@ def safe_float(value, default=0.0):
 
 
 def synthetic_profile(rng):
-    """Generate one fictional profile inside the model's accepted feature ranges."""
+    """Generate a fictional profile inside the new dataset's documented input ranges."""
     return {
-        "age": int(rng.integers(29, 79)),
-        "sex": int(rng.integers(0, 2)),
-        "cp": int(rng.choice([1, 2, 3, 4], p=[.22, .25, .28, .25])),
-        "trestbps": int(np.clip(rng.normal(132, 19), 90, 200)),
-        "chol": int(np.clip(rng.normal(230, 48), 130, 380)),
-        "fbs": int(rng.choice([0, 1], p=[.82, .18])),
-        "restecg": int(rng.choice([0, 1, 2], p=[.52, .42, .06])),
-        "thalach": int(np.clip(rng.normal(145, 25), 80, 205)),
-        "exang": int(rng.choice([0, 1], p=[.66, .34])),
-        "oldpeak": round(float(np.clip(rng.gamma(1.5, 1.05), 0, 5)), 1),
-        "slope": int(rng.choice([1, 2, 3], p=[.25, .48, .27])),
-        "ca": int(rng.choice([0, 1, 2, 3], p=[.58, .22, .14, .06])),
-        "thal": int(rng.choice([3, 6, 7], p=[.55, .13, .32])),
+        "age": int(rng.integers(20, 81)),
+        "restingBP": int(np.clip(rng.normal(152, 30), 94, 200)),
+        "serumcholestrol": int(np.clip(rng.normal(311, 132), 126, 564)),
+        "maxheartrate": int(np.clip(rng.normal(145, 34), 71, 202)),
+        "oldpeak": round(float(np.clip(rng.normal(2.7, 1.7), 0, 6.2)), 1),
+        "noofmajorvessels": int(rng.choice([0, 1, 2, 3], p=[.34, .42, .18, .06])),
+        "gender": int(rng.choice([0, 1], p=[.235, .765])),
+        "chestpain": int(rng.choice([0, 1, 2, 3], p=[.42, .224, .312, .044])),
+        "fastingbloodsugar": int(rng.choice([0, 1], p=[.704, .296])),
+        "restingrelectro": int(rng.choice([0, 1, 2], p=[.454, .344, .202])),
+        "exerciseangia": int(rng.integers(0, 2)),
+        "slope": int(rng.choice([1, 2, 3], p=[.365, .393, .242])),
     }
 
 
@@ -419,7 +428,14 @@ except Exception as exc:
 
 selected_model = metrics_data.get("selected_model", "Not specified")
 results = metrics_data.get("results", {})
-selected_metrics = results.get(selected_model, {})
+selected_metrics = metrics_data.get("held_out_test_metrics") or results.get(selected_model, {})
+saved_features = metrics_data.get("features")
+if saved_features and list(saved_features) != FEATURES:
+    st.error("The selected model's saved feature schema does not match the prediction form. Check the candidate model and metrics files.")
+    st.stop()
+if getattr(model, "n_features_in_", len(FEATURES)) != len(FEATURES):
+    st.error("The loaded model expects a different number of input fields. Prediction has been stopped to prevent a schema mismatch.")
+    st.stop()
 
 # ----------------------------- SIDEBAR ----------------------------------
 with st.sidebar:
@@ -596,7 +612,7 @@ def render_prediction_page():
     st.markdown('<div id="live-explorer"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">01 / Live explorer</div>', unsafe_allow_html=True)
     st.header("Run a profile through the model")
-    st.markdown('<div class="section-sub">Enter recorded measurements, or generate a fictional profile to see how the interface works.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Enter values from a recorded report, or generate a fictional profile to explore the model interface.</div>', unsafe_allow_html=True)
 
     gen_col, info_col = st.columns([1, 2])
     with gen_col:
@@ -608,44 +624,91 @@ def render_prediction_page():
             st.session_state["last_prediction"] = None
             st.rerun()
     with info_col:
-        st.markdown('<div class="info-box">Sample profiles are computer-generated fictional test inputs. They are not real patient records, clinical reference cases or medical advice.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="info-box">Sample profiles are fictional software-test inputs. They are not real patient records, clinical reference cases or medical advice.</div>', unsafe_allow_html=True)
 
     with st.form("live_prediction_form", border=False):
         left, right = st.columns(2, gap="large")
         with left:
             st.markdown("#### ◉ Personal and resting measurements")
-            age = st.number_input("Age · years", min_value=18, max_value=100, key="field_age",
-                                  help="Age in years.")
-            sex = st.selectbox("Sex · dataset coding", [0, 1], key="field_sex",
-                               format_func=lambda x: "Female · 0" if x == 0 else "Male · 1")
-            cp = st.selectbox("Chest pain category", [1, 2, 3, 4], key="field_cp",
-                              format_func=lambda x: {1:"1 · Typical angina",2:"2 · Atypical angina",3:"3 · Non-anginal pain",4:"4 · Asymptomatic in dataset"}[x],
-                              help="Dataset code, not a symptom self-assessment.")
-            trestbps = st.number_input("Resting blood pressure · mm Hg", min_value=80, max_value=250, key="field_trestbps")
-            chol = st.number_input("Serum cholesterol · mg/dL", min_value=100, max_value=600, key="field_chol")
-            fbs = st.selectbox("Fasting blood sugar above 120 mg/dL?", [0, 1], key="field_fbs",
-                               format_func=lambda x: "No · 0" if x == 0 else "Yes · 1")
-            restecg = st.selectbox("Resting ECG category", [0, 1, 2], key="field_restecg",
-                                   format_func=lambda x: {0:"0 · Normal",1:"1 · ST-T wave abnormality",2:"2 · LV hypertrophy category"}[x])
+            age = st.number_input("Age · years", min_value=20, max_value=80, key="field_age")
+            gender = st.selectbox(
+                "Gender · dataset coding", [0, 1], key="field_gender",
+                format_func=lambda x: "Female · 0" if x == 0 else "Male · 1",
+            )
+            chestpain = st.selectbox(
+                "Chest pain category", [0, 1, 2, 3], key="field_chestpain",
+                format_func=lambda x: {
+                    0: "0 · Typical angina",
+                    1: "1 · Atypical angina",
+                    2: "2 · Non-anginal pain",
+                    3: "3 · Asymptomatic",
+                }[x],
+                help="These are historical dataset codes, not a symptom self-assessment.",
+            )
+            restingBP = st.number_input(
+                "Resting blood pressure · mm Hg", min_value=94, max_value=200,
+                key="field_restingBP",
+            )
+            serumcholestrol = st.number_input(
+                "Serum cholesterol · mg/dL", min_value=126, max_value=564,
+                key="field_serumcholestrol",
+                help="Range shown in the dataset description. Use a recorded laboratory result, not an estimate.",
+            )
+            fastingbloodsugar = st.selectbox(
+                "Fasting blood sugar above 120 mg/dL?", [0, 1],
+                key="field_fastingbloodsugar",
+                format_func=lambda x: "No · 0" if x == 0 else "Yes · 1",
+            )
         with right:
-            st.markdown("#### ◈ Exercise and cardiac measurements")
-            thalach = st.number_input("Maximum heart rate achieved · bpm", min_value=60, max_value=250, key="field_thalach")
-            exang = st.selectbox("Exercise-induced angina?", [0, 1], key="field_exang",
-                                 format_func=lambda x: "No · 0" if x == 0 else "Yes · 1")
-            oldpeak = st.number_input("ST depression · oldpeak", min_value=0.0, max_value=10.0, step=.1, key="field_oldpeak")
-            slope = st.selectbox("Peak exercise ST-segment slope", [1, 2, 3], key="field_slope",
-                                  format_func=lambda x: {1:"1 · Upsloping",2:"2 · Flat",3:"3 · Downsloping"}[x])
-            ca = st.selectbox("Major vessels seen by fluoroscopy", [0, 1, 2, 3], key="field_ca")
-            thal = st.selectbox("Thal test category", [3, 6, 7], key="field_thal",
-                                 format_func=lambda x: {3:"3 · Normal",6:"6 · Fixed defect",7:"7 · Reversible defect"}[x])
-            st.markdown('<div class="small-muted">Use values from a recorded clinical report. Do not estimate medical measurements.</div>', unsafe_allow_html=True)
+            st.markdown("#### ◈ ECG and exercise-test measurements")
+            restingrelectro = st.selectbox(
+                "Resting ECG category", [0, 1, 2], key="field_restingrelectro",
+                format_func=lambda x: {
+                    0: "0 · Normal",
+                    1: "1 · ST-T wave abnormality",
+                    2: "2 · Possible/definite LVH",
+                }[x],
+            )
+            maxheartrate = st.number_input(
+                "Maximum heart rate achieved · bpm", min_value=71, max_value=202,
+                key="field_maxheartrate",
+            )
+            exerciseangia = st.selectbox(
+                "Exercise-induced angina?", [0, 1], key="field_exerciseangia",
+                format_func=lambda x: "No · 0" if x == 0 else "Yes · 1",
+            )
+            oldpeak = st.number_input(
+                "ST depression · oldpeak", min_value=0.0, max_value=6.2,
+                step=0.1, key="field_oldpeak",
+            )
+            slope = st.selectbox(
+                "Peak exercise ST-segment slope", [1, 2, 3], key="field_slope",
+                format_func=lambda x: {
+                    1: "1 · Upsloping", 2: "2 · Flat", 3: "3 · Downsloping"
+                }[x],
+            )
+            noofmajorvessels = st.selectbox(
+                "Number of major vessels", [0, 1, 2, 3],
+                key="field_noofmajorvessels",
+            )
+            st.markdown('<div class="small-muted">Several fields come from ECG or exercise testing and cannot safely be guessed. Use recorded values only.</div>', unsafe_allow_html=True)
+
         run_prediction = st.form_submit_button("Run model analysis  →", use_container_width=True)
 
     if run_prediction:
         profile = {
-            "age": age, "sex": sex, "cp": cp, "trestbps": trestbps,
-            "chol": chol, "fbs": fbs, "restecg": restecg, "thalach": thalach,
-            "exang": exang, "oldpeak": oldpeak, "slope": slope, "ca": ca, "thal": thal,
+            "age": age,
+            "restingBP": restingBP,
+            "serumcholestrol": serumcholestrol,
+            "maxheartrate": maxheartrate,
+            "oldpeak": oldpeak,
+            "noofmajorvessels": noofmajorvessels,
+            "gender": gender,
+            "chestpain": chestpain,
+            "fastingbloodsugar": fastingbloodsugar,
+            "restingrelectro": restingrelectro,
+            "exerciseangia": exerciseangia,
+            "slope": slope,
         }
         input_df = pd.DataFrame([profile], columns=FEATURES)
         try:
@@ -654,7 +717,7 @@ def render_prediction_page():
             if hasattr(model, "predict_proba"):
                 probs = model.predict_proba(input_df)[0]
                 classes = list(getattr(model, "classes_", [0, 1]))
-                idx = classes.index(1) if 1 in classes else min(1, len(probs)-1)
+                idx = classes.index(1) if 1 in classes else min(1, len(probs) - 1)
                 probability = float(probs[idx])
             st.session_state["last_prediction"] = {
                 "predicted": predicted, "probability": probability, "profile": profile
@@ -669,14 +732,14 @@ def render_prediction_page():
         predicted = output["predicted"]
         if predicted == 1:
             st.markdown(
-                '<div class="result-card alert"><div class="result-tag">Output group · 1</div>'
+                '<div class="result-card alert"><div class="result-tag">Dataset label · 1</div>'
                 '<div class="result-title">Pattern aligned with the dataset disease-present group</div>'
                 '<div class="small-muted">The model assigned this input to the group labelled disease-present in its historical training data. This does not establish that a person has cardiovascular disease.</div></div>',
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                '<div class="result-card"><div class="result-tag">Output group · 0</div>'
+                '<div class="result-card"><div class="result-tag">Dataset label · 0</div>'
                 '<div class="result-title">Pattern aligned with the dataset no-disease group</div>'
                 '<div class="small-muted">The model assigned this input to the group labelled no disease in its historical training data. This does not rule out disease or guarantee that a person is healthy.</div></div>',
                 unsafe_allow_html=True,
@@ -685,13 +748,14 @@ def render_prediction_page():
         if prob is not None:
             p1, p2 = st.columns([1, 2])
             with p1:
-                st.metric("Model probability · Group 1", pct(prob))
+                st.metric("Model output score · Group 1", pct(prob))
             with p2:
                 st.progress(max(0.0, min(1.0, prob)))
                 st.caption("This is the classifier's output probability, not a clinically calibrated personal-risk percentage or severity score.")
-        with st.expander("View the 13 values sent to the model"):
-            st.dataframe(pd.DataFrame([output["profile"]]), use_container_width=True, hide_index=True)
-        st.markdown('<div class="notice"><b>Important:</b> This prototype is not clinically validated. It must not be used for diagnosis, screening, treatment decisions or emergency triage. Seek professional medical assessment for health concerns.</div>', unsafe_allow_html=True)
+        with st.expander("View the 12 values sent to the model"):
+            st.dataframe(pd.DataFrame([output["profile"]], columns=FEATURES), use_container_width=True, hide_index=True)
+        st.markdown('<div class="notice"><b>Important:</b> This educational prototype is not clinically validated. Its output must not be used for diagnosis, screening, treatment decisions or emergency triage. Seek professional medical assessment for health concerns.</div>', unsafe_allow_html=True)
+
 
 # ----------------------------- SCENARIO LAB -----------------------------
 def render_scenario_lab():
