@@ -448,106 +448,151 @@ st.markdown(
         {BRAND_MARK_SVG}
         <div><div class="brand-name">Cardio<span>Predict</span></div><div class="brand-subtitle">H E A R T &nbsp; &amp; &nbsp; L I F E</div></div>
       </div>
-      <nav class="brand-nav" aria-label="Main navigation">
-        <a class="active" href="#top">Home</a>
-        <a href="#live-explorer">Predict</a>
-        <a href="#ai-guide">AI Guide</a>
-        <a href="#about-project">About</a>
-      </nav>
       <div class="brand-status">HEART HEALTH LEARNING</div>
     </header>
     """,
     unsafe_allow_html=True,
 )
 
-# ----------------------------- HERO -------------------------------------
-st.markdown(
-    f"""
-    <section class="hero" id="top">
-      <div class="hero-copy">
-        <div class="hero-top">
-          <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
-          <span class="pill">13 model features</span>
-        </div>
-        <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
-        <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
-        <p>Explore cardiovascular measurements, understand how machine-learning models work,
-        and use the AI guide to learn more about the science behind heart-health data.</p>
-        <div class="hero-actions">
-          <a class="hero-cta primary" href="#live-explorer">♡ &nbsp; Start Prediction&nbsp; →</a>
-          <a class="hero-cta secondary" href="#ai-guide">☏ &nbsp; Ask AI Guide</a>
-        </div>
-        <div class="hero-foot">
-          <div class="hero-stat"><b>Model</b> · {selected_model}</div>
-          <div class="hero-stat"><b>Dataset</b> · Cleveland</div>
-          <div class="hero-stat"><b>Workspace</b> · Explore + learn</div>
-        </div>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <svg viewBox="0 0 560 430" role="img" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="heartAura"><stop stop-color="#FF7898" stop-opacity=".55"/><stop offset="1" stop-color="#F5B8CA" stop-opacity="0"/></radialGradient>
-            <linearGradient id="heartFill" x1="130" y1="40" x2="430" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7995"/><stop offset=".45" stop-color="#D9194D"/><stop offset="1" stop-color="#850D35"/></linearGradient>
-            <linearGradient id="heartLight" x1="180" y1="100" x2="360" y2="350" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE2EA"/><stop offset=".55" stop-color="#F34B73"/><stop offset="1" stop-color="#B30D3E"/></linearGradient>
-            <filter id="heartGlow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <circle cx="300" cy="214" r="196" fill="url(#heartAura)"/>
-          <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#FFFFFF" stroke-width="5" opacity=".88"/>
-          <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#E34D78" stroke-width="2" opacity=".7"/>
-          <path d="M279 358C245 326 130 246 128 162c-2-70 73-108 127-47 44-67 133-47 139 21 8 87-72 164-115 222Z" fill="url(#heartFill)" stroke="#FFF0F4" stroke-width="5" filter="url(#heartGlow)"/>
-          <path d="M279 328c-41-39-94-90-95-151-1-43 41-64 73-26l21 28 23-31c29-39 76-14 73 26-4 55-57 114-95 154Z" fill="#8D113B" opacity=".45"/>
-          <path d="M252 105 248 65c-2-20 8-31 23-31 14 0 21 13 19 30l-5 41M309 109l15-47c6-18 20-25 33-18 12 8 12 22 3 39l-27 47M356 129l30-37c11-13 27-15 37-4 9 11 5 25-9 37l-48 43" fill="none" stroke="#C91446" stroke-width="22" stroke-linecap="round"/>
-          <path d="M238 220c29-35 47-46 69-42 30 5 42 34 31 61-10 26-35 58-57 78-25-27-54-66-56-91-2-11 3-19 13-28Z" fill="url(#heartLight)" opacity=".84"/>
-          <path d="M149 232h87l18-1 18-42 25 83 25-123 23 83 17 1h96" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#heartGlow)"/>
-          <path d="M65 361c84 39 226 34 340-30 45-25 78-61 91-95" fill="none" stroke="#D83162" stroke-width="5" stroke-linecap="round" opacity=".7"/>
-          <circle cx="443" cy="83" r="7" fill="#FFFFFF"/><circle cx="96" cy="138" r="5" fill="#E83C69"/><circle cx="457" cy="286" r="5" fill="#FFFFFF"/>
-          <path d="M455 43h34M472 26v34" stroke="#D7194C" stroke-width="10" stroke-linecap="round"/>
-        </svg>
-      </div>
-    </section>
-    """,
-    unsafe_allow_html=True,
-)
+def set_active_page(page):
+    st.session_state["active_page"] = page
+
+NAVIGATION_PAGES = [
+    "⌂ Home",
+    "♡ Predict",
+    "▦ Scenario Lab",
+    "▥ Analytics",
+    "♥ Heart Guide",
+    "✚ Emergency & Map",
+    "✧ AI Guide",
+    "ⓘ About",
+]
+st.session_state.setdefault("active_page", NAVIGATION_PAGES[0])
 
 st.markdown(
     """
-    <div class="feature-grid">
-      <div class="feature-card"><div class="feature-icon">♡</div><div><strong>Machine Learning</strong><small>Explore the Cleveland dataset model</small></div></div>
-      <div class="feature-card"><div class="feature-icon">✦</div><div><strong>AI Health Guide</strong><small>Understand inputs and model outputs</small></div></div>
-      <div class="feature-card"><div class="feature-icon">▥</div><div><strong>Model Analytics</strong><small>Review metrics and test scenarios</small></div></div>
-      <div class="feature-card"><div class="feature-icon">♥</div><div><strong>Heart &amp; Life</strong><small>Learn heart-health concepts clearly</small></div></div>
-    </div>
+    <style>
+    div[data-testid="stRadio"] > div[role="radiogroup"] {
+      display:flex; gap:.35rem; flex-wrap:wrap; align-items:center;
+    }
+    div[data-testid="stRadio"] label {
+      background:#FFFFFF; border:1px solid #E5EAF0; border-radius:999px;
+      padding:.38rem .78rem; margin:0; transition:all .15s ease;
+    }
+    div[data-testid="stRadio"] label:has(input:checked) {
+      background:#FBEAF0; border-color:#C91446;
+    }
+    div[data-testid="stRadio"] label p {
+      color:#24374B; font-weight:750; margin:0;
+    }
+    div[data-testid="stRadio"] label:has(input:checked) p { color:#9E4058; }
+    </style>
     """,
     unsafe_allow_html=True,
 )
-
-
-# ----------------------------- TOP METRICS ------------------------------
-metrics_cols = st.columns(4)
-cards = [
-    ("SELECTED MODEL", selected_model, "Chosen during model training", "#8F173A"),
-    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#C91446"),
-    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#F05C7B"),
-    ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
-]
-for col, (label, value, note, accent) in zip(metrics_cols, cards):
-    with col:
-        st.markdown(
-            f'<div class="glass-card"><div class="stat-label">{label}</div>'
-            f'<div class="stat-value" style="color:{accent}">{value}</div>'
-            f'<div class="stat-note">{note}</div></div>',
-            unsafe_allow_html=True,
-        )
-
-st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
-
-# ----------------------------- WORKSPACE TABS ---------------------------
-live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab, assistant_tab = st.tabs(
-    ["✦ Live explorer", "▦ Scenario lab", "♡ Heart analytics", "♡ Heart guide", "✚ Emergency & map", "✧ AI voice assistant"]
+active_page = st.radio(
+    "Main navigation",
+    options=NAVIGATION_PAGES,
+    horizontal=True,
+    key="active_page",
+    label_visibility="collapsed",
 )
 
+# ----------------------------- HERO -------------------------------------
+if active_page == NAVIGATION_PAGES[0]:
+    st.markdown(
+        f"""
+        <section class="hero" id="top">
+          <div class="hero-copy">
+            <div class="hero-top">
+              <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
+              <span class="pill">13 model features</span>
+            </div>
+            <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
+            <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
+            <p>Explore cardiovascular measurements, understand how machine-learning models work,
+            and use the AI guide to learn more about the science behind heart-health data.</p>
+            <div class="hero-foot">
+              <div class="hero-stat"><b>Model</b> · {selected_model}</div>
+              <div class="hero-stat"><b>Dataset</b> · Cleveland</div>
+              <div class="hero-stat"><b>Workspace</b> · Explore + learn</div>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 560 430" role="img" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="heartAura"><stop stop-color="#FF7898" stop-opacity=".55"/><stop offset="1" stop-color="#F5B8CA" stop-opacity="0"/></radialGradient>
+                <linearGradient id="heartFill" x1="130" y1="40" x2="430" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7995"/><stop offset=".45" stop-color="#D9194D"/><stop offset="1" stop-color="#850D35"/></linearGradient>
+                <linearGradient id="heartLight" x1="180" y1="100" x2="360" y2="350" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE2EA"/><stop offset=".55" stop-color="#F34B73"/><stop offset="1" stop-color="#B30D3E"/></linearGradient>
+                <filter id="heartGlow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <circle cx="300" cy="214" r="196" fill="url(#heartAura)"/>
+              <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#FFFFFF" stroke-width="5" opacity=".88"/>
+              <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#E34D78" stroke-width="2" opacity=".7"/>
+              <path d="M279 358C245 326 130 246 128 162c-2-70 73-108 127-47 44-67 133-47 139 21 8 87-72 164-115 222Z" fill="url(#heartFill)" stroke="#FFF0F4" stroke-width="5" filter="url(#heartGlow)"/>
+              <path d="M279 328c-41-39-94-90-95-151-1-43 41-64 73-26l21 28 23-31c29-39 76-14 73 26-4 55-57 114-95 154Z" fill="#8D113B" opacity=".45"/>
+              <path d="M252 105 248 65c-2-20 8-31 23-31 14 0 21 13 19 30l-5 41M309 109l15-47c6-18 20-25 33-18 12 8 12 22 3 39l-27 47M356 129l30-37c11-13 27-15 37-4 9 11 5 25-9 37l-48 43" fill="none" stroke="#C91446" stroke-width="22" stroke-linecap="round"/>
+              <path d="M238 220c29-35 47-46 69-42 30 5 42 34 31 61-10 26-35 58-57 78-25-27-54-66-56-91-2-11 3-19 13-28Z" fill="url(#heartLight)" opacity=".84"/>
+              <path d="M149 232h87l18-1 18-42 25 83 25-123 23 83 17 1h96" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#heartGlow)"/>
+              <path d="M65 361c84 39 226 34 340-30 45-25 78-61 91-95" fill="none" stroke="#D83162" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+              <circle cx="443" cy="83" r="7" fill="#FFFFFF"/><circle cx="96" cy="138" r="5" fill="#E83C69"/><circle cx="457" cy="286" r="5" fill="#FFFFFF"/>
+              <path d="M455 43h34M472 26v34" stroke="#D7194C" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    hero_actions = st.columns([1.25, 1.25, 5])
+    with hero_actions[0]:
+        st.button("♡ Start Prediction", key="hero_predict", on_click=set_active_page,
+                  args=("♡ Predict",), use_container_width=True)
+    with hero_actions[1]:
+        st.button("✧ Ask AI Guide", key="hero_ai_guide", on_click=set_active_page,
+                  args=("✧ AI Guide",), use_container_width=True)
+
+    quick_columns = st.columns(4)
+    quick_cards = [
+        ("Machine Learning", "Explore the Cleveland dataset model", "♡ Predict", "Open prediction"),
+        ("AI Health Guide", "Ask questions about heart-health data", "✧ AI Guide", "Ask the AI guide"),
+        ("Model Analytics", "Review evaluation metrics and charts", "▥ Analytics", "View analytics"),
+        ("Heart & Life", "Learn about cardiovascular measurements", "♥ Heart Guide", "Open heart guide"),
+    ]
+    for index, (column, card) in enumerate(zip(quick_columns, quick_cards)):
+        title, description, destination, action_label = card
+        with column:
+            st.markdown(
+                f'<div class="glass-card"><div class="stat-label">{title}</div>'
+                f'<div class="stat-note">{description}</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.button(action_label + " →", key=f"home_quick_link_{index}",
+                      on_click=set_active_page, args=(destination,), use_container_width=True)
+
+    # ----------------------------- TOP METRICS ------------------------------
+    metrics_cols = st.columns(4)
+    cards = [
+        ("SELECTED MODEL", selected_model, "Chosen during model training", "#8F173A"),
+        ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#C91446"),
+        ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#F05C7B"),
+        ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
+    ]
+    for col, (label, value, note, accent) in zip(metrics_cols, cards):
+        with col:
+            st.markdown(
+                f'<div class="glass-card"><div class="stat-label">{label}</div>'
+                f'<div class="stat-value" style="color:{accent}">{value}</div>'
+                f'<div class="stat-note">{note}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
+
+
+
 # ----------------------------- LIVE EXPLORER ----------------------------
-with live_tab:
+def render_prediction_page():
     st.markdown('<div id="live-explorer"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">01 / Live explorer</div>', unsafe_allow_html=True)
     st.header("Run a profile through the model")
@@ -649,7 +694,7 @@ with live_tab:
         st.markdown('<div class="notice"><b>Important:</b> This prototype is not clinically validated. It must not be used for diagnosis, screening, treatment decisions or emergency triage. Seek professional medical assessment for health concerns.</div>', unsafe_allow_html=True)
 
 # ----------------------------- SCENARIO LAB -----------------------------
-with lab_tab:
+def render_scenario_lab():
     st.markdown('<div class="section-kicker">02 / Scenario lab</div>', unsafe_allow_html=True)
     st.header("Stress-test the model with synthetic profiles")
     st.markdown('<div class="section-sub">Generate a larger batch of fictional input combinations and inspect the model outputs. This is a software-testing feature, not a clinical study.</div>', unsafe_allow_html=True)
@@ -703,7 +748,7 @@ with lab_tab:
         st.markdown('<div class="notice"><b>Interpretation:</b> The group counts describe only how this model classified these artificial inputs. They are not disease prevalence, accuracy, risk rates or evidence about real patients.</div>', unsafe_allow_html=True)
 
 # ----------------------------- ANALYTICS ---------------------------------
-with analytics_tab:
+def render_analytics_page():
     st.markdown('<div class="section-kicker">03 / Model analytics</div>', unsafe_allow_html=True)
     st.header("Explore the model's test performance")
     st.markdown('<div class="section-sub">The metrics below come from the saved evaluation results on the held-out test split.</div>', unsafe_allow_html=True)
@@ -746,7 +791,7 @@ with analytics_tab:
         st.info("No saved evaluation results were found. Check models/metrics.json.")
 
 # ----------------------------- HEART GUIDE -------------------------------
-with guide_tab:
+def render_heart_guide():
     st.markdown('<div class="section-kicker">04 / Heart guide</div>', unsafe_allow_html=True)
     st.header("Cardiovascular health, in everyday language")
     st.markdown('<div class="section-sub">A quick guide to the measurements represented in the original dataset.</div>', unsafe_allow_html=True)
@@ -784,7 +829,7 @@ with guide_tab:
     st.markdown("- Avoid tobacco and smoking.\n- Stay physically active in a way that is appropriate for your health.\n- Choose a balanced diet and limit excess salt.\n- Attend recommended health checks.\n- Follow treatment prescribed by your clinician.\n- Seek medical advice for new, persistent or worrying symptoms.")
 
 # ----------------------------- EMERGENCY & MAP ---------------------------
-with emergency_tab:
+def render_emergency_page():
     st.markdown('<div class="section-kicker">05 / Emergency support</div>', unsafe_allow_html=True)
     st.header("Find help. Don't wait for an app result.")
     st.markdown(
@@ -808,13 +853,92 @@ with emergency_tab:
     st.markdown('<div class="notice"><b>Important:</b> This app does not access GPS, call hospitals, dispatch an ambulance or confirm emergency-department availability. For an emergency, call the emergency number directly.</div>', unsafe_allow_html=True)
 
 # ----------------------------- AI ASSISTANT ------------------------------
-with assistant_tab:
+def render_ai_guide():
     st.markdown('<div id="ai-guide"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
     st.header("Ask CardioPredict")
     st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
     current_profile = (st.session_state.get("last_prediction") or {}).get("profile") or {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
     render_cardio_assistant(current_profile=current_profile, prediction=st.session_state.get("last_prediction"))
+def render_about_page():
+    st.markdown('<div class="section-kicker">ABOUT / CARDIOPREDICT</div>', unsafe_allow_html=True)
+    st.header("About CardioPredict – Heart & Life")
+    st.markdown(
+        '<div class="section-sub">A machine-learning mini-project that demonstrates how a historical heart-disease dataset can be explored through an interactive educational interface.</div>',
+        unsafe_allow_html=True,
+    )
+
+    summary_cols = st.columns(3)
+    with summary_cols[0]:
+        st.markdown('<div class="glass-card"><div class="stat-label">DATASET</div><div class="stat-value">Cleveland</div><div class="stat-note">UCI processed heart-disease dataset</div></div>', unsafe_allow_html=True)
+    with summary_cols[1]:
+        st.markdown('<div class="glass-card"><div class="stat-label">MODEL INPUTS</div><div class="stat-value">13</div><div class="stat-note">Historical dataset attributes</div></div>', unsafe_allow_html=True)
+    with summary_cols[2]:
+        st.markdown('<div class="glass-card"><div class="stat-label">ALGORITHMS</div><div class="stat-value">2</div><div class="stat-note">Logistic Regression and Random Forest</div></div>', unsafe_allow_html=True)
+
+    st.markdown("### Project objective")
+    st.markdown(
+        "CardioPredict provides a learning environment for exploring cardiovascular dataset attributes, "
+        "observing model outputs, comparing classification metrics and understanding the limitations of "
+        "machine-learning predictions. It is intended for academic demonstration and software experimentation."
+    )
+
+    st.markdown("### Dataset and machine-learning workflow")
+    st.markdown(
+        """
+        1. Load the processed Cleveland heart-disease dataset from the UCI repository.
+        2. Convert missing-value markers and prepare the dataset fields.
+        3. Convert the original target into two demonstration groups: target 0 becomes Group 0, while targets 1–4 become Group 1.
+        4. Split the data into stratified training and test sets using an 80:20 split.
+        5. Preprocess numeric and categorical fields using imputation, scaling and one-hot encoding.
+        6. Train and compare Logistic Regression and Random Forest classifiers.
+        7. Evaluate the models using accuracy, precision, recall, F1-score and a confusion matrix; select the model with the higher test F1-score.
+        """
+    )
+
+    st.markdown("### Application modules")
+    modules = [
+        ("Prediction", "Enter the 13 dataset fields and view the saved classifier's output."),
+        ("Scenario Lab", "Generate fictional profiles to test the application workflow."),
+        ("Analytics", "Review saved evaluation metrics and confusion matrices."),
+        ("Heart Guide", "Read plain-language explanations of the dataset measurements."),
+        ("AI Guide", "Ask the Gemini-powered educational assistant about inputs and model outputs."),
+        ("Emergency & Map", "View emergency guidance and create a nearby-hospital search in Google Maps."),
+    ]
+    for title, description in modules:
+        st.markdown(f"**{title}** — {description}")
+
+    st.markdown("### Technology stack")
+    st.markdown(
+        "Python, Streamlit, Pandas, NumPy, scikit-learn, Joblib and Matplotlib support the application "
+        "and model workflow. Supabase provides email authentication, while the Google Gemini API powers "
+        "the optional educational AI assistant."
+    )
+
+    st.markdown("### Scope and limitations")
+    st.markdown(
+        "The Cleveland dataset is historical and limited in size. The model is an academic prototype, "
+        "not a clinically validated risk calculator or medical device. Its output must not be used for "
+        "diagnosis, screening, treatment decisions or emergency triage. Synthetic profiles are fictional "
+        "software-test inputs and are not patient records."
+    )
+    st.info("For health concerns, consult a qualified healthcare professional. In an emergency, contact local emergency services directly.")
+
+
+# ----------------------------- PAGE ROUTER -------------------------------
+PAGE_RENDERERS = {
+    "♡ Predict": render_prediction_page,
+    "▦ Scenario Lab": render_scenario_lab,
+    "▥ Analytics": render_analytics_page,
+    "♥ Heart Guide": render_heart_guide,
+    "✚ Emergency & Map": render_emergency_page,
+    "✧ AI Guide": render_ai_guide,
+    "ⓘ About": render_about_page,
+}
+if active_page in PAGE_RENDERERS:
+    PAGE_RENDERERS[active_page]()
+
+
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 st.markdown(
