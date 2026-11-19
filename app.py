@@ -1,6 +1,7 @@
 import json
 import os
 from urllib.parse import quote
+from pathlib import Path
 
 import joblib
 import matplotlib.pyplot as plt
@@ -8,6 +9,13 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from src.assistant import render_cardio_assistant
+from src.auth import render_auth_gate, render_logout_control
+
+BRAND_MARK_PATH = Path(__file__).resolve().parent / "assets" / "cardiopredict-mark.svg"
+try:
+    BRAND_MARK_SVG = BRAND_MARK_PATH.read_text(encoding="utf-8")
+except OSError:
+    BRAND_MARK_SVG = ""
 
 # CardioPredict - product-style interface and synthetic scenario explorer.
 # The saved model, original 13 features, preprocessing and training pipeline
@@ -16,7 +24,7 @@ from src.assistant import render_cardio_assistant
 
 st.set_page_config(
     page_title="CardioPredict | Heart & Life",
-    page_icon="💗",
+    page_icon=BRAND_MARK_SVG or "💗",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -39,415 +47,254 @@ for key, value in DEFAULTS.items():
 st.markdown(
     """
     <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-:root{color-scheme:light;--ink:#152B43;--soft:#66545A;--muted:#8B777D;--navy:#743F4A;--teal:#BD5969;--coral:#D77983;--line:#F0D8DA;--green:#367B63;--shadow:0 12px 30px rgba(19,54,79,.08)}
-html,body,[class*="css"],button,input,textarea,select{font-family:'DM Sans','Segoe UI',sans-serif!important}
-.stApp{color:var(--ink)!important;background:linear-gradient(180deg,#FFFCFB,#FFF6F4)!important}
-[data-testid="stAppViewContainer"],[data-testid="stMain"],.main{background:transparent!important;color:var(--ink)!important}
-[data-testid="stHeader"]{background:rgba(247,250,252,.96)!important;border-bottom:1px solid var(--line)!important}
-.block-container{max-width:1460px!important;padding:1.35rem 1.55rem 3rem!important}
-h1,h2,h3,h4,h5,h6,[data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3,[data-testid="stMarkdownContainer"] h4{font-family:'Manrope','DM Sans',sans-serif!important;color:var(--navy)!important;letter-spacing:-.025em!important;font-weight:800!important;text-shadow:none!important}
-h1{font-size:clamp(2rem,4vw,2.8rem)!important;line-height:1.12!important}h2{font-size:clamp(1.65rem,3vw,2.15rem)!important;line-height:1.2!important}h3{font-size:1.38rem!important;line-height:1.3!important}h4{font-size:1.14rem!important;line-height:1.35!important}
-.stApp p,.stApp li,.stApp label,.stApp small,[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{color:var(--soft)!important;font-size:1rem!important;line-height:1.65!important}
-[data-testid="stMarkdownContainer"] strong,.stApp strong{color:var(--navy)!important;font-weight:800!important}
-[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p,.stCaption,.small-muted{color:var(--muted)!important;font-size:.91rem!important;line-height:1.55!important}
-[data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] label,.stApp label{color:var(--ink)!important;font-size:.97rem!important;font-weight:700!important}
-[data-testid="stMarkdownContainer"] a{color:var(--teal)!important;text-underline-offset:3px}
-section[data-testid="stSidebar"]{background:linear-gradient(180deg,#EDF5F8,#E7F1F5)!important;border-right:1px solid #D3E2E9!important}
-section[data-testid="stSidebar"] *{color:var(--ink)!important}section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,section[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{color:var(--soft)!important}section[data-testid="stSidebar"] hr{border-color:var(--line)!important}
-.brand{font:800 1.35rem 'Manrope',sans-serif;letter-spacing:-.045em;color:var(--navy)!important}.brand span{color:var(--teal)!important}
-.side-chip{display:inline-block;padding:6px 10px;border-radius:99px;background:#DDF3F4!important;color:#075D68!important;border:1px solid #A9D9DD;font-size:.72rem;font-weight:800;letter-spacing:.08em}
-.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:25px;padding:2.05rem 2.3rem;margin:.2rem 0 1.35rem;background:linear-gradient(112deg,#102E49,#174B68 62%,#BD5969)!important;border:1px solid rgba(255,255,255,.22);box-shadow:0 20px 46px rgba(15,55,80,.17);animation:cp-rise .5s ease both}
-.hero:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-115px;top:-220px;border-radius:50%;background:radial-gradient(circle,rgba(85,205,207,.25),rgba(85,205,207,.05) 58%,transparent 72%)}
-.hero:after{content:"";position:absolute;z-index:-1;right:4%;top:12%;width:270px;height:145px;opacity:.16;background:#FFFFFF;clip-path:polygon(0 48%,24% 48%,31% 43%,37% 53%,43% 48%,49% 48%,54% 7%,60% 91%,66% 34%,72% 48%,100% 48%,100% 53%,73% 53%,66% 40%,60% 100%,54% 16%,50% 53%,43% 53%,37% 58%,31% 48%,24% 53%,0 53%)}
-.hero-top,.hero-foot{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.hero-top{margin-bottom:1rem}
-.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);color:#FFF!important;font-size:.76rem;font-weight:800;letter-spacing:.045em}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#8BE0C0;box-shadow:0 0 0 3px rgba(139,224,192,.16)}
-.hero h1{color:#FFF!important;font-family:'Manrope',sans-serif!important;font-size:clamp(2.15rem,5vw,3.55rem)!important;line-height:1.06!important;margin:0 0 .7rem!important;max-width:850px}
-.hero h1 span{color:#8DE0E1!important;-webkit-text-fill-color:#8DE0E1!important;background:none!important}
-.hero p{max-width:770px;color:#EAF6FA!important;font-size:1.04rem!important;line-height:1.65!important;margin:0}
-.hero-foot{margin-top:1.3rem}.hero-stat{padding:9px 13px;border-radius:12px;background:rgba(5,24,39,.24);border:1px solid rgba(255,255,255,.18);color:#FFF!important;font-size:.84rem}.hero-stat b{color:#9CE7E5!important}
-.ecg{height:34px;width:min(420px,75%);margin-top:1.05rem}.ecg svg{height:100%;width:100%}.ecg path{fill:none;stroke:#A7ECE9;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:850;stroke-dashoffset:850;animation:cp-draw 3s ease .2s forwards}
-@keyframes cp-draw{to{stroke-dashoffset:0}}@keyframes cp-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.section-kicker{color:var(--teal)!important;font-size:.74rem!important;font-weight:900!important;letter-spacing:.13em!important;text-transform:uppercase;margin-bottom:.3rem}
-.section-sub{color:var(--muted)!important;font-size:.97rem!important;line-height:1.6!important;margin-top:-.35rem;margin-bottom:1rem}
-.glass-card{height:100%;background:linear-gradient(145deg,#FFF,#F7FBFD)!important;border:1px solid var(--line)!important;border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-.glass-card:hover{transform:translateY(-2px);border-color:#9CCDD3!important;box-shadow:0 16px 34px rgba(19,54,79,.12)}
-.stat-label{color:var(--muted)!important;font-size:.76rem!important;font-weight:900!important;letter-spacing:.075em!important;text-transform:uppercase}
-.stat-value{color:var(--navy)!important;font:800 1.8rem 'Manrope',sans-serif!important;margin-top:7px;line-height:1.25}.stat-note{color:var(--muted)!important;font-size:.88rem!important;margin-top:5px;line-height:1.5!important}
-.glow-line{height:2px;border-radius:5px;background:linear-gradient(90deg,#BD5969,#45B8BB,#D77983,transparent);margin:1.25rem 0}
-div[data-testid="stForm"]{background:rgba(255,255,255,.94)!important;border:1px solid var(--line)!important;border-radius:20px!important;padding:1.05rem 1.15rem!important;box-shadow:var(--shadow)}
-div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,[data-testid="stTextArea"] textarea{background:#FFF!important;border:1px solid #C9D9E2!important;border-radius:12px!important;color:var(--ink)!important;box-shadow:none!important}
-div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea,input,textarea{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;font-size:1rem!important;caret-color:var(--teal)!important}
-div[data-baseweb="select"] *,[data-testid="stSelectbox"] [data-baseweb="select"]{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;font-size:.98rem!important}
-[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFF!important;border:1px solid var(--line)!important;box-shadow:0 12px 30px rgba(19,54,79,.14)!important}
-[role="option"],[role="listbox"] *{color:var(--ink)!important;background-color:#FFF!important}[role="option"]:hover{background:#FCEBE9!important}
-input::placeholder,textarea::placeholder,::placeholder{color:#718696!important;opacity:1!important}
-[data-testid="stNumberInput"] button{color:var(--navy)!important;background:#EAF4F7!important;border:1px solid #C9DDE5!important}
-[data-testid="stCheckbox"] label,[data-testid="stRadio"] label{color:var(--ink)!important}
-.stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a{min-height:2.9rem!important;border:1px solid #BD5969!important;border-radius:12px!important;padding:.55rem 1.05rem!important;background:linear-gradient(100deg,#BD5969,#1599A0)!important;color:#FFF!important;-webkit-text-fill-color:#FFF!important;font-size:.98rem!important;font-weight:800!important;box-shadow:0 7px 18px rgba(8,127,140,.16)!important;transition:transform .18s ease,filter .18s ease!important;text-decoration:none!important}
-.stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover,.stLinkButton>a:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 10px 22px rgba(8,127,140,.22)!important}
-.stButton>button:focus-visible,.stFormSubmitButton>button:focus-visible,.stDownloadButton>button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(8,127,140,.28)!important;outline-offset:2px!important}
-.stTabs [data-baseweb="tab-list"]{gap:6px!important;background:#FBECEB!important;border:1px solid #D4E2E9!important;border-radius:15px!important;padding:6px!important}
-.stTabs [data-baseweb="tab"]{min-height:2.75rem!important;padding:9px 14px!important;border-radius:10px!important;color:#40596D!important;font-size:.91rem!important;font-weight:750!important;white-space:nowrap!important}
-.stTabs [data-baseweb="tab"] p{color:inherit!important;font-size:inherit!important}.stTabs [aria-selected="true"]{background:#FFF!important;border:1px solid #B8D6DF!important;color:#075D68!important;box-shadow:0 2px 8px rgba(19,54,79,.07)}.stTabs [data-baseweb="tab-highlight"]{background:var(--teal)!important}
-[data-testid="stDataFrame"],[data-testid="stTable"]{border:1px solid var(--line)!important;border-radius:13px!important;overflow:hidden!important;background:#FFF!important}[data-testid="stDataFrame"] *{font-size:.91rem!important}
-[data-testid="stMetric"]{background:#FFF!important;border:1px solid var(--line)!important;border-radius:15px!important;padding:13px 15px!important;box-shadow:0 5px 16px rgba(19,54,79,.05)}
-[data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] *{color:var(--ink)!important}
-[data-testid="stMetricValue"]{font-family:'Manrope',sans-serif!important}[data-testid="stProgressBar"]>div{background:#E2EFF2!important}[data-testid="stProgressBar"]>div>div{background:linear-gradient(90deg,#BD5969,#45B8BB)!important}
-[data-testid="stExpander"]{border:1px solid var(--line)!important;border-radius:13px!important;background:rgba(255,255,255,.86)!important}
-[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--navy)!important;font-weight:750!important}
-[data-testid="stAlert"]{border-radius:13px!important;border:1px solid var(--line)!important}[data-testid="stAlert"] *{color:var(--ink)!important}
-.info-box{background:#E8F4F7!important;border:1px solid #C6DFE6!important;border-left:4px solid var(--teal)!important;color:#244E62!important;padding:13px 16px;border-radius:12px;font-size:.96rem!important;line-height:1.6!important}
-.notice{background:#FFF5E8!important;border:1px solid #EAD8B9!important;border-left:4px solid #B48242!important;color:#674C2B!important;padding:13px 16px;border-radius:12px;font-size:.96rem!important;line-height:1.6!important}
-.result-card{border-radius:18px;padding:1.25rem 1.4rem;border:1px solid #B9D9C9;border-left:5px solid var(--green);background:linear-gradient(120deg,#EAF5EF,#F7FBF8)!important;box-shadow:0 9px 24px rgba(55,104,72,.08);animation:cp-rise .4s ease both}
-.result-card.alert{border-color:#E5BBC2;border-left-color:var(--coral);background:linear-gradient(120deg,#FBECEF,#FFF8F7)!important}
-.result-tag{color:#367B63!important;font-size:.74rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.result-card.alert .result-tag{color:#A33B50!important}
-.result-title{color:var(--navy)!important;font:800 1.35rem 'Manrope',sans-serif;margin:.4rem 0;line-height:1.35}.result-card .small-muted{color:#526B5D!important}.result-card.alert .small-muted{color:#704F56!important}
-.emergency{background:linear-gradient(112deg,#102E49,#174B68 58%,#BD5969)!important;border:1px solid #174B68;border-radius:20px;padding:1.35rem 1.5rem;box-shadow:0 12px 30px rgba(16,46,73,.16)}
-.emergency h3{color:#FFF!important;margin-top:0}.emergency p{color:#EAF6FA!important}
-.phone{display:inline-block;background:#FFF!important;color:#075D68!important;text-decoration:none!important;padding:10px 16px;border-radius:10px;font-weight:900;margin:.4rem .5rem .2rem 0}
-.footer{color:var(--muted)!important;font-size:.82rem!important;line-height:1.7!important;text-align:center;padding:1.35rem 0 .4rem}
-@media(max-width:900px){.block-container{padding-left:1.1rem!important;padding-right:1.1rem!important}.hero{padding:1.7rem;border-radius:22px}.hero:after{right:-20px}.stTabs [data-baseweb="tab-list"]{overflow-x:auto!important}.stTabs [data-baseweb="tab"]{padding:8px 10px!important;font-size:.84rem!important}}
-@media(max-width:600px){.block-container{padding-top:.8rem!important;padding-left:.8rem!important;padding-right:.8rem!important}.hero{padding:1.35rem;border-radius:18px}.hero h1{font-size:2rem!important}.hero p{font-size:.96rem!important}.hero-stat{font-size:.76rem}.glass-card{padding:15px}.stat-value{font-size:1.5rem!important}.stTabs [data-baseweb="tab"]{min-height:2.55rem!important;padding:7px 9px!important}.emergency{padding:1.1rem}.phone{margin-right:.25rem}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+    :root {
+      color-scheme: light;
+      --ink: #172B3F;
+      --body: #536577;
+      --muted: #758494;
+      --navy: #142F49;
+      --rose: #C45C70;
+      --rose-dark: #9E4058;
+      --teal: #168C91;
+      --line: #E5EAF0;
+      --paper: #FCFAF8;
+      --white: #FFFFFF;
+      --shadow: 0 14px 38px rgba(20,47,73,.075);
+    }
+    html, body, [class*="css"], button, input, textarea, select {
+      font-family: 'DM Sans','Segoe UI',sans-serif !important;
+    }
+    .stApp { background: linear-gradient(180deg,#FCFAF8 0%,#F6F8FA 100%) !important; color:var(--ink)!important; }
+    [data-testid="stAppViewContainer"], [data-testid="stMain"], .main { background:transparent!important; color:var(--ink)!important; }
+    [data-testid="stHeader"] { background:rgba(252,250,248,.94)!important; border-bottom:1px solid var(--line)!important; }
+    .block-container { max-width:1440px!important; padding:1.4rem 1.6rem 3rem!important; }
+    h1,h2,h3,h4,h5,h6,[data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3 {
+      font-family:'Manrope','DM Sans',sans-serif!important; color:var(--navy)!important;
+      letter-spacing:-.035em!important; font-weight:800!important; text-shadow:none!important;
+    }
+    h1 {font-size:clamp(2rem,4vw,2.8rem)!important;line-height:1.12!important}
+    h2 {font-size:clamp(1.65rem,3vw,2.1rem)!important;line-height:1.2!important}
+    h3 {font-size:1.35rem!important;line-height:1.3!important}
+    .stApp p,.stApp li,[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li {color:var(--body)!important;line-height:1.68!important}
+    .stApp strong,[data-testid="stMarkdownContainer"] strong {color:var(--navy)!important;font-weight:800!important}
+    [data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] label,.stApp label {color:var(--ink)!important;font-weight:700!important}
+    [data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p {color:var(--muted)!important}
+    a {color:var(--teal)!important;text-underline-offset:3px}
+    section[data-testid="stSidebar"] {background:linear-gradient(180deg,#F1F5F8,#EAF0F4)!important;border-right:1px solid #DCE5EC!important}
+    section[data-testid="stSidebar"] * {color:var(--ink)!important}
+    .brand {font:800 1.4rem 'Manrope',sans-serif;letter-spacing:-.05em;color:var(--navy)!important}
+    .brand span {color:var(--rose)!important}
+    .side-chip {display:inline-block;padding:6px 11px;border-radius:99px;background:#F9E8EC!important;color:#8D3E55!important;border:1px solid #EBCBD3;font-size:.72rem;font-weight:800;letter-spacing:.08em}
+    .hero {position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:2.15rem 2.35rem;margin:.2rem 0 1.35rem;background:linear-gradient(112deg,#102B45 0%,#194C67 62%,#A94761 100%)!important;border:1px solid rgba(255,255,255,.2);box-shadow:0 22px 48px rgba(16,43,69,.16);animation:cp-rise .45s ease both}
+    .hero:before {content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-110px;top:-230px;border-radius:50%;background:radial-gradient(circle,rgba(77,206,199,.24),rgba(77,206,199,.04) 60%,transparent 72%)}
+    .hero-top,.hero-foot {display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .hero-top {margin-bottom:1rem}
+    .pill {display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);color:#FFF!important;font-size:.75rem;font-weight:800;letter-spacing:.045em}
+    .live-dot {width:8px;height:8px;border-radius:50%;background:#8CE0BE;box-shadow:0 0 0 3px rgba(140,224,190,.16)}
+    .hero h1 {color:#FFF!important;font-family:'Manrope',sans-serif!important;font-size:clamp(2.1rem,5vw,3.5rem)!important;line-height:1.06!important;margin:0 0 .7rem!important;max-width:850px}
+    .hero h1 span {color:#8DE3DF!important;-webkit-text-fill-color:#8DE3DF!important}
+    .hero p {max-width:770px;color:#EAF5F8!important;font-size:1.04rem!important;line-height:1.65!important;margin:0}
+    .hero-foot {margin-top:1.3rem}
+    .hero-stat {padding:9px 13px;border-radius:12px;background:rgba(5,24,39,.24);border:1px solid rgba(255,255,255,.18);color:#FFF!important;font-size:.84rem}
+    .hero-stat b {color:#9CE7E5!important}
+    .ecg {height:34px;width:min(420px,75%);margin-top:1.05rem}
+    .ecg svg {height:100%;width:100%}
+    .ecg path {fill:none;stroke:#A7ECE9;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:850;stroke-dashoffset:850;animation:cp-draw 3s ease .2s forwards}
+    @keyframes cp-draw {to{stroke-dashoffset:0}}
+    @keyframes cp-rise {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .section-kicker {color:var(--rose-dark)!important;font-size:.74rem!important;font-weight:900!important;letter-spacing:.13em!important;text-transform:uppercase;margin-bottom:.3rem}
+    .section-sub {color:var(--muted)!important;font-size:.97rem!important;line-height:1.6!important;margin-top:-.35rem;margin-bottom:1rem}
+    .glass-card {height:100%;background:linear-gradient(145deg,#FFF,#F7F9FB)!important;border:1px solid var(--line)!important;border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease}
+    .glass-card:hover {transform:translateY(-2px);box-shadow:0 17px 36px rgba(20,47,73,.11)}
+    .stat-label {color:var(--muted)!important;font-size:.75rem!important;font-weight:900!important;letter-spacing:.075em!important;text-transform:uppercase}
+    .stat-value {color:var(--navy)!important;font:800 1.8rem 'Manrope',sans-serif!important;margin-top:7px;line-height:1.25}
+    .stat-note {color:var(--muted)!important;font-size:.88rem!important;margin-top:5px;line-height:1.5!important}
+    .glow-line {height:2px;border-radius:5px;background:linear-gradient(90deg,#C45C70,#45B9B6,#A94761,transparent);margin:1.25rem 0}
+    div[data-testid="stForm"] {background:rgba(255,255,255,.96)!important;border:1px solid var(--line)!important;border-radius:20px!important;padding:1.05rem 1.15rem!important;box-shadow:var(--shadow)}
+    /* One consistent light-field rule for all widgets; no competing dark overrides. */
+    .stApp [data-baseweb="input"]>div,.stApp [data-baseweb="select"]>div,.stApp [data-baseweb="textarea"]>div,
+    .stApp [data-testid="stTextArea"] textarea {background:#FFFFFF!important;border:1px solid #CBD7E1!important;border-radius:11px!important;box-shadow:none!important}
+    .stApp input,.stApp textarea,.stApp [data-baseweb="select"] *, .stApp [data-baseweb="input"] * {
+      color:#172B3F!important;-webkit-text-fill-color:#172B3F!important;caret-color:#168C91!important;opacity:1!important;
+    }
+    .stApp input::placeholder,.stApp textarea::placeholder {color:#718293!important;-webkit-text-fill-color:#718293!important;opacity:1!important}
+    .stApp [data-testid="stNumberInput"] button {background:#EEF3F6!important;color:#173A55!important;border:1px solid #CBD7E1!important}
+    .stApp [data-testid="stNumberInput"] button svg {fill:#173A55!important;color:#173A55!important}
+    .stApp [data-baseweb="popover"],.stApp [data-baseweb="menu"],.stApp ul[role="listbox"] {background:#FFFFFF!important;border:1px solid #DCE5EC!important;box-shadow:0 12px 28px rgba(20,47,73,.14)!important}
+    .stApp [role="option"],.stApp [role="listbox"] * {background:#FFFFFF!important;color:#172B3F!important;-webkit-text-fill-color:#172B3F!important}
+    .stApp [role="option"]:hover {background:#F9E8EC!important}
+    .stApp [data-baseweb="input"]>div:focus-within,.stApp [data-baseweb="select"]>div:focus-within,.stApp textarea:focus {
+      border-color:#168C91!important;box-shadow:0 0 0 3px rgba(22,140,145,.15)!important
+    }
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a {
+      min-height:2.85rem!important;border:1px solid #A94761!important;border-radius:11px!important;padding:.55rem 1.05rem!important;
+      background:linear-gradient(100deg,#A94761,#C45C70)!important;color:#FFF!important;-webkit-text-fill-color:#FFF!important;
+      font-size:.96rem!important;font-weight:800!important;box-shadow:0 7px 18px rgba(169,71,97,.16)!important;
+      transition:transform .18s ease,filter .18s ease!important;text-decoration:none!important
+    }
+    .stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover,.stLinkButton>a:hover {transform:translateY(-1px);filter:brightness(1.06)}
+    .stButton>button:focus-visible,.stFormSubmitButton>button:focus-visible,input:focus-visible,textarea:focus-visible {outline:3px solid rgba(22,140,145,.25)!important;outline-offset:2px!important}
+    .stTabs [data-baseweb="tab-list"] {gap:6px!important;background:#EDF2F5!important;border:1px solid #DCE5EC!important;border-radius:14px!important;padding:6px!important}
+    .stTabs [data-baseweb="tab"] {min-height:2.7rem!important;padding:8px 13px!important;border-radius:9px!important;color:#40566A!important;font-size:.9rem!important;font-weight:750!important;white-space:nowrap!important}
+    .stTabs [data-baseweb="tab"] p {color:inherit!important;font-size:inherit!important}
+    .stTabs [aria-selected="true"] {background:#FFFFFF!important;border:1px solid #D5E0E8!important;color:#9E4058!important;box-shadow:0 2px 8px rgba(20,47,73,.07)}
+    .stTabs [data-baseweb="tab-highlight"] {background:var(--rose)!important}
+    [data-testid="stDataFrame"],[data-testid="stTable"] {border:1px solid var(--line)!important;border-radius:12px!important;overflow:hidden!important;background:#FFF!important}
+    [data-testid="stMetric"] {background:#FFF!important;border:1px solid var(--line)!important;border-radius:14px!important;padding:13px 15px!important;box-shadow:0 5px 16px rgba(20,47,73,.05)}
+    [data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] * {color:var(--ink)!important}
+    [data-testid="stMetricValue"] {font-family:'Manrope',sans-serif!important}
+    [data-testid="stProgressBar"]>div {background:#E8EEF2!important}
+    [data-testid="stProgressBar"]>div>div {background:linear-gradient(90deg,#A94761,#168C91)!important}
+    [data-testid="stExpander"] {border:1px solid var(--line)!important;border-radius:12px!important;background:rgba(255,255,255,.9)!important}
+    [data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span {color:var(--navy)!important;font-weight:750!important}
+    [data-testid="stAlert"] {border-radius:12px!important;border:1px solid var(--line)!important}
+    .info-box {background:#EAF3F6!important;border:1px solid #D3E4EA!important;border-left:4px solid var(--teal)!important;color:#24485D!important;padding:13px 16px;border-radius:12px;font-size:.95rem!important;line-height:1.6!important}
+    .notice {background:#FFF5E9!important;border:1px solid #EAD8B9!important;border-left:4px solid #B48242!important;color:#674C2B!important;padding:13px 16px;border-radius:12px;font-size:.95rem!important;line-height:1.6!important}
+    .result-card {border-radius:17px;padding:1.2rem 1.35rem;border:1px solid #B9D9C9;border-left:5px solid #4D896F;background:linear-gradient(120deg,#EAF5EF,#F7FBF8)!important;box-shadow:0 9px 24px rgba(55,104,72,.08)}
+    .result-card.alert {border-color:#E5BBC2;border-left-color:#C45C70;background:linear-gradient(120deg,#FBECEF,#FFF8F7)!important}
+    .result-tag {color:#367B63!important;font-size:.74rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+    .result-card.alert .result-tag {color:#A33B50!important}
+    .result-title {color:var(--navy)!important;font:800 1.32rem 'Manrope',sans-serif;margin:.4rem 0;line-height:1.35}
+    .result-card .small-muted {color:#526B5D!important}.result-card.alert .small-muted {color:#704F56!important}
+    .emergency {background:linear-gradient(112deg,#102B45,#194C67 58%,#A94761)!important;border:1px solid #194C67;border-radius:19px;padding:1.3rem 1.45rem;box-shadow:0 12px 30px rgba(16,43,69,.16)}
+    .emergency h3 {color:#FFF!important;margin-top:0}.emergency p {color:#EAF5F8!important}
+    .phone {display:inline-block;background:#FFF!important;color:#173A55!important;text-decoration:none!important;padding:10px 16px;border-radius:10px;font-weight:900;margin:.4rem .5rem .2rem 0}
+    .footer {color:var(--muted)!important;font-size:.82rem!important;line-height:1.7!important;text-align:center;padding:1.35rem 0 .4rem}
+    .auth-shell {max-width:1080px;margin:2.4rem auto 1rem;display:grid;grid-template-columns:1.04fr .96fr;gap:0;border:1px solid #E1E7EC;border-radius:28px;overflow:hidden;background:#FFF;box-shadow:0 28px 70px rgba(20,47,73,.12)}
+    .auth-brand {padding:3rem 2.6rem;background:linear-gradient(145deg,#102B45,#194C67 68%,#A94761);color:#FFF;display:flex;flex-direction:column;justify-content:space-between;min-height:520px}
+    .auth-brand h1 {color:#FFF!important;font:800 clamp(2.1rem,4vw,3.15rem) 'Manrope',sans-serif!important;line-height:1.08!important;margin:2rem 0 1rem!important}
+    .auth-brand p {color:#EAF5F8!important;font-size:1rem!important;line-height:1.7!important}
+    .auth-brand .eyebrow {color:#A9E7E1!important;font-size:.75rem;font-weight:900;letter-spacing:.15em}
+    .auth-brand .trust {color:#DCEAF0!important;font-size:.84rem}
+    .auth-panel {padding:2.6rem 2.3rem;background:#FFF}
+    .auth-panel h2 {margin-top:.25rem!important}
+    .auth-mark {font:800 1.25rem 'Manrope',sans-serif;color:#FFF}
+    .auth-mark span {color:#A9E7E1}
+    @media(max-width:760px) {
+      .block-container {padding:.9rem .8rem 2.5rem!important}
+      .hero {padding:1.5rem;border-radius:19px}
+      .auth-shell {display:block;margin:1rem auto}
+      .auth-brand {min-height:unset;padding:2rem 1.5rem}
+      .auth-brand h1 {font-size:2.1rem!important;margin:1.1rem 0 .6rem!important}
+      .auth-panel {padding:1.7rem 1.35rem}
+      .stTabs [data-baseweb="tab-list"] {overflow-x:auto!important}
+      .stTabs [data-baseweb="tab"] {padding:7px 9px!important;font-size:.83rem!important}
+      .glass-card {padding:15px}
+    }
+    @media(prefers-reduced-motion:reduce) {*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    
+    /* HEART & LIFE — second approved blush/rose visual direction */
+    :root {
+      --ink:#172B42; --body:#536477; --muted:#748394; --navy:#142F49;
+      --rose:#C91446; --rose-dark:#9E173C; --teal:#168C91;
+      --line:#F0D8E0; --paper:#FFF8FA; --white:#FFFFFF;
+      --shadow:0 16px 38px rgba(117,34,65,.09);
+    }
+    .stApp {background:linear-gradient(135deg,#FFF8FA 0%,#FCECF1 45%,#FFF9FB 100%)!important}
+    [data-testid="stHeader"] {background:rgba(255,248,250,.94)!important;border-bottom:1px solid #F1D9E1!important}
+    section[data-testid="stSidebar"] {background:linear-gradient(180deg,#FFF4F7,#F9E8EF)!important;border-right:1px solid #F0D8E0!important}
+    .brand-bar {display:flex;align-items:center;justify-content:space-between;gap:1.1rem;
+      padding:.75rem 1.1rem;margin:.15rem 0 1.25rem;background:rgba(255,255,255,.88);
+      border:1px solid #F1D5DF;border-radius:18px;box-shadow:0 10px 28px rgba(117,34,65,.065)}
+    .brand-lockup {display:flex;align-items:center;gap:.7rem;min-width:230px}
+    .brand-lockup svg {width:58px;height:58px;flex:0 0 58px;filter:drop-shadow(0 5px 10px rgba(201,20,70,.16))}
+    .brand-name {font:800 1.48rem 'Manrope',sans-serif;letter-spacing:-.055em;color:#172B42;line-height:1.05}
+    .brand-name span {color:#C91446}
+    .brand-subtitle {margin-top:5px;font-size:.69rem;letter-spacing:.32em;font-weight:900;color:#27384D}
+    .brand-nav {display:flex;align-items:center;justify-content:center;gap:clamp(.8rem,2vw,2rem);flex-wrap:wrap}
+    .brand-nav a {text-decoration:none!important;color:#24374B!important;font-weight:750;font-size:.9rem;padding:.48rem .2rem;border-bottom:2px solid transparent}
+    .brand-nav a.active,.brand-nav a:hover {color:#C91446!important;border-color:#C91446}
+    .brand-status {font-size:.72rem;letter-spacing:.1em;font-weight:900;color:#9E173C;background:#FBE6ED;border:1px solid #F1C9D6;border-radius:999px;padding:.55rem .8rem;white-space:nowrap}
+    .sidebar-brand {display:flex;align-items:center;gap:.65rem;margin-bottom:.25rem}
+    .sidebar-brand svg {width:44px;height:44px}
+    .sidebar-brand .brand-copy {font:800 1.12rem 'Manrope',sans-serif;color:#172B42;letter-spacing:-.04em}
+    .sidebar-brand .brand-copy span {color:#C91446}
+    .sidebar-brand small {display:block;font:800 .57rem 'DM Sans',sans-serif;letter-spacing:.25em;color:#6C7887;margin-top:3px}
+    .hero {display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);align-items:center;gap:1.2rem;
+      min-height:365px;padding:2.1rem 2.2rem;margin:.25rem 0 1.25rem;
+      background:linear-gradient(112deg,#FFF9FB 0%,#FBE5EC 53%,#F5B6C8 100%)!important;
+      border:1px solid #F0C8D5;border-radius:25px;box-shadow:0 20px 46px rgba(148,27,65,.12);overflow:hidden}
+    .hero:before,.hero:after {display:none!important}
+    .hero-copy {position:relative;z-index:1;min-width:0}
+    .hero-top {margin-bottom:1.15rem}
+    .pill {background:#FFFFFF!important;color:#8F173A!important;border:1px solid #F1C4D2!important;
+      box-shadow:0 4px 12px rgba(151,25,64,.055);font-size:.72rem}
+    .live-dot {background:#D7194C!important;box-shadow:0 0 0 3px rgba(215,25,76,.12)!important}
+    .hero h1 {color:#142F49!important;font-size:clamp(2.35rem,4.8vw,3.65rem)!important;max-width:700px}
+    .hero h1 span {color:#C91446!important;-webkit-text-fill-color:#C91446!important}
+    .hero .hero-tagline {font:700 clamp(1.08rem,2vw,1.42rem) 'Manrope',sans-serif!important;color:#172B42!important;margin:.75rem 0 .85rem!important;line-height:1.35!important}
+    .hero .hero-tagline span {color:#C91446!important}
+    .hero p {max-width:620px;color:#43566A!important;font-size:1rem!important;line-height:1.65!important}
+    .hero-actions {display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:1.25rem 0 .25rem}
+    .hero-cta {display:inline-flex;align-items:center;gap:.55rem;padding:.78rem 1.05rem;border-radius:999px;
+      text-decoration:none!important;font-weight:850;font-size:.91rem;border:1px solid #C91446}
+    .hero-cta.primary {background:linear-gradient(100deg,#F04768,#C91446);color:#FFFFFF!important;
+      box-shadow:0 8px 20px rgba(201,20,70,.2)}
+    .hero-cta.secondary {background:rgba(255,255,255,.62);color:#8F173A!important;border-color:#C75A78}
+    .hero-foot {margin-top:1.05rem;gap:.55rem}
+    .hero-stat {background:rgba(255,255,255,.76);border:1px solid #F0C8D5;color:#35485B!important;
+      padding:8px 11px;border-radius:11px;font-size:.78rem}
+    .hero-stat b {color:#9E173C!important}
+    .hero-art {min-width:0;display:flex;align-items:center;justify-content:center;position:relative}
+    .hero-art svg {width:100%;max-width:520px;height:auto;overflow:visible;filter:drop-shadow(0 14px 22px rgba(180,20,70,.15))}
+    .feature-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin:0 0 1.25rem}
+    .feature-card {display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.9);
+      border:1px solid #F0D8E0;border-radius:17px;padding:1rem 1.05rem;box-shadow:0 8px 23px rgba(117,34,65,.055)}
+    .feature-icon {width:45px;height:45px;display:grid;place-items:center;flex:0 0 45px;border-radius:50%;
+      background:#FCE5EC;color:#C91446;font-size:1.35rem}
+    .feature-card strong {display:block;color:#172B42!important;font:800 .9rem 'Manrope',sans-serif}
+    .feature-card small {display:block;color:#69788A;font-size:.76rem;line-height:1.4;margin-top:3px}
+    .glass-card {background:linear-gradient(145deg,#FFFFFF,#FFF7FA)!important;border:1px solid #F0D8E0!important;
+      box-shadow:0 10px 25px rgba(117,34,65,.065)}
+    .stat-value {color:#9E173C!important}
+    .glow-line {background:linear-gradient(90deg,#C91446,#F49DB4,#D8A5B9,transparent)!important}
+    .stTabs [data-baseweb="tab-list"] {background:#FBEAF0!important;border-color:#F0D3DE!important}
+    .stTabs [aria-selected="true"] {background:#FFFFFF!important;color:#A31540!important;border-color:#F0C8D5!important}
+    .stTabs [data-baseweb="tab-highlight"] {background:#C91446!important}
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a {
+      background:linear-gradient(100deg,#F04768,#C91446)!important;border-color:#C91446!important;
+      box-shadow:0 7px 18px rgba(201,20,70,.16)!important}
+    .auth-brand-lockup {display:flex;align-items:center;gap:1rem}
+    .auth-brand-lockup svg {width:72px;height:72px;flex:0 0 72px;filter:drop-shadow(0 6px 12px rgba(201,20,70,.18))}
+    .auth-brand-subtitle {font-size:.63rem;letter-spacing:.24em;font-weight:900;color:#536477;margin-top:5px}
+    .auth-brand {background:linear-gradient(145deg,#FFF1F6 0%,#F8D8E3 63%,#F2B4C7 100%)!important;
+      border-right:1px solid #F0D0DA!important;color:#172B42!important}
+    .auth-brand h1 {color:#142F49!important}
+    .auth-brand p {color:#43566A!important}
+    .auth-brand .eyebrow {color:#A31540!important}
+    .auth-brand .trust {color:#536477!important}
+    .auth-mark {color:#172B42!important}
+    .auth-mark span {color:#C91446!important}
+    .auth-panel {background:#FFFFFF!important}
+    @media(max-width:900px) {
+      .brand-bar {flex-wrap:wrap}
+      .brand-nav {order:3;width:100%;justify-content:space-around}
+      .hero {grid-template-columns:1fr;gap:.4rem}
+      .hero-art {max-height:270px}
+      .hero-art svg {max-height:260px}
+      .feature-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:560px) {
+      .brand-lockup {min-width:0}
+      .brand-lockup svg {width:47px;height:47px;flex-basis:47px}
+      .brand-name {font-size:1.2rem}
+      .brand-status {font-size:.62rem;padding:.45rem .6rem}
+      .brand-nav {gap:.45rem}
+      .brand-nav a {font-size:.78rem}
+      .hero {padding:1.35rem;border-radius:19px}
+      .hero h1 {font-size:2.15rem!important}
+      .hero-art {max-height:215px}
+      .feature-grid {grid-template-columns:1fr}
+    }
 
-/* Numeric biomedical measurements: dark field with high-contrast white digits */
-[data-testid="stNumberInput"] [data-baseweb="input"]>div,
-[data-testid="stNumberInput"] div[data-baseweb="input"]>div{
-  background:#743F4A!important;
-  border:1px solid #2C7184!important;
-  border-radius:12px!important;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.12)!important;
-}
-[data-testid="stNumberInput"] input,
-[data-testid="stNumberInput"] input[type="number"]{
-  background:transparent!important;
-  color:#FFFFFF!important;
-  -webkit-text-fill-color:#FFFFFF!important;
-  caret-color:#8DE0E1!important;
-  font-weight:700!important;
-  font-size:1.04rem!important;
-  opacity:1!important;
-}
-[data-testid="stNumberInput"] input::placeholder{
-  color:#C6DDE5!important;
-  -webkit-text-fill-color:#C6DDE5!important;
-  opacity:1!important;
-}
-[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within{
-  border-color:#28A6AD!important;
-  box-shadow:0 0 0 3px rgba(40,166,173,.2)!important;
-}
-[data-testid="stNumberInput"] button{
-  background:#1C4B69!important;
-  color:#FFFFFF!important;
-  border:1px solid #2C7184!important;
-}
-[data-testid="stNumberInput"] button svg{
-  fill:#FFFFFF!important;
-  color:#FFFFFF!important;
-}
-
-
-/* High-contrast text for every user-entered or selected widget value */
-[data-testid="stNumberInput"] [data-baseweb="input"]>div,
-[data-testid="stTextInput"] [data-baseweb="input"]>div,
-[data-testid="stTextArea"] textarea,
-[data-testid="stSelectbox"] [data-baseweb="select"]>div,
-[data-testid="stMultiSelect"] [data-baseweb="select"]>div,
-[data-testid="stDateInput"] [data-baseweb="input"]>div,
-[data-testid="stTimeInput"] [data-baseweb="input"]>div{
-  background:#743F4A!important;
-  border:1px solid #2C7184!important;
-  border-radius:12px!important;
-}
-[data-testid="stNumberInput"] input,
-[data-testid="stTextInput"] input,
-[data-testid="stTextArea"] textarea,
-[data-testid="stDateInput"] input,
-[data-testid="stTimeInput"] input,
-[data-testid="stSelectbox"] [data-baseweb="select"] *,
-[data-testid="stMultiSelect"] [data-baseweb="select"] *,
-[data-testid="stMultiSelect"] [data-baseweb="tag"] *{
-  color:#FFFFFF!important;
-  -webkit-text-fill-color:#FFFFFF!important;
-  caret-color:#8DE0E1!important;
-  opacity:1!important;
-  font-weight:650!important;
-  text-shadow:none!important;
-}
-[data-testid="stNumberInput"] input::placeholder,
-[data-testid="stTextInput"] input::placeholder,
-[data-testid="stTextArea"] textarea::placeholder,
-[data-testid="stDateInput"] input::placeholder,
-[data-testid="stTimeInput"] input::placeholder{
-  color:#C6DDE5!important;
-  -webkit-text-fill-color:#C6DDE5!important;
-  opacity:1!important;
-}
-[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within,
-[data-testid="stTextInput"] [data-baseweb="input"]>div:focus-within,
-[data-testid="stTextArea"] textarea:focus,
-[data-testid="stSelectbox"] [data-baseweb="select"]>div:focus-within,
-[data-testid="stMultiSelect"] [data-baseweb="select"]>div:focus-within{
-  border-color:#42C4C5!important;
-  box-shadow:0 0 0 3px rgba(66,196,197,.22)!important;
-}
-[data-testid="stNumberInput"] button{
-  background:#1C4B69!important;color:#FFFFFF!important;border:1px solid #2C7184!important;
-}
-[data-testid="stNumberInput"] button svg{fill:#FFFFFF!important;color:#FFFFFF!important}
-[data-testid="stSelectbox"] svg,[data-testid="stMultiSelect"] svg{fill:#FFFFFF!important;color:#FFFFFF!important}
-[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFFFFF!important}
-[role="option],[role="listbox"] *{color:#152B43!important;-webkit-text-fill-color:#152B43!important;background-color:#FFFFFF!important}
-[role="option"]:hover{background:#FCEBE9!important}
-
-
-/* ---------------- HEART & LIFE LIGHT THEME ---------------- */
-:root{
- --ink:#49363B;--soft:#66545A;--muted:#8B777D;--navy:#743F4A;
- --teal:#BD5969;--coral:#D96F7A;--line:#F0D8DA;--green:#4D896F;
- --shadow:0 10px 26px rgba(130,76,84,.075)
-}
-.stApp{background:linear-gradient(180deg,#FFFCFB 0%,#FFF6F4 52%,#FFF9F7 100%)!important;color:var(--ink)!important}
-[data-testid="stHeader"]{background:rgba(255,252,251,.96)!important;border-bottom:1px solid #F0D8DA!important}
-h1,h2,h3,h4,h5,h6,[data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3,[data-testid="stMarkdownContainer"] h4{color:#743F4A!important}
-.stApp p,.stApp li,.stApp label,[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{color:#66545A!important}
-[data-testid="stMarkdownContainer"] strong,.stApp strong{color:#743F4A!important}
-[data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] label,.stApp label{color:#49363B!important}
-[data-testid="stMarkdownContainer"] a{color:#A8465A!important}
-section[data-testid="stSidebar"]{background:linear-gradient(180deg,#FFF0EE,#FCE7E6)!important;border-right:1px solid #F0D8DA!important}
-section[data-testid="stSidebar"] *{color:#49363B!important}
-.brand{color:#743F4A!important}.brand span{color:#BD5969!important}
-.side-chip{background:#FADFE0!important;color:#8E3F50!important;border-color:#EABFC4!important}
-.hero{background:linear-gradient(112deg,#FCE8E6 0%,#F9DCDD 58%,#F4E7E2 100%)!important;border:1px solid #EFCBCD!important;box-shadow:0 16px 36px rgba(145,76,85,.10)!important}
-.hero:before{background:radial-gradient(circle,rgba(218,126,137,.22),rgba(218,126,137,.04) 58%,transparent 72%)}
-.hero:after{background:#A84F60!important;opacity:.13!important}
-.hero h1{color:#743F4A!important}
-.hero h1 span{color:#B44F62!important;-webkit-text-fill-color:#B44F62!important}
-.hero p{color:#60464D!important}
-.pill{background:rgba(255,255,255,.66)!important;border:1px solid rgba(170,91,103,.20)!important;color:#784451!important}
-.live-dot{background:#68A987!important;box-shadow:0 0 0 3px rgba(104,169,135,.16)}
-.hero-stat{background:rgba(255,255,255,.62)!important;border:1px solid rgba(170,91,103,.18)!important;color:#60464D!important}
-.hero-stat b{color:#A8465A!important}
-.ecg path{stroke:#B64F63!important}
-.section-kicker{color:#B14F62!important}
-.glass-card{background:linear-gradient(145deg,#FFFFFF,#FFF7F5)!important;border-color:#F0D8DA!important;box-shadow:var(--shadow)!important}
-.glass-card:hover{border-color:#E4AEB5!important;box-shadow:0 14px 30px rgba(130,76,84,.11)!important}
-.stat-value{color:#743F4A!important}
-.glow-line{background:linear-gradient(90deg,#BD5969,#E7A1A7,#F4D5D3,transparent)!important}
-div[data-testid="stForm"]{background:rgba(255,255,255,.96)!important;border-color:#F0D8DA!important}
-div[data-baseweb="input"]>div,div[data-baseweb="select"]>div,[data-testid="stTextArea"] textarea{background:#FFFBFA!important;border:1px solid #E7C9CC!important;color:#49363B!important}
-div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea,input,textarea{color:#49363B!important;-webkit-text-fill-color:#49363B!important;caret-color:#BD5969!important}
-div[data-baseweb="select"] *{color:#49363B!important;-webkit-text-fill-color:#49363B!important}
-[data-testid="stNumberInput"] [data-baseweb="input"]>div,
-[data-testid="stTextInput"] [data-baseweb="input"]>div,
-[data-testid="stTextArea"] textarea,
-[data-testid="stSelectbox"] [data-baseweb="select"]>div,
-[data-testid="stMultiSelect"] [data-baseweb="select"]>div,
-[data-testid="stDateInput"] [data-baseweb="input"]>div,
-[data-testid="stTimeInput"] [data-baseweb="input"]>div{
- background:#FFF8F6!important;border:1px solid #E7C9CC!important;border-radius:12px!important
-}
-[data-testid="stNumberInput"] input,[data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,
-[data-testid="stDateInput"] input,[data-testid="stTimeInput"] input,
-[data-testid="stSelectbox"] [data-baseweb="select"] *,
-[data-testid="stMultiSelect"] [data-baseweb="select"] *,
-[data-testid="stMultiSelect"] [data-baseweb="tag"] *{
- color:#49363B!important;-webkit-text-fill-color:#49363B!important;caret-color:#BD5969!important;
- font-weight:650!important;opacity:1!important
-}
-[data-testid="stNumberInput"] input::placeholder,[data-testid="stTextInput"] input::placeholder,
-[data-testid="stTextArea"] textarea::placeholder{color:#9A8589!important;-webkit-text-fill-color:#9A8589!important}
-[data-testid="stNumberInput"] [data-baseweb="input"]>div:focus-within,
-[data-testid="stTextInput"] [data-baseweb="input"]>div:focus-within,
-[data-testid="stTextArea"] textarea:focus,[data-testid="stSelectbox"] [data-baseweb="select"]>div:focus-within{
- border-color:#D78A95!important;box-shadow:0 0 0 3px rgba(189,89,105,.15)!important
-}
-[data-testid="stNumberInput"] button{background:#FBE9E7!important;color:#884653!important;border:1px solid #E7C9CC!important}
-[data-testid="stNumberInput"] button svg,[data-testid="stSelectbox"] svg{fill:#884653!important;color:#884653!important}
-[data-baseweb="popover"],[data-baseweb="menu"],ul[role="listbox"]{background:#FFFEFD!important;border:1px solid #F0D8DA!important}
-[role="option"],[role="listbox"] *{color:#49363B!important;-webkit-text-fill-color:#49363B!important;background:#FFFEFD!important}
-[role="option"]:hover{background:#FCEBE9!important}
-.stButton>button,.stFormSubmitButton>button,.stDownloadButton>button,.stLinkButton>a{
- background:linear-gradient(100deg,#B84F62,#D77983)!important;border:1px solid #B84F62!important;
- color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;box-shadow:0 7px 18px rgba(184,79,98,.16)!important
-}
-.stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover,.stLinkButton>a:hover{box-shadow:0 10px 22px rgba(184,79,98,.22)!important}
-.stTabs [data-baseweb="tab-list"]{background:#FBECEB!important;border-color:#F0D8DA!important}
-.stTabs [data-baseweb="tab"]{color:#79545B!important}
-.stTabs [data-baseweb="tab"] p{color:inherit!important}
-.stTabs [aria-selected="true"]{background:#FFFFFF!important;border-color:#E8BFC4!important;color:#98495A!important}
-.stTabs [data-baseweb="tab-highlight"]{background:#BD5969!important}
-[data-testid="stDataFrame"],[data-testid="stTable"],[data-testid="stMetric"]{border-color:#F0D8DA!important;background:#FFFFFF!important}
-[data-testid="stMetricLabel"],[data-testid="stMetricLabel"] *,[data-testid="stMetricValue"],[data-testid="stMetricValue"] *,[data-testid="stMetricDelta"],[data-testid="stMetricDelta"] *{color:#49363B!important}
-[data-testid="stProgressBar"]>div{background:#F6E5E4!important}
-[data-testid="stProgressBar"]>div>div{background:linear-gradient(90deg,#BD5969,#E7A1A7)!important}
-[data-testid="stExpander"]{border-color:#F0D8DA!important;background:rgba(255,255,255,.9)!important}
-[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:#743F4A!important}
-[data-testid="stAlert"]{border-color:#F0D8DA!important;background:#FFF8F6!important}
-.info-box{background:#FCEFED!important;border-color:#F0D0D1!important;border-left-color:#BD5969!important;color:#68474E!important}
-.notice{background:#FFF5E9!important}
-.result-card{background:linear-gradient(120deg,#EAF5EF,#FAFCF9)!important}
-.result-card.alert{background:linear-gradient(120deg,#FBEAEC,#FFF9F8)!important;border-color:#E8C2C7!important}
-.emergency{background:linear-gradient(112deg,#8F3F51,#B95566 65%,#D47C82)!important;border-color:#B95566!important}
-.phone{color:#8F3F51!important}
-.footer{color:#8B777D!important}
-
-
-/* ---------------- FINAL FORM CONTRAST FIX ---------------- */
-/* Keep all form controls light, readable, and consistent with Heart & Life. */
-div[data-testid="stForm"] [data-baseweb="input"] > div,
-div[data-testid="stForm"] [data-baseweb="select"] > div,
-div[data-testid="stForm"] [data-baseweb="textarea"] > div,
-div[data-testid="stForm"] textarea,
-div[data-testid="stForm"] input {
-  background-color:#FFFBFA!important;
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  border-color:#E3BEC3!important;
-  opacity:1!important;
-}
-div[data-testid="stForm"] [data-baseweb="select"] [class*="singleValue"],
-div[data-testid="stForm"] [data-baseweb="select"] [class*="placeholder"],
-div[data-testid="stForm"] [data-baseweb="select"] [class*="valueContainer"],
-div[data-testid="stForm"] [data-baseweb="select"] [class*="input"],
-div[data-testid="stForm"] [data-baseweb="select"] svg {
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  fill:#884653!important;
-  opacity:1!important;
-}
-div[data-testid="stForm"] [data-baseweb="select"] [class*="control"] {
-  background:#FFFBFA!important;
-  border:1px solid #E3BEC3!important;
-  border-radius:12px!important;
-}
-div[data-testid="stForm"] [data-baseweb="input"] input,
-div[data-testid="stForm"] [data-baseweb="textarea"] textarea {
-  background:transparent!important;
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  caret-color:#BD5969!important;
-}
-div[data-testid="stForm"] [data-testid="stNumberInput"] button {
-  background:#FBE9E7!important;
-  color:#884653!important;
-  border:1px solid #E3BEC3!important;
-}
-div[data-testid="stForm"] [data-testid="stNumberInput"] button svg {
-  color:#884653!important;
-  fill:#884653!important;
-}
-div[data-testid="stForm"] [data-baseweb="select"]:focus-within,
-div[data-testid="stForm"] [data-baseweb="input"]:focus-within {
-  border-color:#C66B78!important;
-  box-shadow:0 0 0 3px rgba(189,89,105,.14)!important;
-}
-[data-baseweb="popover"] [role="listbox"],
-[data-baseweb="popover"] [role="option"],
-[data-baseweb="menu"] [role="option"],
-ul[role="listbox"] [role="option"] {
-  background:#FFFEFD!important;
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  opacity:1!important;
-}
-[data-baseweb="popover"] [role="option"]:hover,
-[data-baseweb="menu"] [role="option"]:hover {
-  background:#FCEBE9!important;
-  color:#743F4A!important;
-}
-
-
-/* FINAL OVERRIDE: Streamlit/BaseWeb controls (global, including form widgets) */
-.stApp [data-testid="stNumberInput"] [data-baseweb="input"],
-.stApp [data-testid="stTextInput"] [data-baseweb="input"],
-.stApp [data-testid="stDateInput"] [data-baseweb="input"],
-.stApp [data-testid="stTimeInput"] [data-baseweb="input"],
-.stApp [data-testid="stSelectbox"] [data-baseweb="select"],
-.stApp [data-testid="stMultiSelect"] [data-baseweb="select"] {
-  background:#FFFBFA!important;
-  border:1px solid #E3BEC3!important;
-  border-radius:12px!important;
-  box-shadow:none!important;
-}
-.stApp [data-testid="stNumberInput"] [data-baseweb="input"] *,
-.stApp [data-testid="stTextInput"] [data-baseweb="input"] *,
-.stApp [data-testid="stDateInput"] [data-baseweb="input"] *,
-.stApp [data-testid="stTimeInput"] [data-baseweb="input"] *,
-.stApp [data-testid="stSelectbox"] [data-baseweb="select"] *,
-.stApp [data-testid="stMultiSelect"] [data-baseweb="select"] * {
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  opacity:1!important;
-}
-.stApp [data-testid="stNumberInput"] input,
-.stApp [data-testid="stTextInput"] input,
-.stApp [data-testid="stDateInput"] input,
-.stApp [data-testid="stTimeInput"] input,
-.stApp [data-testid="stTextArea"] textarea {
-  background:transparent!important;
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  caret-color:#BD5969!important;
-}
-.stApp [data-testid="stNumberInput"] button {
-  background:#FBE9E7!important;
-  color:#884653!important;
-  border:1px solid #E3BEC3!important;
-}
-.stApp [data-testid="stNumberInput"] button *,
-.stApp [data-testid="stSelectbox"] svg,
-.stApp [data-testid="stMultiSelect"] svg {
-  color:#884653!important;
-  fill:#884653!important;
-}
-.stApp [data-baseweb="popover"],
-.stApp [data-baseweb="menu"],
-.stApp ul[role="listbox"] {
-  background:#FFFEFD!important;
-  border:1px solid #E3BEC3!important;
-}
-.stApp [role="option"] {
-  background:#FFFEFD!important;
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-}
-.stApp [role="option"]:hover {background:#FCEBE9!important;}
-
-
-/* FINAL READABILITY PATCH: numeric values were still white on pale fields */
-.stApp div[data-testid="stNumberInput"] input[type="number"],
-.stApp div[data-testid="stNumberInput"] input,
-.stApp [data-testid="stNumberInput"] [data-baseweb="input"] input {
-  color:#49363B!important;
-  -webkit-text-fill-color:#49363B!important;
-  text-shadow:none!important;
-  opacity:1!important;
-  font-weight:700!important;
-  background:transparent!important;
-  caret-color:#BD5969!important;
-}
-.stApp div[data-testid="stNumberInput"] [data-baseweb="input"] > div {
-  background:#FFFBFA!important;
-  border:1px solid #E3BEC3!important;
-}
-.stApp div[data-testid="stNumberInput"] button {
-  background:#FBE9E7!important;
-  color:#884653!important;
-  border-color:#E3BEC3!important;
-}
-.stApp div[data-testid="stNumberInput"] button svg {
-  color:#884653!important;
-  fill:#884653!important;
-}
-
-</style>
+    </style>
     """,
     unsafe_allow_html=True,
 )
+
+if not render_auth_gate():
+    st.stop()
 
 # ----------------------------- UTILITIES ---------------------------------
 def pct(value):
@@ -487,7 +334,7 @@ def make_performance_chart(frame):
     """Compare held-out model metrics with aligned, readable horizontal bars."""
     metrics=list(frame.columns); models=list(frame.index)
     fig,ax=plt.subplots(figsize=(10.5,5.4),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    palette={"Logistic Regression":"#BD5969","Random Forest":"#D77983"}; fallback=["#BD5969","#D77983","#567C91"]
+    palette={"Logistic Regression":"#C91446","Random Forest":"#F05C7B"}; fallback=["#C91446","#F05C7B","#567C91"]
     y=np.arange(len(metrics)); height=.34
     for i,name in enumerate(models):
         values=frame.loc[name,metrics].to_numpy(dtype=float)
@@ -496,18 +343,18 @@ def make_performance_chart(frame):
                      linewidth=1.4,label=str(name),zorder=3)
         for bar,value in zip(bars,values):
             ax.text(min(value+.014,1.045),bar.get_y()+bar.get_height()/2,f"{value:.1%}",
-                    va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
+                    va="center",ha="left",color="#172B42",fontsize=10,fontweight="bold")
     ax.set_yticks(y); ax.set_yticklabels([str(m).replace("_"," ").title() for m in metrics],
-                                          color="#49363B",fontsize=10,fontweight="medium")
+                                          color="#172B42",fontsize=10,fontweight="medium")
     ax.invert_yaxis(); ax.set_xlim(0,1.14); ax.set_xticks(np.linspace(0,1,6))
     ax.set_xticklabels([f"{v:.0%}" for v in np.linspace(0,1,6)])
-    ax.set_xlabel("Evaluation score",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#743F4A",pad=18,fontsize=14,fontweight="bold")
-    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.9,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
+    ax.set_xlabel("Evaluation score",color="#536477",labelpad=10,fontsize=10)
+    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#8F173A",pad=18,fontsize=14,fontweight="bold")
+    ax.xaxis.grid(True,color="#F2CED9",linewidth=.9,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#748394",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
     for spine in ax.spines.values(): spine.set_visible(False)
     ax.legend(loc="upper center",bbox_to_anchor=(.5,1.02),ncol=max(1,min(len(models),2)),
-              frameon=False,labelcolor="#49363B",fontsize=9)
+              frameon=False,labelcolor="#172B42",fontsize=9)
     fig.subplots_adjust(left=.23,right=.96,top=.82,bottom=.15)
     return fig
 
@@ -517,13 +364,13 @@ def make_confusion_matrix_chart(cm_array,model_name):
     from matplotlib.colors import LinearSegmentedColormap
     values=np.asarray(cm_array,dtype=int)
     fig,ax=plt.subplots(figsize=(7.4,5.3),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
-    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#BD5969"])
+    cmap=LinearSegmentedColormap.from_list("cardiopredict_rose",["#E8F4F7","#B9E1E3","#55B8BC","#C91446"])
     vmax=max(int(values.max()),1); ax.imshow(values,cmap=cmap,vmin=0,vmax=vmax,aspect="equal")
     ax.set_xticks([0,1],labels=["Group 0","Group 1"]); ax.set_yticks([0,1],labels=["Group 0","Group 1"])
-    ax.set_xlabel("Predicted dataset group",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_ylabel("Actual dataset group",color="#66545A",labelpad=10,fontsize=10)
-    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#743F4A",pad=18,fontsize=13,fontweight="bold")
-    ax.tick_params(axis="both",colors="#49363B",labelsize=10,length=0,pad=9)
+    ax.set_xlabel("Predicted dataset group",color="#536477",labelpad=10,fontsize=10)
+    ax.set_ylabel("Actual dataset group",color="#536477",labelpad=10,fontsize=10)
+    ax.set_title(f"{model_name.upper()} · CONFUSION MATRIX",color="#8F173A",pad=18,fontsize=13,fontweight="bold")
+    ax.tick_params(axis="both",colors="#172B42",labelsize=10,length=0,pad=9)
     descriptions=[["True negative","False positive"],["False negative","True positive"]]; threshold=vmax*.52
     for row in range(2):
         for col in range(2):
@@ -541,17 +388,17 @@ def make_scenario_chart(group0,group1):
     """Plot synthetic output counts using the same accessible heart-health palette."""
     fig,ax=plt.subplots(figsize=(8.5,3.2),facecolor="#FFFFFF"); ax.set_facecolor("#FFFFFF")
     labels=["Output group 0","Output group 1"]; counts=[int(group0),int(group1)]
-    bars=ax.barh(labels,counts,color=["#367B63","#D77983"],height=.56,
+    bars=ax.barh(labels,counts,color=["#367B63","#F05C7B"],height=.56,
                  edgecolor="#FFFFFF",linewidth=1.4,zorder=3)
     maximum=max(max(counts),1); ax.set_xlim(0,maximum*1.18)
-    ax.xaxis.grid(True,color="#F0D8DA",linewidth=.8,zorder=0); ax.set_axisbelow(True)
-    ax.tick_params(axis="x",colors="#8B777D",labelsize=9,length=0)
-    ax.tick_params(axis="y",colors="#49363B",labelsize=10,length=0,pad=9)
+    ax.xaxis.grid(True,color="#F2CED9",linewidth=.8,zorder=0); ax.set_axisbelow(True)
+    ax.tick_params(axis="x",colors="#748394",labelsize=9,length=0)
+    ax.tick_params(axis="y",colors="#172B42",labelsize=10,length=0,pad=9)
     ax.set_xlabel("Number of fictional test profiles",color="#F1E5E8",fontsize=9,labelpad=8)
-    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#743F4A",fontsize=12,fontweight="bold",pad=13)
+    ax.set_title("SYNTHETIC OUTPUT DISTRIBUTION",color="#8F173A",fontsize=12,fontweight="bold",pad=13)
     for bar,count in zip(bars,counts):
         ax.text(count+maximum*.025,bar.get_y()+bar.get_height()/2,f"{count:,}",
-                va="center",ha="left",color="#49363B",fontsize=10,fontweight="bold")
+                va="center",ha="left",color="#172B42",fontsize=10,fontweight="bold")
     for spine in ax.spines.values(): spine.set_visible(False)
     fig.subplots_adjust(left=.22,right=.96,top=.82,bottom=.22)
     return fig
@@ -576,9 +423,13 @@ selected_metrics = results.get(selected_model, {})
 
 # ----------------------------- SIDEBAR ----------------------------------
 with st.sidebar:
-    st.markdown('<div class="brand">💓 Cardio<span>Predict</span></div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="sidebar-brand">{BRAND_MARK_SVG}<div class="brand-copy">Cardio<span>Predict</span><small>HEART &amp; LIFE</small></div></div>',
+        unsafe_allow_html=True,
+    )
     st.markdown('<span class="side-chip">HEART &amp; LIFE · HEALTH INTELLIGENCE</span>', unsafe_allow_html=True)
     st.markdown("---")
+    render_logout_control()
     st.markdown("**Your workspace**")
     st.caption("Explore a sample, run a model prediction, stress-test scenarios and inspect model performance.")
     st.markdown("**Under the hood**")
@@ -590,57 +441,159 @@ with st.sidebar:
     st.markdown("---")
     st.caption("Prototype notice: not clinically validated. Never use this app to diagnose, screen or decide whether to seek emergency care.")
 
-# ----------------------------- HERO -------------------------------------
 st.markdown(
-    """
-    <div class="hero">
-      <div class="hero-top">
-        <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEART HEALTH LEARNING</span>
-        <span class="pill">13 feature signals</span>
-        <span class="pill">Cardiovascular analytics</span>
+    f"""
+    <header class="brand-bar" id="top-nav">
+      <div class="brand-lockup">
+        {BRAND_MARK_SVG}
+        <div><div class="brand-name">Cardio<span>Predict</span></div><div class="brand-subtitle">H E A R T &nbsp; &amp; &nbsp; L I F E</div></div>
       </div>
-      <h1>HEART &amp; LIFE.<br><span>Understand. Care. Live well.</span></h1>
-      <p>CardioPredict brings heart health and the science of living well into one learning space.
-      Explore cardiovascular measurements, understand model patterns and discover how everyday heart-health knowledge supports informed conversations with healthcare professionals.</p>
-      <div class="ecg"><svg viewBox="0 0 520 70" preserveAspectRatio="none">
-        <path d="M2 38 L82 38 L101 35 L116 41 L132 38 L157 38 L174 13 L192 59 L212 27 L229 38 L290 38 L309 34 L325 41 L340 38 L367 38 L383 18 L401 56 L419 29 L436 38 L518 38"/>
-      </svg></div>
-      <div class="hero-foot">
-        <div class="hero-stat"><b>Model</b> · {model_name}</div>
-        <div class="hero-stat"><b>Dataset</b> · Cleveland heart-disease dataset</div>
-        <div class="hero-stat"><b>Mode</b> · Explore + test</div>
-      </div>
-    </div>
-    """.replace("{model_name}", str(selected_model)),
+      <div class="brand-status">HEART HEALTH LEARNING</div>
+    </header>
+    """,
     unsafe_allow_html=True,
 )
 
-# ----------------------------- TOP METRICS ------------------------------
-metrics_cols = st.columns(4)
-cards = [
-    ("SELECTED MODEL", selected_model, "Chosen during model training", "#743F4A"),
-    ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#BD5969"),
-    ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#D77983"),
-    ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
+def set_active_page(page):
+    st.session_state["active_page"] = page
+
+NAVIGATION_PAGES = [
+    "⌂ Home",
+    "♡ Predict",
+    "▦ Scenario Lab",
+    "▥ Analytics",
+    "♥ Heart Guide",
+    "✚ Emergency & Map",
+    "✧ AI Guide",
+    "ⓘ About",
 ]
-for col, (label, value, note, accent) in zip(metrics_cols, cards):
-    with col:
-        st.markdown(
-            f'<div class="glass-card"><div class="stat-label">{label}</div>'
-            f'<div class="stat-value" style="color:{accent}">{value}</div>'
-            f'<div class="stat-note">{note}</div></div>',
-            unsafe_allow_html=True,
-        )
+st.session_state.setdefault("active_page", NAVIGATION_PAGES[0])
 
-st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
-
-# ----------------------------- WORKSPACE TABS ---------------------------
-live_tab, lab_tab, analytics_tab, guide_tab, emergency_tab, assistant_tab = st.tabs(
-    ["✦ Live explorer", "▦ Scenario lab", "♡ Heart analytics", "♡ Heart guide", "✚ Emergency & map", "✧ AI voice assistant"]
+st.markdown(
+    """
+    <style>
+    div[data-testid="stRadio"] > div[role="radiogroup"] {
+      display:flex; gap:.35rem; flex-wrap:wrap; align-items:center;
+    }
+    div[data-testid="stRadio"] label {
+      background:#FFFFFF; border:1px solid #E5EAF0; border-radius:999px;
+      padding:.38rem .78rem; margin:0; transition:all .15s ease;
+    }
+    div[data-testid="stRadio"] label:has(input:checked) {
+      background:#FBEAF0; border-color:#C91446;
+    }
+    div[data-testid="stRadio"] label p {
+      color:#24374B; font-weight:750; margin:0;
+    }
+    div[data-testid="stRadio"] label:has(input:checked) p { color:#9E4058; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+active_page = st.radio(
+    "Main navigation",
+    options=NAVIGATION_PAGES,
+    horizontal=True,
+    key="active_page",
+    label_visibility="collapsed",
 )
 
+# ----------------------------- HERO -------------------------------------
+if active_page == NAVIGATION_PAGES[0]:
+    st.markdown(
+        f"""
+        <section class="hero" id="top">
+          <div class="hero-copy">
+            <div class="hero-top">
+              <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
+              <span class="pill">13 model features</span>
+            </div>
+            <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
+            <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
+            <p>Explore cardiovascular measurements, understand how machine-learning models work,
+            and use the AI guide to learn more about the science behind heart-health data.</p>
+            <div class="hero-foot">
+              <div class="hero-stat"><b>Model</b> · {selected_model}</div>
+              <div class="hero-stat"><b>Dataset</b> · Cleveland</div>
+              <div class="hero-stat"><b>Workspace</b> · Explore + learn</div>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 560 430" role="img" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="heartAura"><stop stop-color="#FF7898" stop-opacity=".55"/><stop offset="1" stop-color="#F5B8CA" stop-opacity="0"/></radialGradient>
+                <linearGradient id="heartFill" x1="130" y1="40" x2="430" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7995"/><stop offset=".45" stop-color="#D9194D"/><stop offset="1" stop-color="#850D35"/></linearGradient>
+                <linearGradient id="heartLight" x1="180" y1="100" x2="360" y2="350" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE2EA"/><stop offset=".55" stop-color="#F34B73"/><stop offset="1" stop-color="#B30D3E"/></linearGradient>
+                <filter id="heartGlow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <circle cx="300" cy="214" r="196" fill="url(#heartAura)"/>
+              <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#FFFFFF" stroke-width="5" opacity=".88"/>
+              <ellipse cx="286" cy="224" rx="240" ry="102" transform="rotate(-22 286 224)" fill="none" stroke="#E34D78" stroke-width="2" opacity=".7"/>
+              <path d="M279 358C245 326 130 246 128 162c-2-70 73-108 127-47 44-67 133-47 139 21 8 87-72 164-115 222Z" fill="url(#heartFill)" stroke="#FFF0F4" stroke-width="5" filter="url(#heartGlow)"/>
+              <path d="M279 328c-41-39-94-90-95-151-1-43 41-64 73-26l21 28 23-31c29-39 76-14 73 26-4 55-57 114-95 154Z" fill="#8D113B" opacity=".45"/>
+              <path d="M252 105 248 65c-2-20 8-31 23-31 14 0 21 13 19 30l-5 41M309 109l15-47c6-18 20-25 33-18 12 8 12 22 3 39l-27 47M356 129l30-37c11-13 27-15 37-4 9 11 5 25-9 37l-48 43" fill="none" stroke="#C91446" stroke-width="22" stroke-linecap="round"/>
+              <path d="M238 220c29-35 47-46 69-42 30 5 42 34 31 61-10 26-35 58-57 78-25-27-54-66-56-91-2-11 3-19 13-28Z" fill="url(#heartLight)" opacity=".84"/>
+              <path d="M149 232h87l18-1 18-42 25 83 25-123 23 83 17 1h96" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#heartGlow)"/>
+              <path d="M65 361c84 39 226 34 340-30 45-25 78-61 91-95" fill="none" stroke="#D83162" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+              <circle cx="443" cy="83" r="7" fill="#FFFFFF"/><circle cx="96" cy="138" r="5" fill="#E83C69"/><circle cx="457" cy="286" r="5" fill="#FFFFFF"/>
+              <path d="M455 43h34M472 26v34" stroke="#D7194C" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    hero_actions = st.columns([1.25, 1.25, 5])
+    with hero_actions[0]:
+        st.button("♡ Start Prediction", key="hero_predict", on_click=set_active_page,
+                  args=("♡ Predict",), use_container_width=True)
+    with hero_actions[1]:
+        st.button("✧ Ask AI Guide", key="hero_ai_guide", on_click=set_active_page,
+                  args=("✧ AI Guide",), use_container_width=True)
+
+    quick_columns = st.columns(4)
+    quick_cards = [
+        ("Machine Learning", "Explore the Cleveland dataset model", "♡ Predict", "Open prediction"),
+        ("AI Health Guide", "Ask questions about heart-health data", "✧ AI Guide", "Ask the AI guide"),
+        ("Model Analytics", "Review evaluation metrics and charts", "▥ Analytics", "View analytics"),
+        ("Heart & Life", "Learn about cardiovascular measurements", "♥ Heart Guide", "Open heart guide"),
+    ]
+    for index, (column, card) in enumerate(zip(quick_columns, quick_cards)):
+        title, description, destination, action_label = card
+        with column:
+            st.markdown(
+                f'<div class="glass-card"><div class="stat-label">{title}</div>'
+                f'<div class="stat-note">{description}</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.button(action_label + " →", key=f"home_quick_link_{index}",
+                      on_click=set_active_page, args=(destination,), use_container_width=True)
+
+    # ----------------------------- TOP METRICS ------------------------------
+    metrics_cols = st.columns(4)
+    cards = [
+        ("SELECTED MODEL", selected_model, "Chosen during model training", "#8F173A"),
+        ("TEST ACCURACY", pct(selected_metrics.get("accuracy")), "Held-out test subset", "#C91446"),
+        ("PRECISION · GROUP 1", pct(selected_metrics.get("precision")), "Positive-class precision", "#F05C7B"),
+        ("RECALL · GROUP 1", pct(selected_metrics.get("recall")), "Positive-class recall", "#367B63"),
+    ]
+    for col, (label, value, note, accent) in zip(metrics_cols, cards):
+        with col:
+            st.markdown(
+                f'<div class="glass-card"><div class="stat-label">{label}</div>'
+                f'<div class="stat-value" style="color:{accent}">{value}</div>'
+                f'<div class="stat-note">{note}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
+
+
+
 # ----------------------------- LIVE EXPLORER ----------------------------
-with live_tab:
+def render_prediction_page():
+    st.markdown('<div id="live-explorer"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">01 / Live explorer</div>', unsafe_allow_html=True)
     st.header("Run a profile through the model")
     st.markdown('<div class="section-sub">Enter recorded measurements, or generate a fictional profile to see how the interface works.</div>', unsafe_allow_html=True)
@@ -741,7 +694,7 @@ with live_tab:
         st.markdown('<div class="notice"><b>Important:</b> This prototype is not clinically validated. It must not be used for diagnosis, screening, treatment decisions or emergency triage. Seek professional medical assessment for health concerns.</div>', unsafe_allow_html=True)
 
 # ----------------------------- SCENARIO LAB -----------------------------
-with lab_tab:
+def render_scenario_lab():
     st.markdown('<div class="section-kicker">02 / Scenario lab</div>', unsafe_allow_html=True)
     st.header("Stress-test the model with synthetic profiles")
     st.markdown('<div class="section-sub">Generate a larger batch of fictional input combinations and inspect the model outputs. This is a software-testing feature, not a clinical study.</div>', unsafe_allow_html=True)
@@ -795,7 +748,7 @@ with lab_tab:
         st.markdown('<div class="notice"><b>Interpretation:</b> The group counts describe only how this model classified these artificial inputs. They are not disease prevalence, accuracy, risk rates or evidence about real patients.</div>', unsafe_allow_html=True)
 
 # ----------------------------- ANALYTICS ---------------------------------
-with analytics_tab:
+def render_analytics_page():
     st.markdown('<div class="section-kicker">03 / Model analytics</div>', unsafe_allow_html=True)
     st.header("Explore the model's test performance")
     st.markdown('<div class="section-sub">The metrics below come from the saved evaluation results on the held-out test split.</div>', unsafe_allow_html=True)
@@ -838,7 +791,7 @@ with analytics_tab:
         st.info("No saved evaluation results were found. Check models/metrics.json.")
 
 # ----------------------------- HEART GUIDE -------------------------------
-with guide_tab:
+def render_heart_guide():
     st.markdown('<div class="section-kicker">04 / Heart guide</div>', unsafe_allow_html=True)
     st.header("Cardiovascular health, in everyday language")
     st.markdown('<div class="section-sub">A quick guide to the measurements represented in the original dataset.</div>', unsafe_allow_html=True)
@@ -876,7 +829,7 @@ with guide_tab:
     st.markdown("- Avoid tobacco and smoking.\n- Stay physically active in a way that is appropriate for your health.\n- Choose a balanced diet and limit excess salt.\n- Attend recommended health checks.\n- Follow treatment prescribed by your clinician.\n- Seek medical advice for new, persistent or worrying symptoms.")
 
 # ----------------------------- EMERGENCY & MAP ---------------------------
-with emergency_tab:
+def render_emergency_page():
     st.markdown('<div class="section-kicker">05 / Emergency support</div>', unsafe_allow_html=True)
     st.header("Find help. Don't wait for an app result.")
     st.markdown(
@@ -900,16 +853,96 @@ with emergency_tab:
     st.markdown('<div class="notice"><b>Important:</b> This app does not access GPS, call hospitals, dispatch an ambulance or confirm emergency-department availability. For an emergency, call the emergency number directly.</div>', unsafe_allow_html=True)
 
 # ----------------------------- AI ASSISTANT ------------------------------
-with assistant_tab:
+def render_ai_guide():
+    st.markdown('<div id="ai-guide"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-kicker">06 / CardioPredict assistant</div>', unsafe_allow_html=True)
     st.header("Ask CardioPredict")
     st.markdown('<div class="section-sub">Ask by typing or speaking. The assistant explains all 13 model inputs, the Cleveland model and the limits of its output.</div>', unsafe_allow_html=True)
     current_profile = (st.session_state.get("last_prediction") or {}).get("profile") or {key: st.session_state.get("field_" + key, DEFAULTS[key]) for key in FEATURES}
     render_cardio_assistant(current_profile=current_profile, prediction=st.session_state.get("last_prediction"))
+def render_about_page():
+    st.markdown('<div class="section-kicker">ABOUT / CARDIOPREDICT</div>', unsafe_allow_html=True)
+    st.header("About CardioPredict – Heart & Life")
+    st.markdown(
+        '<div class="section-sub">A machine-learning mini-project that demonstrates how a historical heart-disease dataset can be explored through an interactive educational interface.</div>',
+        unsafe_allow_html=True,
+    )
+
+    summary_cols = st.columns(3)
+    with summary_cols[0]:
+        st.markdown('<div class="glass-card"><div class="stat-label">DATASET</div><div class="stat-value">Cleveland</div><div class="stat-note">UCI processed heart-disease dataset</div></div>', unsafe_allow_html=True)
+    with summary_cols[1]:
+        st.markdown('<div class="glass-card"><div class="stat-label">MODEL INPUTS</div><div class="stat-value">13</div><div class="stat-note">Historical dataset attributes</div></div>', unsafe_allow_html=True)
+    with summary_cols[2]:
+        st.markdown('<div class="glass-card"><div class="stat-label">ALGORITHMS</div><div class="stat-value">2</div><div class="stat-note">Logistic Regression and Random Forest</div></div>', unsafe_allow_html=True)
+
+    st.markdown("### Project objective")
+    st.markdown(
+        "CardioPredict provides a learning environment for exploring cardiovascular dataset attributes, "
+        "observing model outputs, comparing classification metrics and understanding the limitations of "
+        "machine-learning predictions. It is intended for academic demonstration and software experimentation."
+    )
+
+    st.markdown("### Dataset and machine-learning workflow")
+    st.markdown(
+        """
+        1. Load the processed Cleveland heart-disease dataset from the UCI repository.
+        2. Convert missing-value markers and prepare the dataset fields.
+        3. Convert the original target into two demonstration groups: target 0 becomes Group 0, while targets 1–4 become Group 1.
+        4. Split the data into stratified training and test sets using an 80:20 split.
+        5. Preprocess numeric and categorical fields using imputation, scaling and one-hot encoding.
+        6. Train and compare Logistic Regression and Random Forest classifiers.
+        7. Evaluate the models using accuracy, precision, recall, F1-score and a confusion matrix; select the model with the higher test F1-score.
+        """
+    )
+
+    st.markdown("### Application modules")
+    modules = [
+        ("Prediction", "Enter the 13 dataset fields and view the saved classifier's output."),
+        ("Scenario Lab", "Generate fictional profiles to test the application workflow."),
+        ("Analytics", "Review saved evaluation metrics and confusion matrices."),
+        ("Heart Guide", "Read plain-language explanations of the dataset measurements."),
+        ("AI Guide", "Ask the Gemini-powered educational assistant about inputs and model outputs."),
+        ("Emergency & Map", "View emergency guidance and create a nearby-hospital search in Google Maps."),
+    ]
+    for title, description in modules:
+        st.markdown(f"**{title}** — {description}")
+
+    st.markdown("### Technology stack")
+    st.markdown(
+        "Python, Streamlit, Pandas, NumPy, scikit-learn, Joblib and Matplotlib support the application "
+        "and model workflow. Supabase provides email authentication, while the Google Gemini API powers "
+        "the optional educational AI assistant."
+    )
+
+    st.markdown("### Scope and limitations")
+    st.markdown(
+        "The Cleveland dataset is historical and limited in size. The model is an academic prototype, "
+        "not a clinically validated risk calculator or medical device. Its output must not be used for "
+        "diagnosis, screening, treatment decisions or emergency triage. Synthetic profiles are fictional "
+        "software-test inputs and are not patient records."
+    )
+    st.info("For health concerns, consult a qualified healthcare professional. In an emergency, contact local emergency services directly.")
+
+
+# ----------------------------- PAGE ROUTER -------------------------------
+PAGE_RENDERERS = {
+    "♡ Predict": render_prediction_page,
+    "▦ Scenario Lab": render_scenario_lab,
+    "▥ Analytics": render_analytics_page,
+    "♥ Heart Guide": render_heart_guide,
+    "✚ Emergency & Map": render_emergency_page,
+    "✧ AI Guide": render_ai_guide,
+    "ⓘ About": render_about_page,
+}
+if active_page in PAGE_RENDERERS:
+    PAGE_RENDERERS[active_page]()
+
+
 # ----------------------------- FOOTER -----------------------------------
 st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="footer">CARDIOPREDICT · HEART & LIFE · HEART HEALTH LEARNING<br>'
+    '<div class="footer" id="about-project">CARDIOPREDICT · HEART & LIFE · HEART HEALTH LEARNING<br>'
     'Synthetic scenarios are fictional software-test inputs · Prototype not clinically validated · Not for diagnosis or emergency triage</div>',
     unsafe_allow_html=True,
 )
