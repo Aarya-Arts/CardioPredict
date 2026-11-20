@@ -199,7 +199,7 @@ Answer clearly and briefly. Follow all medical, privacy and prototype limits.
     client = genai.Client(
         api_key=key,
         http_options=types.HttpOptions(
-            timeout=20000,
+            timeout=10000,
             retry_options=types.HttpRetryOptions(attempts=1),
         ),
     )
