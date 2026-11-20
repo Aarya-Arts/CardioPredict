@@ -107,7 +107,7 @@ def render_auth_gate():
                 <h1>Understand your heart.<br>Make knowledge matter.</h1>
                 <p>A thoughtful space to explore cardiovascular data, learn how predictive models work, and build a clearer understanding of heart-health concepts.</p>
               </div>
-              <div class="trust">MENDELEY DATASET &nbsp;·&nbsp; 12 PREDICTOR FEATURES &nbsp;·&nbsp; EDUCATIONAL AI</div>
+              <div class="trust">MENDELEY DATASET &nbsp;·&nbsp; 12 MODEL INPUT FEATURES &nbsp;·&nbsp; EDUCATIONAL AI</div>
             </div>
             """,
             unsafe_allow_html=True,
