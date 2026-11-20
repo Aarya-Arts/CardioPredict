@@ -522,7 +522,7 @@ if active_page == NAVIGATION_PAGES[0]:
           <div class="hero-copy">
             <div class="hero-top">
               <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
-              <span class="pill">12 model features</span>
+              <span class="pill">12 model input features</span>
             </div>
             <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
             <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
