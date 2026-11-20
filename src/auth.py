@@ -107,7 +107,7 @@ def render_auth_gate():
                 <h1>Understand your heart.<br>Make knowledge matter.</h1>
                 <p>A thoughtful space to explore cardiovascular data, learn how predictive models work, and build a clearer understanding of heart-health concepts.</p>
               </div>
-              <div class="trust">13 model features &nbsp;·&nbsp; Machine learning &nbsp;·&nbsp; Educational AI</div>
+              <div class="trust">12 model features &nbsp;·&nbsp; Machine learning &nbsp;·&nbsp; Educational AI</div>
             </div>
             """,
             unsafe_allow_html=True,
