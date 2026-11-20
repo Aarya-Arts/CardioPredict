@@ -358,7 +358,7 @@ def make_performance_chart(frame):
     ax.invert_yaxis(); ax.set_xlim(0,1.14); ax.set_xticks(np.linspace(0,1,6))
     ax.set_xticklabels([f"{v:.0%}" for v in np.linspace(0,1,6)])
     ax.set_xlabel("Evaluation score",color="#536477",labelpad=10,fontsize=10)
-    ax.set_title("MODEL PERFORMANCE COMPARISON",color="#8F173A",pad=18,fontsize=14,fontweight="bold")
+    ax.set_title("SELECTED MODEL · HELD-OUT TEST METRICS",color="#8F173A",pad=18,fontsize=14,fontweight="bold")
     ax.xaxis.grid(True,color="#F2CED9",linewidth=.9,zorder=0); ax.set_axisbelow(True)
     ax.tick_params(axis="x",colors="#748394",labelsize=9,length=0,pad=7); ax.tick_params(axis="y",length=0,pad=10)
     for spine in ax.spines.values(): spine.set_visible(False)
