@@ -453,7 +453,7 @@ with st.sidebar:
     st.caption("Scikit-learn · Joblib · Matplotlib charts")
     st.markdown("---")
     st.markdown("**Model pipeline**")
-    st.caption("13 input features → saved preprocessing pipeline → classifier → binary output")
+    st.caption("12 model input features → saved preprocessing pipeline → classifier → binary output")
     st.markdown("---")
     st.caption("Prototype notice: not clinically validated. Never use this app to diagnose, screen or decide whether to seek emergency care.")
 
@@ -522,7 +522,7 @@ if active_page == NAVIGATION_PAGES[0]:
           <div class="hero-copy">
             <div class="hero-top">
               <span class="pill"><span class="live-dot"></span> HEART &amp; LIFE · HEALTH INTELLIGENCE</span>
-              <span class="pill">13 model features</span>
+              <span class="pill">12 model features</span>
             </div>
             <h1>Cardio<span>Predict</span><br>HEART &amp; LIFE</h1>
             <div class="hero-tagline">Know Today. Live <span>Healthier</span> Tomorrow.</div>
@@ -696,6 +696,9 @@ def render_prediction_page():
         run_prediction = st.form_submit_button("Run model analysis  →", use_container_width=True)
 
     if run_prediction:
+        # Clear the previous output before attempting a new prediction so a failed
+        # submission can never leave a stale result visible.
+        st.session_state["last_prediction"] = None
         profile = {
             "age": age,
             "restingBP": restingBP,
